@@ -62,7 +62,7 @@ func determineOutputDir(nameFlag string, args []string) string {
 	if len(args) == 1 {
 		nameArg = args[1]
 	} else if len(args) > 2 {
-		utils.ThrowError("SyntaxError: Unexpected arguments" + strings.Join(args[2:], " "), 1)
+		utils.ThrowError("SyntaxError: Unexpected arguments" + strings.Join(args[1:], " "), 1)
 	}
 
 
