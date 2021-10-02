@@ -19,7 +19,7 @@ func CheckForError(err error, exitCode ...int) {
 	}
 }
 
-func ThrowError(message string, exitCode int) {
+func ThrowError(message string, exitCode ...int) {
 	err := errors.New(message)
-	CheckForError(err, exitCode)
+	CheckForError(err, exitCode[0])
 }

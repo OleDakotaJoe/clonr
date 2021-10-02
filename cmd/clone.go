@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"clonr/config"
 	"clonr/utils"
 	"github.com/go-git/go-git/v5"
 	log "github.com/sirupsen/logrus"
@@ -10,11 +11,8 @@ import (
 	"strings"
 )
 
-/* CONFIGURATION VARIABLES */
-var defaultNameFlag = "clonr-app"
-
 /* FLAG VARIABLES */
-var nameFlag string
+var cloneCmdNameFlag string
 
 var cloneCmd = &cobra.Command{
 	Use:   "clone",
@@ -22,19 +20,19 @@ var cloneCmd = &cobra.Command{
 	Long:  `This is clonr's primary command. This command will clone a project from a git repository and will `,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Initializing clonr project... Please wait")
-		cloneProject(nameFlag, args)
+		cloneProject(config.DefaultConfig().DefaultProjectName, cloneCmdNameFlag, args)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(cloneCmd)
-	cloneCmd.Flags().StringVar(&nameFlag, "name", defaultNameFlag, "The git URL to read from")
+	cloneCmd.Flags().StringVar(&cloneCmdNameFlag, "name", "", "The git URL to read from")
 }
 
 
-func cloneProject(nameFlag string, args []string) {
+func cloneProject(defaultNameFlag string, nameFlag string, args []string) {
 	var source = validateAndExtractUrl(args)
-	destination :=  determineOutputDir(nameFlag, args)
+	destination :=  determineOutputDir( defaultNameFlag , nameFlag, args)
 	log.Info("Cloning git repo... Please Wait")
 
 	_, err := git.PlainClone(destination, false, &git.CloneOptions{
@@ -57,7 +55,7 @@ func validateAndExtractUrl(args []string) string {
 	return args[0]
 }
 
-func determineOutputDir(nameFlag string, args []string) string {
+func determineOutputDir(defaultOutputDir string, outputDirFlag string, args []string) string {
 	var result string
 
 	if len(args) > 2 {
@@ -65,13 +63,17 @@ func determineOutputDir(nameFlag string, args []string) string {
 	}
 
 	if len(args) == 1 {
-		result = nameFlag
+		if outputDirFlag != "" {
+			result = outputDirFlag
+		} else {
+			result = defaultOutputDir
+		}
 	}
 
 	if len(args) == 2 {
-		if nameFlag != defaultNameFlag {
+		if outputDirFlag != defaultOutputDir {
 			utils.ThrowError("SyntaxError: Too many arguments. You provided two name arguments, " + args[1] +
-				" and " + nameFlag  + ". You must only provide one."  , 1)
+				" and " +outputDirFlag+ ". You must only provide one."  , 1)
 		}
 
 		result = args[1]
