@@ -34,7 +34,7 @@ func init() {
 func validateAndExtractUrl(args []string) string {
 	log.Info("Validating source URL")
 	if len(args) == 0 {
-		utils.ThrowError("SyntaxError: Must provide git URL" + strings.Join(args[2:], " "), 1)
+		utils.ThrowError("SyntaxError: Must provide git URL", 1)
 	}
 
 	_ ,err := url.ParseRequestURI(args[0])
@@ -59,15 +59,21 @@ func determineOutputDir(nameFlag string, args []string) string {
 	var result string
 
 
-	if len(args) == 1 {
+	if len(args) == 2 {
 		nameArg = args[1]
 	} else if len(args) > 2 {
-		utils.ThrowError("SyntaxError: Unexpected arguments" + strings.Join(args[1:], " "), 1)
+		utils.ThrowError("SyntaxError: Too many arguments.  " + strings.Join(args[1:], " "), 1)
+	} else if len(args) < 1 {
+		utils.ThrowError("SyntaxError: Too few arguments. ", 1)
 	}
 
 
 	if nameFlag != "" {
-		result =  nameFlag
+		if &nameArg != nil {
+			utils.ThrowError("SyntaxError: Unexpected arguments.  " + strings.Join(args[1:], " "), 1)
+		} else {
+			result = nameFlag
+		}
 	} else {
 		if &nameArg != nil {
 			result = nameArg
