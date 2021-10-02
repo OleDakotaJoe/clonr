@@ -7,13 +7,15 @@ import (
 )
 
 func CheckForError(err error, exitCode ...int) {
-	if &exitCode == nil {
-		exitCode[0] = 1
+	var exitStatus int
+	if len(exitCode) == 0 {
+		exitStatus = 1
+	} else {
+		exitStatus = exitCode[0]
 	}
-
 	if err != nil {
 		log.Error(err)
-		os.Exit(exitCode[0])
+		os.Exit(exitStatus)
 	}
 }
 
