@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
@@ -14,4 +15,9 @@ func CheckForError(err error, exitCode ...int) {
 		log.Error(err)
 		os.Exit(exitCode[0])
 	}
+}
+
+func ThrowError(message string, exitCode int) {
+	err := errors.New(message)
+	CheckForError(err, exitCode)
 }
