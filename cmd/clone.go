@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"clonr/utils"
-	"fmt"
 	"github.com/go-git/go-git/v5"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -13,12 +12,12 @@ import (
 
 var nameFlag string
 
-var initCmd = &cobra.Command{
-	Use:   "init",
+var cloneCmd = &cobra.Command{
+	Use:   "clone",
 	Short: "Initializes a git project and initializes template engine",
-	Long:  `All software has versions. This is Clonr'`,
+	Long:  `This is clonr's primary command. This command will clone a project from a git repository and will `,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Info("Initializing Clonr Project Templating CLI --- v0.0.1")
+		log.Info("Initializing clonr project... Please wait")
 		var source = validateAndExtractUrl(args)
 		destination :=  determineOutputDir(nameFlag, args)
 		cloneProject(source, destination)
@@ -26,8 +25,8 @@ var initCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd)
-	initCmd.Flags().StringVar(&nameFlag, "name", "", "The git URL to read from")
+	rootCmd.AddCommand(cloneCmd)
+	cloneCmd.Flags().StringVar(&nameFlag, "name", "", "The git URL to read from")
 }
 
 
@@ -45,7 +44,7 @@ func validateAndExtractUrl(args []string) string {
 }
 
 func cloneProject(source string, outputDir string) {
-	fmt.Println("Cloning git repo... Please Wait")
+	log.Info("Cloning git repo... Please Wait")
 
 	_, err := git.PlainClone(outputDir, false, &git.CloneOptions{
 		URL: source,
@@ -62,7 +61,7 @@ func determineOutputDir(nameFlag string, args []string) string {
 	if len(args) == 2 {
 		nameArg = args[1]
 	} else if len(args) > 2 {
-		utils.ThrowError("SyntaxError: Too many arguments.  " + strings.Join(args[1:], " "), 1)
+		utils.ThrowError("SyntaxError: Too many arguments. You provided: " + strings.Join(args[1:], " "), 1)
 	} else if len(args) < 1 {
 		utils.ThrowError("SyntaxError: Too few arguments. ", 1)
 	}
@@ -70,15 +69,15 @@ func determineOutputDir(nameFlag string, args []string) string {
 
 	if nameFlag != "" {
 		if &nameArg != nil {
-			utils.ThrowError("SyntaxError: Unexpected arguments.  " + strings.Join(args[1:], " "), 1)
+			utils.ThrowError("SyntaxError: Unexpected arguments. You provided:  " + strings.Join(args[1:], " "), 1)
 		} else {
 			result = nameFlag
 		}
 	} else {
-		if &nameArg != nil {
+		if nameArg != "" {
 			result = nameArg
 		} else {
-			result = "my-clonr-app"
+			result = "clonr-app"
 		}
 	}
 
