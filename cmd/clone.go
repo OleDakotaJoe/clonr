@@ -4,7 +4,7 @@ package cmd
 import (
 	"clonr/utils"
 	"fmt"
-	"github.com/go-git/go-git"
+	"github.com/go-git/go-git/v5"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
