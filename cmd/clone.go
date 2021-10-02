@@ -54,32 +54,23 @@ func cloneProject(source string, outputDir string) {
 }
 
 func determineOutputDir(nameFlag string, args []string) string {
-	var nameArg string
 	var result string
 
-
-	if len(args) == 2 {
-		nameArg = args[1]
-	} else if len(args) > 2 {
-		utils.ThrowError("SyntaxError: Too many arguments. You provided: " + strings.Join(args[1:], " "), 1)
-	} else if len(args) < 1 {
-		utils.ThrowError("SyntaxError: Too few arguments. ", 1)
-	}
-
-
-	if nameFlag != "" {
-		if &nameArg != nil {
-			utils.ThrowError("SyntaxError: Unexpected arguments. You provided:  " + strings.Join(args[1:], " "), 1)
-		} else {
-			result = nameFlag
-		}
-	} else {
-		if nameArg != "" {
-			result = nameArg
-		} else {
+	if len(args) == 1 {
+		if nameFlag == "" {
 			result = "clonr-app"
 		}
+		result = nameFlag
 	}
+	
+	if len(args) == 2 {
+		result = args[1]
+	}
+	
+	if len(args) > 2 {
+		utils.ThrowError("SyntaxError: Too many arguments. You provided: " + strings.Join(args[1:], " "), 1)
+	}
+
 
 	log.Infof("Name of project: %s", result )
 	return result
