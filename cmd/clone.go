@@ -20,32 +20,34 @@ var cloneCmd = &cobra.Command{
 	Long:  `This is clonr's primary command. This command will clone a project from a git repository and will `,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Initializing clonr project... Please wait")
-		cloneProject(config.DefaultConfig().DefaultProjectName, cloneCmdNameFlag, args)
+		cloneProject(cloneCmdNameFlag, args)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(cloneCmd)
-	cloneCmd.Flags().StringVar(&cloneCmdNameFlag, "name", "", "The git URL to read from")
+	cloneCmd.Flags().StringVar(&cloneCmdNameFlag, "name", config.DefaultConfig().DefaultProjectName, "The git URL to read from")
 }
 
 
-func cloneProject(defaultNameFlag string, nameFlag string, args []string) {
+func cloneProject(nameFlag string, args []string) {
 	var source = validateAndExtractUrl(args)
-	destination :=  determineOutputDir( defaultNameFlag , nameFlag, args)
+	destination, err :=  determineOutputDir(nameFlag, args)
+	utils.CheckForError(err)
 	log.Info("Cloning git repo... Please Wait")
 
-	_, err := git.PlainClone(destination, false, &git.CloneOptions{
+	_, cloneErr := git.PlainClone(destination, false, &git.CloneOptions{
 		URL: source,
 		Progress: os.Stdout,
 	} )
-	utils.CheckForError(err)
+	utils.CheckForError(cloneErr)
 }
 
 func validateAndExtractUrl(args []string) string {
 	log.Info("Validating source URL")
 	if len(args) == 0 {
-		utils.ThrowError("SyntaxError: Must provide git URL", 1)
+		_, err  := utils.ThrowError("SyntaxError: Must provide git URL", 1)
+		utils.CheckForError(err)
 	}
 
 	_ ,err := url.ParseRequestURI(args[0])
@@ -55,15 +57,17 @@ func validateAndExtractUrl(args []string) string {
 	return args[0]
 }
 
-func determineOutputDir(defaultOutputDir string, outputDirFlag string, args []string) string {
+func determineOutputDir(outputDirFlag string, args []string) (string, error) {
 	var result string
+	var err error
+	defaultOutputDir := config.DefaultConfig().DefaultProjectName
 
 	if len(args) > 2 {
-		utils.ThrowError("SyntaxError: Too many arguments. You provided: " + strings.Join(args[1:], " "), 1)
+		_, err  = utils.ThrowError("SyntaxError: Too many arguments. You provided: " + strings.Join(args[1:], " "))
 	}
 
 	if len(args) == 1 {
-		if outputDirFlag != "" {
+		if outputDirFlag != defaultOutputDir {
 			result = outputDirFlag
 		} else {
 			result = defaultOutputDir
@@ -72,13 +76,13 @@ func determineOutputDir(defaultOutputDir string, outputDirFlag string, args []st
 
 	if len(args) == 2 {
 		if outputDirFlag != defaultOutputDir {
-			utils.ThrowError("SyntaxError: Too many arguments. You provided two name arguments, " + args[1] +
-				" and " +outputDirFlag+ ". You must only provide one."  , 1)
+			_, err  = utils.ThrowError("SyntaxError: Too many arguments. You provided two name arguments, " + args[1] +
+				" and " + outputDirFlag + ". You must only provide one.")
 		}
 
 		result = args[1]
 	}
 
 	log.Infof("Name of project: %s", result )
-	return result
+	return result, err
 }
