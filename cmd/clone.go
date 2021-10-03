@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
-	"strings"
 )
 
 /* FLAG VARIABLES */
@@ -31,9 +30,10 @@ func init() {
 
 
 func cloneProject(nameFlag string, args []string) {
-	var source = validateAndExtractUrl(args)
-	destination, err :=  determineOutputDir(nameFlag, args)
+	source, err := validateAndExtractUrl(args)
 	utils.CheckForError(err)
+	destination, argErr :=  determineOutputDir(nameFlag, args)
+	utils.CheckForError(argErr)
 	log.Info("Cloning git repo... Please Wait")
 
 	_, cloneErr := git.PlainClone(destination, false, &git.CloneOptions{
@@ -43,18 +43,18 @@ func cloneProject(nameFlag string, args []string) {
 	utils.CheckForError(cloneErr)
 }
 
-func validateAndExtractUrl(args []string) string {
+func validateAndExtractUrl(args []string) (string, error) {
 	log.Info("Validating source URL")
+	var err error
 	if len(args) == 0 {
-		_, err  := utils.ThrowError("SyntaxError: Must provide git URL", 1)
-		utils.CheckForError(err)
+		err  = utils.ThrowError("SyntaxError: Must provide git URL")
+		return "", err
 	}
 
-	_ ,err := url.ParseRequestURI(args[0])
-	utils.CheckForError(err)
+	_ , err = url.ParseRequestURI(args[0])
 	log.Info("The source URL you provided is valid.")
 
-	return args[0]
+	return args[0], err
 }
 
 func determineOutputDir(outputDirFlag string, args []string) (string, error) {
@@ -63,7 +63,7 @@ func determineOutputDir(outputDirFlag string, args []string) (string, error) {
 	defaultOutputDir := config.DefaultConfig().DefaultProjectName
 
 	if len(args) > 2 {
-		_, err  = utils.ThrowError("SyntaxError: Too many arguments. You provided: " + strings.Join(args[1:], " "))
+		err  = utils.ThrowError("SyntaxError: Too many arguments.")
 	}
 
 	if len(args) == 1 {
@@ -76,13 +76,13 @@ func determineOutputDir(outputDirFlag string, args []string) (string, error) {
 
 	if len(args) == 2 {
 		if outputDirFlag != defaultOutputDir {
-			_, err  = utils.ThrowError("SyntaxError: Too many arguments. You provided two name arguments, " + args[1] +
-				" and " + outputDirFlag + ". You must only provide one.")
+			err  = utils.ThrowError("SyntaxError: Too many arguments. You provided a flag and an inline argument")
+		} else {
+			result = args[1]
 		}
-
-		result = args[1]
 	}
 
-	log.Infof("Name of project: %s", result )
+	log.Infof("Name of project will be: %s", result )
 	return result, err
 }
+

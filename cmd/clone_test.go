@@ -10,42 +10,82 @@ func Test_setup(t *testing.T) {
 	config.ConfigureLogger()
 }
 
-func Test_DetermineOutputDir_GivenOneArg_and_GivenNoNameFlag(t *testing.T) {
-	
+func Test_GivenOneArg_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 	mockArgs := []string{"testing"}
 	providedNameFlag := config.DefaultConfig().DefaultProjectName
 	result, err  := determineOutputDir(providedNameFlag, mockArgs)
-	if result != providedNameFlag || err != nil {
-		t.Fatal("FAILED TEST")
+	if result != providedNameFlag {
+		t.Fatalf("Result is not equal to providedNameFlag: %s", providedNameFlag)
+	}
+	if err != nil {
+		t.Fatal("Error: ", err)
 	}
 }
 
-
-func Test_DetermineOutputDir_GivenOneArg_and_GivenOneNameFlag(t *testing.T) {
+func Test_GivenOneArg_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
 	mockArgs := []string{"testing"}
 	providedNameFlag := "custom-name-flag"
 	result, err  := determineOutputDir(providedNameFlag, mockArgs)
-	if result != providedNameFlag|| err != nil  {
-		t.Fatal("FAILED TEST")
+	if result != providedNameFlag {
+		t.Fatalf("Expected result was \"%s\", but got %s ", providedNameFlag, result)
+	}
+	if err != nil {
+		t.Fatal("Error: ", err)
 	}
 }
 
-
-func Test_DetermineOutputDir_GivenTwoArgs_and_GivenNoNameFlag(t *testing.T) {
+func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 	mockArgs := []string{"testing", "should-be-this-name"}
 	providedNameFlag := config.DefaultConfig().DefaultProjectName
 	result, err := determineOutputDir(providedNameFlag, mockArgs)
-	if result != "should-be-this-name" || err != nil {
-		t.Fatal("FAILED TEST")
+
+
+	if result != "should-be-this-name" {
+		t.Fatalf("Expected result was \"should-be-this-name\", but got %s", result)
+	}
+
+	if err != nil {
+		t.Fatalf("Error: %e", err)
 	}
 }
 
-func Test_DetermineOutputDir_GivenTwoArgs_and_GivenOneNameFlag(t *testing.T) {
+func Test_GivenTwoArgs_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
 	mockArgs := []string{"testing", "should-not-be-this-name"}
 	providedNameFlag := "something-is-wrong"
 	result, err := determineOutputDir(providedNameFlag, mockArgs)
-	if err == nil || !(result == "should-be-this-name")  {
-		t.Fatal("FAILED TEST")
+	if result != "" {
+		t.Fatalf("Expected result was \"\", but got %s", result)
+	}
+
+	if err == nil {
+		t.Fatal("Expected an error but none was thrown")
+	}
+}
+
+
+func Test_GivenValidUrl_ShouldNotThrowError_ValidateAndExtractUrl(t *testing.T) {
+	validUrl := []string{"https://google.com"}
+	_, err := validateAndExtractUrl(validUrl)
+	if err != nil {
+		t.Fatalf("Unexpected Error: %e", err)
+	}
+}
+
+func Test_GivenInvalidUrl_ShouldThrowError_ValidateAndExtractUrl(t *testing.T) {
+	invalidUrl := []string{"https//google.com"}
+	_, err := validateAndExtractUrl(invalidUrl)
+	if err == nil {
+		t.Fatal("Expected an error, but none was thrown")
+	}
+}
+func Test_GivenValidUrl_ShouldReturnUrl_ValidateAndExtractUrl(t *testing.T) {
+	validUrl := []string{"https://google.com"}
+	url, err := validateAndExtractUrl(validUrl)
+	if err != nil {
+		t.Fatalf("Unexpected Error: %e", err)
+	}
+	if url != validUrl[0] {
+		t.Fatalf("Expected %s, but got %s.", validUrl, url )
 	}
 }
 
