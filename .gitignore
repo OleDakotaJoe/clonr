@@ -2,6 +2,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,go,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,go,visualstudiocode
 
+### Ignore example cloned apps
+/clonr-app/
+
 ### Go ###
 # Binaries for programs and plugins
 *.exe

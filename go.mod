@@ -14,7 +14,7 @@ require (
 	github.com/Microsoft/go-winio v0.5.0 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20210920160938-87db9fbc61c7 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
-	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
+	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
@@ -33,13 +33,13 @@ require (
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.9.0 // indirect
+	github.com/spf13/viper v1.9.0
 	github.com/src-d/gcfg v1.4.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.1 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/net v0.0.0-20210929193557-e81a3d93ecf6 // indirect
-	golang.org/x/sys v0.0.0-20211001092434-39dca1131b70 // indirect
+	golang.org/x/sys v0.0.0-20211003122950-b1ebd4e1001c // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools/gopls v0.7.2 // indirect
 	gopkg.in/ini.v1 v1.63.2 // indirect

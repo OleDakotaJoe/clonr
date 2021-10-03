@@ -33,7 +33,7 @@ func init() {
 func cloneProject(nameFlag string, args []string) {
 	source, err := validateAndExtractUrl(args)
 	utils.CheckForError(err)
-	destination, argErr :=  determineOutputDir(nameFlag, args)
+	destination, argErr :=  determineProjectName(nameFlag, args)
 	utils.CheckForError(argErr)
 	log.Info("Cloning git repo... Please Wait")
 
@@ -42,7 +42,11 @@ func cloneProject(nameFlag string, args []string) {
 		Progress: os.Stdout,
 	} )
 	utils.CheckForError(cloneErr)
-	core.ProcessFiles(destination)
+	pwd, fsErr := os.Getwd()
+	utils.CheckForError(fsErr)
+	projectRoot := pwd + "/" + destination
+	log.Debugf("Project root: %s",projectRoot)
+	core.ProcessFiles(projectRoot)
 }
 
 func validateAndExtractUrl(args []string) (string, error) {
@@ -59,25 +63,25 @@ func validateAndExtractUrl(args []string) (string, error) {
 	return args[0], err
 }
 
-func determineOutputDir(outputDirFlag string, args []string) (string, error) {
+func determineProjectName(providedProjectName string, args []string) (string, error) {
 	var result string
 	var err error
-	defaultOutputDir := config.GlobalConfig().DefaultProjectName
+	defaultProjectName := config.GlobalConfig().DefaultProjectName
 
 	if len(args) > 2 {
 		err  = utils.ThrowError("SyntaxError: Too many arguments.")
 	}
 
 	if len(args) == 1 {
-		if outputDirFlag != defaultOutputDir {
-			result = outputDirFlag
+		if providedProjectName != defaultProjectName {
+			result = providedProjectName
 		} else {
-			result = defaultOutputDir
+			result = defaultProjectName
 		}
 	}
 
 	if len(args) == 2 {
-		if outputDirFlag != defaultOutputDir {
+		if providedProjectName != defaultProjectName {
 			err  = utils.ThrowError("SyntaxError: Too many arguments. You provided a flag and an inline argument")
 		} else {
 			result = args[1]
@@ -85,6 +89,7 @@ func determineOutputDir(outputDirFlag string, args []string) (string, error) {
 	}
 
 	log.Infof("Name of project will be: %s", result )
+
 	return result, err
 }
 

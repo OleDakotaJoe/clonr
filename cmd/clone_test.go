@@ -13,7 +13,7 @@ func Test_setup(t *testing.T) {
 func Test_GivenOneArg_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 	mockArgs := []string{"testing"}
 	providedNameFlag := config.GlobalConfig().DefaultProjectName
-	result, err  := determineOutputDir(providedNameFlag, mockArgs)
+	result, err  := determineProjectName(providedNameFlag, mockArgs)
 	if result != providedNameFlag {
 		t.Fatalf("Result is not equal to providedNameFlag: %s", providedNameFlag)
 	}
@@ -25,7 +25,7 @@ func Test_GivenOneArg_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 func Test_GivenOneArg_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
 	mockArgs := []string{"testing"}
 	providedNameFlag := "custom-name-flag"
-	result, err  := determineOutputDir(providedNameFlag, mockArgs)
+	result, err  := determineProjectName(providedNameFlag, mockArgs)
 	if result != providedNameFlag {
 		t.Fatalf("Expected result was \"%s\", but got %s ", providedNameFlag, result)
 	}
@@ -37,7 +37,7 @@ func Test_GivenOneArg_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
 func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 	mockArgs := []string{"testing", "should-be-this-name"}
 	providedNameFlag := config.GlobalConfig().DefaultProjectName
-	result, err := determineOutputDir(providedNameFlag, mockArgs)
+	result, err := determineProjectName(providedNameFlag, mockArgs)
 
 
 	if result != "should-be-this-name" {
@@ -52,7 +52,7 @@ func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 func Test_GivenTwoArgs_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
 	mockArgs := []string{"testing", "should-not-be-this-name"}
 	providedNameFlag := "something-is-wrong"
-	result, err := determineOutputDir(providedNameFlag, mockArgs)
+	result, err := determineProjectName(providedNameFlag, mockArgs)
 	if result != "" {
 		t.Fatalf("Expected result was \"\", but got %s", result)
 	}
