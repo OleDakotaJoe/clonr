@@ -3,6 +3,7 @@ package cmd
 import (
 	"clonr/config"
 	"clonr/utils"
+	"clonr/core"
 	"github.com/go-git/go-git/v5"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -25,7 +26,7 @@ var cloneCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(cloneCmd)
-	cloneCmd.Flags().StringVar(&cloneCmdNameFlag, "name", config.DefaultConfig().DefaultProjectName, "The git URL to read from")
+	cloneCmd.Flags().StringVar(&cloneCmdNameFlag, "name", config.GlobalConfig().DefaultProjectName, "The git URL to read from")
 }
 
 
@@ -41,6 +42,9 @@ func cloneProject(nameFlag string, args []string) {
 		Progress: os.Stdout,
 	} )
 	utils.CheckForError(cloneErr)
+	//processingErr := processFiles(destination)
+	//utils.CheckForError(processingErr)
+	core.ProcessFiles(destination)
 }
 
 func validateAndExtractUrl(args []string) (string, error) {
@@ -60,7 +64,7 @@ func validateAndExtractUrl(args []string) (string, error) {
 func determineOutputDir(outputDirFlag string, args []string) (string, error) {
 	var result string
 	var err error
-	defaultOutputDir := config.DefaultConfig().DefaultProjectName
+	defaultOutputDir := config.GlobalConfig().DefaultProjectName
 
 	if len(args) > 2 {
 		err  = utils.ThrowError("SyntaxError: Too many arguments.")

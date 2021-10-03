@@ -12,7 +12,7 @@ func Test_setup(t *testing.T) {
 
 func Test_GivenOneArg_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 	mockArgs := []string{"testing"}
-	providedNameFlag := config.DefaultConfig().DefaultProjectName
+	providedNameFlag := config.GlobalConfig().DefaultProjectName
 	result, err  := determineOutputDir(providedNameFlag, mockArgs)
 	if result != providedNameFlag {
 		t.Fatalf("Result is not equal to providedNameFlag: %s", providedNameFlag)
@@ -36,7 +36,7 @@ func Test_GivenOneArg_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
 
 func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 	mockArgs := []string{"testing", "should-be-this-name"}
-	providedNameFlag := config.DefaultConfig().DefaultProjectName
+	providedNameFlag := config.GlobalConfig().DefaultProjectName
 	result, err := determineOutputDir(providedNameFlag, mockArgs)
 
 
