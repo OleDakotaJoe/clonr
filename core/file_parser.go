@@ -53,13 +53,9 @@ func ProcessFiles(configFilePath string) {
 }
 
 func answerQuestion(question string)  string {
-	fmt.Println("\n")
+	fmt.Println("")
 	fmt.Println(question)
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
-	//reader := bufio.NewReader(os.Stdin)
-	//text, err := reader.ReadString('\n')
-	//text = strings.Replace(text, "\n", "", -1)
-	//utils.CheckForError(err)
 	return scanner.Text()
 }
