@@ -14,6 +14,7 @@ require (
 	github.com/Microsoft/go-winio v0.5.0 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20210920160938-87db9fbc61c7 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
+	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect

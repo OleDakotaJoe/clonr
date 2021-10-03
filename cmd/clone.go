@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"clonr/config"
-	"clonr/utils"
 	"clonr/core"
+	"clonr/utils"
 	"github.com/go-git/go-git/v5"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -42,8 +42,6 @@ func cloneProject(nameFlag string, args []string) {
 		Progress: os.Stdout,
 	} )
 	utils.CheckForError(cloneErr)
-	//processingErr := processFiles(destination)
-	//utils.CheckForError(processingErr)
 	core.ProcessFiles(destination)
 }
 

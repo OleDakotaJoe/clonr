@@ -3,6 +3,8 @@ package main
 import (
 	"clonr/cmd"
 	"clonr/config"
+	"fmt"
+	"github.com/common-nighthawk/go-figure"
 )
 
 func main() {
@@ -11,4 +13,6 @@ func main() {
 
 func init() {
 	config.ConfigureLogger()
+	title := figure.NewFigure("clonr", "rounded", true).String()
+	fmt.Print(title)
 }
