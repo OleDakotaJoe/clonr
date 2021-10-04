@@ -13,5 +13,5 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	err := rootCmd.Execute()
-	utils.CheckForError(err,1,3,4)
+	utils.CheckForError(err)
 }
