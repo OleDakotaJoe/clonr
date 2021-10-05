@@ -13,7 +13,7 @@ import (
 )
 
 func ProcessFiles(configFilePath string) {
-	v := utils.ViperReadConfig(configFilePath, config.GlobalConfig().ClonrConfigFileName)
+	v := utils.ViperReadConfig(configFilePath, config.GlobalConfig().ClonrConfigFileName, config.GlobalConfig().ClonrConfigFileType)
 	configRootKey := config.GlobalConfig().ClonrConfigRootKeyName
 	paths := v.GetStringMap(configRootKey)
 	log.Debugf("Paths: %s", paths)

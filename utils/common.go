@@ -21,9 +21,10 @@ func ThrowError(message string) error {
 	return err
 }
 
-func ViperReadConfig(configFilePath string, configFileName string) *viper.Viper {
+func ViperReadConfig(configFilePath string, configFileName string, configFileType string) *viper.Viper {
 	v := viper.GetViper()
 	v.SetConfigName(configFileName)
+	v.SetConfigType(configFileType)
 	v.AddConfigPath(configFilePath)
 	log.Debugf("Config File Location: %s", v.ConfigFileUsed())
 	err := v.ReadInConfig()
