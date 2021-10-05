@@ -34,7 +34,7 @@ var cloneCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(cloneCmd)
 	cloneCmd.Flags().StringVarP(&cloneConfig.projectName, "name", "n", config.GlobalConfig().DefaultProjectName, "The git URL to read from")
-	cloneCmd.Flags().BoolVarP(&cloneConfig.isLocalPath, "local", "l", true, "Indicates that the path you provide is on your local machine.") //(&cloneCmdLocalFlag, "l", false)
+	cloneCmd.Flags().BoolVarP(&cloneConfig.isLocalPath, "local", "l", false, "Indicates that the path you provide is on your local machine.") //(&cloneCmdLocalFlag, "l", false)
 }
 
 func cloneProject(cloneConfig *cloneCmdConfig, args []string) {
