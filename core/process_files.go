@@ -1,22 +1,26 @@
 package core
 
 import (
-	"bufio"
 	"clonr/config"
 	"clonr/utils"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"io/ioutil"
-	"os"
 	"strings"
 )
 
-func ProcessFiles(configFilePath string) {
+func ProcessFiles(configFilePath string, inputReader InputReader) {
+	masterVarFileMap := getFileMapFromConfigFile(configFilePath, inputReader)
+	renderAllFiles(masterVarFileMap)
+}
+
+func getFileMapFromConfigFile(configFilePath string, inputReader InputReader) FileMap {
 	v := utils.ViperReadConfig(configFilePath, config.GlobalConfig().ClonrConfigFileName, config.GlobalConfig().ClonrConfigFileType)
 	configRootKey := config.GlobalConfig().ClonrConfigRootKeyName
 	paths := v.GetStringMap(configRootKey)
 	log.Debugf("Paths: %s", paths)
+
+	masterVariableMap := make(FileMap)
 
 	for path := range paths {
 		log.Infof("Processing path: %s", path)
@@ -24,25 +28,33 @@ func ProcessFiles(configFilePath string) {
 		fileLocation := configFilePath + cast.ToString(pathData[config.GlobalConfig().TemplateFileLocationKeyName])
 		variableKey := configRootKey + "." + path + "." + config.GlobalConfig().VariablesArrayKeyName
 		variables := v.GetStringMap(variableKey)
-		processedVarMap := make(map[string]string)
 
 		log.Debugf("Raw pathData: %s", pathData)
 		log.Debugf("Processing file at location: %s", fileLocation)
 		log.Debugf("Variables: %s", variables)
 
+		processedVarMap := make(ClonrVarMap)
 		for variable, _ := range variables {
 			questionKey := variableKey + "." + variable
 			question := v.GetStringMapString(questionKey)["question"]
-			processedVarMap[variable] = answerQuestion(question)
+			processedVarMap[variable] = inputReader(question)
 			log.Debugf("variable: %s, question: %s", variable, question)
 		}
 
-		// Renders the file below
-		log.Infof("Rendering file: %s, with vars: %s", path, processedVarMap)
-		renderFile(fileLocation, processedVarMap)
+		masterVariableMap[fileLocation] = processedVarMap
+	}
+
+	return masterVariableMap
+}
+
+func renderAllFiles(fileToVariableMap FileMap) {
+	for fileLocation, variableMap := range fileToVariableMap {
+		log.Infof("Rendering file: %s, with vars: %s", fileLocation, variableMap)
+		renderFile(fileLocation, variableMap)
 	}
 }
-func renderFile(filename string, varMap map[string]string) {
+
+func renderFile(filename string, varMap ClonrVarMap) {
 	input, err := ioutil.ReadFile(filename)
 	utils.CheckForError(err)
 	inputFileAsString := string(input)
@@ -54,12 +66,4 @@ func renderFile(filename string, varMap map[string]string) {
 	}
 	err = ioutil.WriteFile(filename, []byte(inputFileAsString), 0644)
 	utils.CheckForError(err)
-}
-
-func answerQuestion(question string) string {
-	fmt.Println("")
-	fmt.Println(question)
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	return scanner.Text()
 }

@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"bufio"
 	"clonr/config"
 	"clonr/core"
 	"clonr/utils"
+	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
@@ -12,14 +14,18 @@ import (
 	"os"
 )
 
-/* FLAG VARIABLES */
+/* COMMAND ARGS */
 
-type cloneCmdConfig struct {
-	projectName string
+type cloneCmdArguments struct {
+	nameFlag    string
 	isLocalPath bool
+	inputMethod func(string) string
+	args        []string
 }
 
-var cloneConfig cloneCmdConfig
+var cmdArguments = cloneCmdArguments{
+	inputMethod: answerQuestion,
+}
 
 var cloneCmd = &cobra.Command{
 	Use:   "clone",
@@ -27,24 +33,26 @@ var cloneCmd = &cobra.Command{
 	Long:  `This is clonr's primary command. This command will clone a project from a git repository and will `,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Initializing clonr project... Please wait")
-		cloneProject(&cloneConfig, args)
+		cmdArguments.args = args
+		cloneProject(&cmdArguments)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(cloneCmd)
-	cloneCmd.Flags().StringVarP(&cloneConfig.projectName, "name", "n", config.GlobalConfig().DefaultProjectName, "The git URL to read from")
-	cloneCmd.Flags().BoolVarP(&cloneConfig.isLocalPath, "local", "l", false, "Indicates that the path you provide is on your local machine.") //(&cloneCmdLocalFlag, "l", false)
+	cloneCmd.Flags().StringVarP(&cmdArguments.nameFlag, "name", "n", config.GlobalConfig().DefaultProjectName, "The git URL to read from")
+	cloneCmd.Flags().BoolVarP(&cmdArguments.isLocalPath, "local", "l", false, "Indicates that the path you provide is on your local machine.") //(&cloneCmdLocalFlag, "l", false)
 }
 
-func cloneProject(cloneConfig *cloneCmdConfig, args []string) {
+func cloneProject(cmdArguments *cloneCmdArguments) {
+	args := cmdArguments.args
 	pwd, fsErr := os.Getwd()
 	utils.CheckForError(fsErr)
-	projectName, argErr := determineProjectName(cloneConfig.projectName, args)
+	projectName, argErr := determineProjectName(cmdArguments)
 	utils.CheckForError(argErr)
 	destination := pwd + "/" + projectName
 
-	if cloneConfig.isLocalPath {
+	if cmdArguments.isLocalPath {
 		// Source should be the first argument passed in through the CLI
 		source := args[0]
 		err := copy.Copy(source, destination)
@@ -62,7 +70,7 @@ func cloneProject(cloneConfig *cloneCmdConfig, args []string) {
 
 		log.Debugf("Project root: %s", destination)
 	}
-	core.ProcessFiles(destination)
+	core.ProcessFiles(destination, cmdArguments.inputMethod)
 }
 
 func validateAndExtractUrl(args []string) (string, error) {
@@ -74,12 +82,13 @@ func validateAndExtractUrl(args []string) (string, error) {
 	}
 
 	_, err = url.ParseRequestURI(args[0])
-	log.Info("The source URL you provided is valid.")
-
 	return args[0], err
 }
 
-func determineProjectName(providedProjectName string, args []string) (string, error) {
+func determineProjectName(cmdArguments *cloneCmdArguments) (string, error) {
+	providedProjectName := cmdArguments.nameFlag
+	args := cmdArguments.args
+
 	var result string
 	var err error
 	defaultProjectName := config.GlobalConfig().DefaultProjectName
@@ -107,4 +116,12 @@ func determineProjectName(providedProjectName string, args []string) (string, er
 	log.Infof("Name of project will be: %s", result)
 
 	return result, err
+}
+
+func answerQuestion(question string) string {
+	fmt.Println()
+	fmt.Println(question)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	return scanner.Text()
 }

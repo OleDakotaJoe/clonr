@@ -1,6 +1,6 @@
 package config
 
-type config struct {
+type globalConfig struct {
 	DefaultProjectName          string
 	ClonrConfigFileName         string
 	ClonrConfigFileType         string
@@ -13,8 +13,8 @@ type config struct {
 	VariablesArrayKeyName       string
 }
 
-func GlobalConfig() *config {
-	this := config{
+func GlobalConfig() *globalConfig {
+	this := globalConfig{
 		DefaultProjectName:          "clonr-app",
 		ClonrConfigFileName:         ".clonrrc",
 		ClonrConfigFileType:         "yaml",
