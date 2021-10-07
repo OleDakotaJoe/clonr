@@ -1,6 +1,6 @@
 package core
 
-type FileRenderer struct {
-	filePath   string
-	renderFile func(string, map[string]string)
-}
+type ClonrVarMap map[string]string
+type InputReader func(string) string
+
+type FileMap map[string]ClonrVarMap

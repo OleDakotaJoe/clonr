@@ -1,6 +1,0 @@
-Well, this is yet another test file.
-
-But can     you parse this one correctly?
- it worked.
-But will it work a second time? with a different variable?
-

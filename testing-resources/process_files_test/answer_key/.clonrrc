@@ -2,9 +2,12 @@ paths:
   test.txt:
     location: "/test.txt"
     variables:
-      test_variable: Can you say test?
+        file_in_root_multi:
+            question: file_in_root_multi
   another-test.txt:
     location: "/sub-dir/another-test.txt"
     variables:
-      another_test_variable: Say Wow.
-      success-message: Say "CONGRATULATIONS!!!"
+        file_sub_dir_multi_diff_1:
+            question: file_sub_dir_multi_diff_1
+        file_sub_dir_multi_diff_2:
+            question: file_sub_dir_multi_diff_2

@@ -154,3 +154,4 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,go,visualstudiocode
 /testing-resources/testing-sample-template/
+/testing-resources/process_files_test/test_output/

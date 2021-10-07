@@ -2,9 +2,7 @@ package core
 
 import (
 	"clonr/config"
-	"clonr/utils"
-	"github.com/otiai10/copy"
-	"golang.org/x/mod/sumdb/dirhash"
+	log "github.com/sirupsen/logrus"
 	"testing"
 )
 
@@ -13,24 +11,28 @@ func Test_setup(t *testing.T) {
 	config.ConfigureLogger()
 }
 
-func Test_givenTemplateFile_processFiles(t *testing.T) {
-	config.ConfigureLogger()
-	sourceTemplate := "../testing-resources/process_files_test/source_template"
-	testOutputDirectory := "../testing-resources/process_files_test/test_output"
-	testTemplateExpectedResult := "../testing-resources/process_files_test/answer_key"
+func Test_givenTemplateFile_getFileMapFromTemplate(t *testing.T) {
+	sourceDir := config.TestConfig().SourceDir
 
-	// This step just sets up the test. Copies the test project so that doesn't manipulate the original.
-	copyErr := copy.Copy(sourceTemplate, testOutputDirectory)
-	utils.CheckForError(copyErr)
-	ProcessFiles(testOutputDirectory)
-
-	// Create the sample map necessary to process the file.
-	actualHash, actErr := dirhash.HashDir(testOutputDirectory, "test", dirhash.DefaultHash)
-	utils.CheckForError(actErr)
-	expectedHash, expErr := dirhash.HashDir(testTemplateExpectedResult, "test", dirhash.DefaultHash)
-	utils.CheckForError(expErr)
-
-	if actualHash != expectedHash {
-		t.Fatal("output was not correct")
+	var fileMap = getFileMapFromConfigFile(sourceDir, func(input string) string {
+		return input
+	})
+	exampleFileMap := FileMap{
+		"../testing-resources/process_files_test/source_template/sub-dir/another-test.txt": ClonrVarMap{"file_sub_dir_multi_diff_1": "file_sub_dir_multi_diff_1", "file_sub_dir_multi_diff_2": "file_sub_dir_multi_diff_2"},
+		"../testing-resources/process_files_test/source_template/test.txt":                 ClonrVarMap{"file_in_root_multi": "file_in_root_multi"},
 	}
+	for key, value := range fileMap {
+		log.Infof("key: %s, value: %s", key, value)
+		if exampleFileMap[key] == nil {
+			t.Fatalf("Maps were not equivalent")
+		}
+		for k, v := range value {
+			log.Infof("key: %s, value: %s", k, v)
+			if exampleFileMap[key][k] != v {
+				t.Fatalf("Maps were not equivalent")
+			}
+		}
+	}
+
+	log.Info(fileMap)
 }

@@ -1,7 +1,5 @@
-Well, this is yet another test file.
+{@clonr{file_sub_dir_multi_diff_1}}
 
-But can     you parse this one correctly?
-{@clonr{another_test_variable}} it worked.
-But will it work a second time? with a different variable?
+{@clonr{should_not_change}}
 
-{@clonr{success-message}}
+{@clonr{file_sub_dir_multi_diff_2}}

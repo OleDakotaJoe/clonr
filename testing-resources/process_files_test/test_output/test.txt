@@ -1,3 +1,0 @@
-Hi, this file is just a 
-But it should pass just fine.
-And it should actually pass a second , which is that it should replace in more than one location.
