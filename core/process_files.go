@@ -12,7 +12,9 @@ import (
 	"strings"
 )
 
-func ProcessFiles(configFilePath string) {
+func ProcessFiles(renderer *FileRenderer) {
+	configFilePath := renderer.filePath
+
 	v := utils.ViperReadConfig(configFilePath, config.GlobalConfig().ClonrConfigFileName, config.GlobalConfig().ClonrConfigFileType)
 	configRootKey := config.GlobalConfig().ClonrConfigRootKeyName
 	paths := v.GetStringMap(configRootKey)
@@ -39,9 +41,10 @@ func ProcessFiles(configFilePath string) {
 
 		// Renders the file below
 		log.Infof("Rendering file: %s, with vars: %s", path, processedVarMap)
-		renderFile(fileLocation, processedVarMap)
+		renderer.renderFile(fileLocation, processedVarMap)
 	}
 }
+
 func renderFile(filename string, varMap map[string]string) {
 	input, err := ioutil.ReadFile(filename)
 	utils.CheckForError(err)
@@ -57,7 +60,7 @@ func renderFile(filename string, varMap map[string]string) {
 }
 
 func answerQuestion(question string) string {
-	fmt.Println("")
+	fmt.Println()
 	fmt.Println(question)
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()

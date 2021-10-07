@@ -11,9 +11,9 @@ func Test_setup(t *testing.T) {
 }
 
 func Test_GivenOneArg_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
-	mockArgs := []string{"testing"}
+	mockArgs := []string{"testing-resources"}
 	providedNameFlag := config.GlobalConfig().DefaultProjectName
-	result, err  := determineProjectName(providedNameFlag, mockArgs)
+	result, err := determineProjectName(providedNameFlag, mockArgs)
 	if result != providedNameFlag {
 		t.Fatalf("Result is not equal to providedNameFlag: %s", providedNameFlag)
 	}
@@ -23,9 +23,9 @@ func Test_GivenOneArg_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 }
 
 func Test_GivenOneArg_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
-	mockArgs := []string{"testing"}
+	mockArgs := []string{"testing-resources"}
 	providedNameFlag := "custom-name-flag"
-	result, err  := determineProjectName(providedNameFlag, mockArgs)
+	result, err := determineProjectName(providedNameFlag, mockArgs)
 	if result != providedNameFlag {
 		t.Fatalf("Expected result was \"%s\", but got %s ", providedNameFlag, result)
 	}
@@ -35,10 +35,9 @@ func Test_GivenOneArg_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
 }
 
 func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
-	mockArgs := []string{"testing", "should-be-this-name"}
+	mockArgs := []string{"testing-resources", "should-be-this-name"}
 	providedNameFlag := config.GlobalConfig().DefaultProjectName
 	result, err := determineProjectName(providedNameFlag, mockArgs)
-
 
 	if result != "should-be-this-name" {
 		t.Fatalf("Expected result was \"should-be-this-name\", but got %s", result)
@@ -50,7 +49,7 @@ func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 }
 
 func Test_GivenTwoArgs_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
-	mockArgs := []string{"testing", "should-not-be-this-name"}
+	mockArgs := []string{"testing-resources", "should-not-be-this-name"}
 	providedNameFlag := "something-is-wrong"
 	result, err := determineProjectName(providedNameFlag, mockArgs)
 	if result != "" {
@@ -61,7 +60,6 @@ func Test_GivenTwoArgs_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
 		t.Fatal("Expected an error but none was thrown")
 	}
 }
-
 
 func Test_GivenValidUrl_ShouldNotThrowError_ValidateAndExtractUrl(t *testing.T) {
 	validUrl := []string{"https://google.com"}
@@ -85,7 +83,6 @@ func Test_GivenValidUrl_ShouldReturnUrl_ValidateAndExtractUrl(t *testing.T) {
 		t.Fatalf("Unexpected Error: %e", err)
 	}
 	if url != validUrl[0] {
-		t.Fatalf("Expected %s, but got %s.", validUrl, url )
+		t.Fatalf("Expected %s, but got %s.", validUrl, url)
 	}
 }
-

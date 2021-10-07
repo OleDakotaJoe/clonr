@@ -1,0 +1,3 @@
+Hi, this file is just a {@clonr{test_variable}}
+But it should pass just fine.
+And it should actually pass a second {@clonr{test_variable}}, which is that it should replace in more than one location.
