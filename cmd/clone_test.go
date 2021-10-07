@@ -48,7 +48,7 @@ func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 
 	cmdArgs := cloneCmdArguments{
 		args:     []string{"testing-resources", expectedResult},
-		nameFlag: "custom-name-flag",
+		nameFlag: config.GlobalConfig().DefaultProjectName,
 	}
 
 	result, err := determineProjectName(&cmdArgs)
