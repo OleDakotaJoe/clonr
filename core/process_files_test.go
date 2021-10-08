@@ -14,14 +14,20 @@ func Test_setup(t *testing.T) {
 func Test_givenTemplateFile_getFileMapFromTemplate(t *testing.T) {
 	sourceDir := config.TestConfig().SourceDir
 
-	var fileMap = getFileMapFromConfigFile(sourceDir, func(input string) string {
-		return input
-	})
+	testSettings := &FileProcessorSettings{
+		ConfigFilePath: sourceDir,
+		Reader: func(input string) string {
+			return input
+		},
+	}
+
+	getFileMapFromConfigFile(testSettings)
 	exampleFileMap := FileMap{
 		"../testing-resources/process_files_test/source_template/sub-dir/another-test.txt": ClonrVarMap{"file_sub_dir_multi_diff_1": "file_sub_dir_multi_diff_1", "file_sub_dir_multi_diff_2": "file_sub_dir_multi_diff_2"},
 		"../testing-resources/process_files_test/source_template/test.txt":                 ClonrVarMap{"file_in_root_multi": "file_in_root_multi"},
 	}
-	for key, value := range fileMap {
+
+	for key, value := range testSettings.mainTemplateMap {
 		log.Infof("key: %s, value: %s", key, value)
 		if exampleFileMap[key] == nil {
 			t.Fatalf("Maps were not equivalent")
@@ -33,6 +39,4 @@ func Test_givenTemplateFile_getFileMapFromTemplate(t *testing.T) {
 			}
 		}
 	}
-
-	log.Info(fileMap)
 }
