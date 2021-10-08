@@ -1,3 +1,9 @@
+global:
+  variables:
+    some-variable:
+      question: some-variable
+    some-other-variable:
+      question: some-other-variable
 paths:
   test.txt:
     location: "/test.txt"
@@ -7,7 +13,17 @@ paths:
   another-test.txt:
     location: "/sub-dir/another-test.txt"
     variables:
+        global:
         file_sub_dir_multi_diff_1:
             question: file_sub_dir_multi_diff_1
         file_sub_dir_multi_diff_2:
             question: file_sub_dir_multi_diff_2
+  global-test.txt:
+    location: "/global-test.txt"
+    variables:
+        global:
+  global-test-2.txt:
+    location: "/sub-dir/global-test-2.txt"
+    variables:
+        global:
+
