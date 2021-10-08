@@ -30,3 +30,6 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+release:
+  discussion_category_name: General
+  name_template: "{{.ProjectName}}-v{{.Version}} {{.Env.USER}}"
