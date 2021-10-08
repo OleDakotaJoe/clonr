@@ -46,7 +46,9 @@ func getFileMapFromConfigFile(settings *FileProcessorSettings) {
 		for variable, _ := range variables {
 			questionKey := variableKey + "." + variable
 			question := v.GetStringMapString(questionKey)["question"]
-			processedVarMap[variable] = inputReader(question)
+			if variable != globalConfig.GlobalVariablesKeyName {
+				processedVarMap[variable] = inputReader(question)
+			}
 			log.Debugf("variable: %s, question: %s", variable, question)
 		}
 

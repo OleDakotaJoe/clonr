@@ -32,11 +32,12 @@ To configure your project, simply place a file named `.clonrrc` into the root di
 Inside this yaml file you will need to provide the paths to the files which need to be processed, the name of the 
 placeholder variables that you have provided in those files, and the questions which need to be asked to determine those variables.
 
-The root key in the yaml file must be "paths"
+### Basic Example
+The root key in the yaml file must be "templates"
 
 Here is an example of what the yaml syntax for clonr looks like:
 ```yaml
-paths:
+templates:
   README.md:
     location: /README.md
     variables:
@@ -57,12 +58,45 @@ Syntax for placeholder variables within the template files:
 
 You can include as many of these inside the files as you would like.
 
-EXAMPLE: 
+
+### Example With Globals
+You may declare global variables by providing the key: `globals`. This will allow you to ask a question only one time, 
+and use that variable in more than one file, without being required to get input from the user again.
+Under globals, provide the key named `variables` and then simply provide the key for each variable name, and include your question below that.
+
+
+In order to consume a global variable that you declared, in the variables section of the `templates` key, include the key `globals`.
+you do not need to provide a value for that key, clonr will search the file for any placeholders that match a global variable, and make the swap. 
+
+NOTE: If you do not need a variable to be available to more than one file, then provide that variable under templates, or you may see some performance issues.
+
+Here is an example of a use case:
+```yaml
+globals:
+  variables:
+    project-name:
+      question: What do you want the project name to be?
+templates: 
+  some-file.txt:
+    location: /some-file.txt
+    variables:
+      globals: # This key lets clonr know that there are global variables in /some-file.txt, and to scan for them. You do not need to provide a correspondign value for this key
+      some-other-variable:
+        question: What do you want the value of some-other-variable to be?
+```
+
+The syntax for the placeholder for a global variable is as follows:
+```
+{@clonr{globals.project-name}}
+```
+Note that the syntax is identical, EXCEPT prefix your variable name with `globals.`
+
+### Full Example: 
 ```yaml 
-paths: 
+templates: 
   package.json:
     location: /package.json
-    varialbes:
+    variables:
       - package-name: What do you want the package name to be?
 ```
 
