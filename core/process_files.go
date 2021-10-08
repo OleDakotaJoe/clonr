@@ -48,6 +48,8 @@ func getFileMapFromConfigFile(settings *FileProcessorSettings) {
 			question := v.GetStringMapString(questionKey)["question"]
 			if variable != globalConfig.GlobalVariablesKeyName {
 				processedVarMap[variable] = inputReader(question)
+			} else {
+				processedVarMap[variable] = "" // just need a placeholder here so that the globals indicator ends up in the master variable map
 			}
 			log.Debugf("variable: %s, question: %s", variable, question)
 		}
