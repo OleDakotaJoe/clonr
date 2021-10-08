@@ -157,3 +157,4 @@ fabric.properties
 /testing-resources/process_files_test/test_output/
 
 dist/
+/node_modules/
