@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"bufio"
 	"clonr/config"
 	"clonr/core"
 	"clonr/utils"
-	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
@@ -16,15 +14,15 @@ import (
 
 /* COMMAND ARGS */
 
-type cloneCmdArguments struct {
+type CloneCmdArguments struct {
 	nameFlag    string
 	isLocalPath bool
 	inputMethod func(string) string
 	args        []string
 }
 
-var cmdArguments = cloneCmdArguments{
-	inputMethod: answerQuestion,
+var cmdArguments = CloneCmdArguments{
+	inputMethod: utils.InputPrompt,
 }
 
 var cloneCmd = &cobra.Command{
@@ -44,7 +42,7 @@ func init() {
 	cloneCmd.Flags().BoolVarP(&cmdArguments.isLocalPath, "local", "l", false, "Indicates that the path you provide is on your local machine.") //(&cloneCmdLocalFlag, "l", false)
 }
 
-func cloneProject(cmdArguments *cloneCmdArguments) {
+func cloneProject(cmdArguments *CloneCmdArguments) {
 	args := cmdArguments.args
 	pwd, fsErr := os.Getwd()
 	utils.CheckForError(fsErr)
@@ -70,7 +68,14 @@ func cloneProject(cmdArguments *cloneCmdArguments) {
 
 		log.Debugf("Project root: %s", destination)
 	}
-	core.ProcessFiles(destination, cmdArguments.inputMethod)
+
+	core.ProcessFiles(
+		&core.FileProcessorSettings{
+			ConfigFilePath:    destination,
+			Reader:            cmdArguments.inputMethod,
+			CloneCmdArguments: cmdArguments.args,
+			Viper:             *utils.ViperReadConfig(destination, config.GlobalConfig().ClonrConfigFileName, config.GlobalConfig().ClonrConfigFileType),
+		})
 }
 
 func validateAndExtractUrl(args []string) (string, error) {
@@ -85,7 +90,7 @@ func validateAndExtractUrl(args []string) (string, error) {
 	return args[0], err
 }
 
-func determineProjectName(cmdArguments *cloneCmdArguments) (string, error) {
+func determineProjectName(cmdArguments *CloneCmdArguments) (string, error) {
 	providedProjectName := cmdArguments.nameFlag
 	args := cmdArguments.args
 
@@ -116,12 +121,4 @@ func determineProjectName(cmdArguments *cloneCmdArguments) (string, error) {
 	log.Infof("Name of project will be: %s", result)
 
 	return result, err
-}
-
-func answerQuestion(question string) string {
-	fmt.Println()
-	fmt.Println(question)
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	return scanner.Text()
 }

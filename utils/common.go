@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"bufio"
 	"clonr/config"
 	"errors"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
@@ -30,6 +32,14 @@ func ViperReadConfig(configFilePath string, configFileName string, configFileTyp
 	err := v.ReadInConfig()
 	CheckForError(err)
 	return v
+}
+
+func InputPrompt(prompt string) string {
+	fmt.Println()
+	fmt.Println(prompt)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	return scanner.Text()
 }
 
 func RemoveElementFromSlice(list []string, index int) []string {
