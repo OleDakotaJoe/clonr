@@ -1,10 +1,10 @@
 package main
 
 import (
-	"clonr/cmd"
-	"clonr/config"
 	"fmt"
 	"github.com/common-nighthawk/go-figure"
+	"github.com/oledakotajoe/clonr/cmd"
+	"github.com/oledakotajoe/clonr/config"
 )
 
 func main() {

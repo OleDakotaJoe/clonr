@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"clonr/config"
-	"clonr/utils"
+	"github.com/oledakotajoe/clonr/config"
+	"github.com/oledakotajoe/clonr/utils"
 	"golang.org/x/mod/sumdb/dirhash"
 	"os"
 	"testing"

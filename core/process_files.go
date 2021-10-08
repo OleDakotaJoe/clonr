@@ -1,8 +1,8 @@
 package core
 
 import (
-	"clonr/config"
-	"clonr/utils"
+	"github.com/oledakotajoe/clonr/config"
+	"github.com/oledakotajoe/clonr/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"io/ioutil"
