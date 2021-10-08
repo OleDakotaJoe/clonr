@@ -1,8 +1,8 @@
 package cmd
 
 import (
-"fmt"
-"github.com/spf13/cobra"
+	"fmt"
+	"github.com/spf13/cobra"
 )
 
 var versionCmd = &cobra.Command{

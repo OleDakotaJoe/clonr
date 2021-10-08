@@ -8,21 +8,20 @@ import (
 )
 
 type LoggerConfig struct {
-	Writer io.Writer
+	Writer    io.Writer
 	InfoLevel log.Level
 	Formatter log.Formatter
 }
 
-
 func ConfigureLogger() {
 	config := LoggerConfig{
-		Writer: os.Stdout,
+		Writer:    os.Stdout,
 		InfoLevel: log.DebugLevel,
 		Formatter: &easy.Formatter{
 			LogFormat: "[%lvl%]: %msg%\n",
 		},
 	}
-		log.SetOutput(config.Writer)
-		log.SetLevel(config.InfoLevel)
-		log.SetFormatter(config.Formatter)
+	log.SetOutput(config.Writer)
+	log.SetLevel(config.InfoLevel)
+	log.SetFormatter(config.Formatter)
 }

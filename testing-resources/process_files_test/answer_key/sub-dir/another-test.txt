@@ -3,3 +3,5 @@ file_sub_dir_multi_diff_1
 {@clonr{should_not_change}}
 
 file_sub_dir_multi_diff_2
+
+some-variable

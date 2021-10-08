@@ -11,6 +11,8 @@ type globalConfig struct {
 	ClonrConfigRootKeyName      string
 	TemplateFileLocationKeyName string
 	VariablesArrayKeyName       string
+	GlobalVariablesKeyName      string
+	QuestionsKeyName            string
 }
 
 func GlobalConfig() *globalConfig {
@@ -22,9 +24,11 @@ func GlobalConfig() *globalConfig {
 		ClonrPrefix:                 "{@clonr{",
 		ClonrSuffix:                 "}}",
 		VariableRegex:               "[\\w-]+",
-		ClonrConfigRootKeyName:      "paths",
+		ClonrConfigRootKeyName:      "templates",
 		TemplateFileLocationKeyName: "location",
 		VariablesArrayKeyName:       "variables",
+		GlobalVariablesKeyName:      "globals",
+		QuestionsKeyName:            "question",
 	}
 	return &this
 }

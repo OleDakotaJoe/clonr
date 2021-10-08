@@ -3,3 +3,5 @@
 {@clonr{should_not_change}}
 
 {@clonr{file_sub_dir_multi_diff_2}}
+
+{@clonr{globals.some-variable}}

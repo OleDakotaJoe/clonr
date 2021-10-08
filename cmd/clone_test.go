@@ -14,7 +14,7 @@ func Test_setup(t *testing.T) {
 }
 
 func Test_GivenOneArg_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
-	cmdArgs := cloneCmdArguments{
+	cmdArgs := CloneCmdArguments{
 		args:     []string{"testing-resources"},
 		nameFlag: config.GlobalConfig().DefaultProjectName,
 	}
@@ -30,7 +30,7 @@ func Test_GivenOneArg_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 }
 
 func Test_GivenOneArg_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
-	cmdArgs := cloneCmdArguments{
+	cmdArgs := CloneCmdArguments{
 		args:     []string{"testing-resources"},
 		nameFlag: "custom-name-flag",
 	}
@@ -46,7 +46,7 @@ func Test_GivenOneArg_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
 func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 	var expectedResult = "should-be-this-name"
 
-	cmdArgs := cloneCmdArguments{
+	cmdArgs := CloneCmdArguments{
 		args:     []string{"testing-resources", expectedResult},
 		nameFlag: config.GlobalConfig().DefaultProjectName,
 	}
@@ -63,7 +63,7 @@ func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 }
 
 func Test_GivenTwoArgs_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
-	cmdArgs := cloneCmdArguments{
+	cmdArgs := CloneCmdArguments{
 		args:     []string{"testing-resources", "should-not-be-this-name"},
 		nameFlag: "something-is-wrong",
 	}
@@ -110,7 +110,7 @@ func Test_givenTemplateFile_processFiles(t *testing.T) {
 	outputDir := config.TestConfig().OutputDir
 	answerKeyDir := config.TestConfig().AnswerKeyDir
 
-	var cmdArguments = cloneCmdArguments{
+	var cmdArguments = CloneCmdArguments{
 		args:        []string{sourceDir},
 		nameFlag:    outputDir,
 		isLocalPath: true,
