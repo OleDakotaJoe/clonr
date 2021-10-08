@@ -1,7 +1,7 @@
 package core
 
 import (
-	"clonr/config"
+	"github.com/oledakotajoe/clonr/config"
 	log "github.com/sirupsen/logrus"
 	"testing"
 )

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"clonr/utils"
+	"github.com/oledakotajoe/clonr/utils"
 	"github.com/spf13/cobra"
 )
 

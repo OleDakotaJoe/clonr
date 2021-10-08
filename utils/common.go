@@ -2,9 +2,9 @@ package utils
 
 import (
 	"bufio"
-	"clonr/config"
 	"errors"
 	"fmt"
+	"github.com/oledakotajoe/clonr/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"

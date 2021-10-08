@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"clonr/config"
-	"clonr/core"
-	"clonr/utils"
+	"github.com/oledakotajoe/clonr/config"
+	"github.com/oledakotajoe/clonr/core"
+	"github.com/oledakotajoe/clonr/utils"
 	"github.com/go-git/go-git/v5"
 	"github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
