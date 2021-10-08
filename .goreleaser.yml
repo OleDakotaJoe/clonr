@@ -33,3 +33,8 @@ changelog:
 release:
   discussion_category_name: General
   name_template: "{{.ProjectName}}-v{{.Version}} {{.Env.USER}}"
+
+furies:
+  - account: sd-wilco
+    formats:
+      - deb
