@@ -26,6 +26,9 @@ The CLI will always install your project in your present working directory.
 After you run this command, any template variables that are configured in your .clonrrc file will be picked up by the engine, 
 and you will be asked to provide input via the terminal.
 
+## Installation 
+
+
 ## Configuring a project.
 
 To configure your project, simply place a file named `.clonrrc` into the root directory of the git repo.
