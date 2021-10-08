@@ -4,4 +4,4 @@
 
 {@clonr{file_sub_dir_multi_diff_2}}
 
-{@clonr{global.some-variable}}
+{@clonr{globals.some-variable}}
