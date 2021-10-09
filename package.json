@@ -1,6 +1,9 @@
 {
   "devDependencies": {
-    "cz-conventional-changelog": "^3.3.0"
+    "@commitlint/cli": "^13.2.1",
+    "@commitlint/config-conventional": "^13.2.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^7.0.2"
   },
   "config": {
     "commitizen": {
@@ -12,7 +15,8 @@
   "version": "0.1.0",
   "main": "main.go",
   "scripts": {
-    "test": "go test ./..."
+    "test": "go test ./...",
+    "postinstall": "husky install && npx husky add .husky/commit-msg 'npx commitlint --edit $1' && go get && go run main.go version && echo \"You can use the command 'cz' to use commitizen to set up your commits for you. Otherwise, follow the conventional commits standard for commits.\""
   },
   "repository": {
     "type": "git",

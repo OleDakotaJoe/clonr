@@ -36,7 +36,7 @@ require (
 	github.com/spf13/viper v1.9.0
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.1 // indirect
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/mod v0.4.2
 	golang.org/x/net v0.0.0-20211004195052-b30845b58a23 // indirect
 	golang.org/x/sys v0.0.0-20211004093028-2c5d950f24ef // indirect
