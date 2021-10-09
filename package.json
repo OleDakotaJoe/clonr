@@ -16,10 +16,12 @@
   "main": "main.go",
   "scripts": {
     "test": "go test ./...",
-    "postinstall": "husky install &&  go get && go run main.go version && npm run greeting",
-    "greeting": "echo You can use the command 'npm run cz' to use commitizen to set up your commits for you. Otherwise, follow the conventional commits standard for commits",
+    "postinstall": "husky install && npm run greeting",
+    "greeting": "echo \"You can use the command 'npm run cz' to use commitizen to set up your commits for you. \n Otherwise, follow the conventional commits standard for commits\"",
     "cz": "npx cz",
-    "setup:cz": "npm install -g commitizen --save-dev "
+    "setup:all": "npm run setup:cz && npm run setup:go",
+    "setup:cz": "npm install -g commitizen",
+    "setup:go": "go get && go run main.go version && go build && go install && npm run greeting"
   },
   "repository": {
     "type": "git",
