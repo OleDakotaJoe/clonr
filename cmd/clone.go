@@ -82,8 +82,9 @@ func cloneProject(cmdArguments *CloneCmdArguments) {
 
 			_, sshErr := sshutils.ParseRawPrivateKey(sshKey)
 			sshPass := ""
+
 			if sshErr != nil {
-				sshPass = utils.InputPrompt("What is your ssh-key password?")
+				sshPass = utils.GetPassword()
 			}
 
 			publicKey, keyError := ssh.NewPublicKeys("git", sshKey, sshPass)
