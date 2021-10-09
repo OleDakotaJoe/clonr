@@ -30,17 +30,13 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-furies:
-  - account: sd-wilco
-    formats:
-      - deb
 brews:
   - name: clonr
     tap:
       owner: oledakotajoe
       name: homebrew-clonr
       branch: main
-    url_template: "http://github.com/oledakotajoe/clonr/releases/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/oledakotajoe/clonr/releases/{{ .Tag }}/{{ .ArtifactName }}"
 
     commit_author:
       name: oledakotajoe
@@ -51,4 +47,3 @@ brews:
     folder: Formula
     description: "A fast and easy to use templating engine."
     license: "MIT"
-
