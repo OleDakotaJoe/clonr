@@ -19,7 +19,6 @@
     "postinstall": "husky install &&  go get && go run main.go version && npm run greeting",
     "greeting": "echo You can use the command 'npm run cz' to use commitizen to set up your commits for you. Otherwise, follow the conventional commits standard for commits",
     "cz": "npx cz",
-    "setup:husky": "npx husky add .husky/commit-msg 'npx --no-install commitlint --edit \"$1\"' ",
     "setup:cz": "npm install -g commitizen --save-dev "
   },
   "repository": {
