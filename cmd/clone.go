@@ -7,9 +7,9 @@ import (
 	"github.com/oledakotajoe/clonr/core"
 	"github.com/oledakotajoe/clonr/utils"
 	"github.com/otiai10/copy"
-	sshutils "golang.org/x/crypto/ssh"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	sshutils "golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -71,8 +71,10 @@ func cloneProject(cmdArguments *CloneCmdArguments) {
 		if strings.Contains(source, "git@") {
 			var publicKey *ssh.PublicKeys
 			var sshPath string
+
+			// TODO: add functionality for user to customize location of RSA
 			if runtime.GOOS == "windows" {
-				sshPath =os.Getenv("HOMEDRIVE") + "/" +  os.Getenv("HOMEPATH") + "/.ssh/id_rsa.pub"
+				sshPath = os.Getenv("HOMEDRIVE") + "/" +  os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
 			} else {
 				sshPath = os.Getenv("HOME") + "/.ssh/id_rsa"
 			}
