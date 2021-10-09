@@ -18,6 +18,7 @@
     "test": "go test ./...",
     "postinstall": "husky install && go get && go run main.go version && npm run greeting",
     "greeting": "echo You can use the command 'cz' to use commitizen to set up your commits for you. Otherwise, follow the conventional commits standard for commits",
+    "cz": "npx cz"
   },
   "repository": {
     "type": "git",
