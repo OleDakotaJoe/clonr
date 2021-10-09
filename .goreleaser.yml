@@ -41,15 +41,14 @@ brews:
       name: homebrew-clonr
       branch: main
     url_template: "http://github.com/oledakotajoe/clonr/releases/{{ .Tag }}/{{ .ArtifactName }}"
-    download_strategy: CurlDownloadStrategygy
 
     commit_author:
       name: oledakotajoe
-      email: goreleaser@carlosbecker.com
+      email: stevendakotasheaves@gmail.com
 
     # The project name and current git tag are used in the format string.
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
     folder: Formula
-    description: "Software to create fast and easy drum rolls."
+    description: "A fast and easy to use templating engine."
     license: "MIT"
 
