@@ -16,11 +16,11 @@
   "main": "main.go",
   "scripts": {
     "test": "go test ./...",
-    "postinstall": "husky install && npm run setup:husky &&  go get && go run main.go version && npm run greeting",
+    "postinstall": "husky install &&  go get && go run main.go version && npm run greeting",
     "greeting": "echo You can use the command 'npm run cz' to use commitizen to set up your commits for you. Otherwise, follow the conventional commits standard for commits",
     "cz": "npx cz",
-    "setup:husky": "npx husky add .husky/commit-msg 'npx --no-install commitlint --edit \"$1\"'",
-    "setup:cz": "npm install -g commitizen --save-dev " 
+    "setup:husky": "npx husky add .husky/commit-msg 'npx --no-install commitlint --edit \"$1\"' ",
+    "setup:cz": "npm install -g commitizen --save-dev "
   },
   "repository": {
     "type": "git",
