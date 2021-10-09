@@ -7,6 +7,7 @@ import (
 	"github.com/oledakotajoe/clonr/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"regexp"
 )
@@ -58,4 +59,11 @@ func GetKeysFromMap(someMap map[string]string) []string {
 		i++
 	}
 	return keys
+}
+
+func GetPassword() string {
+	fmt.Println("\nPlease enter your password: ")
+	passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+	CheckForError(err)
+	return string(passwd)
 }

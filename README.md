@@ -44,12 +44,15 @@ templates:
   README.md:
     location: /README.md
     variables:
-      - clonr_variable: What do you want the value of this variable to be?
+      clonr_variable: 
+        question: What do you want the value of this variable to be?
   LICENSE:
     location: /LICENSE
     variables:
-      - owner: Who is the owner of the project?
-      - date: When did your Copyright begin?
+      owner: 
+        question: Who is the owner of the project?
+      date: 
+        question: When did your Copyright begin?
 ```
 
 Variables can only contain lowercase letters, numbers, dashes, and underscores.
@@ -83,7 +86,7 @@ templates:
   some-file.txt:
     location: /some-file.txt
     variables:
-      globals: # This key lets clonr know that there are global variables in /some-file.txt, and to scan for them. You do not need to provide a correspondign value for this key
+      globals: # This key lets clonr know that there are global variables in /some-file.txt, and to scan for them. You do not need to provide a corresponding value for this key
       some-other-variable:
         question: What do you want the value of some-other-variable to be?
 ```

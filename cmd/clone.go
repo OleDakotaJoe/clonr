@@ -1,15 +1,20 @@
 package cmd
 
 import (
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/oledakotajoe/clonr/config"
 	"github.com/oledakotajoe/clonr/core"
 	"github.com/oledakotajoe/clonr/utils"
-	"github.com/go-git/go-git/v5"
 	"github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	sshutils "golang.org/x/crypto/ssh"
+	"io/ioutil"
 	"net/url"
 	"os"
+	"runtime"
+	"strings"
 )
 
 /* COMMAND ARGS */
@@ -59,11 +64,36 @@ func cloneProject(cmdArguments *CloneCmdArguments) {
 		source, err := validateAndExtractUrl(args)
 		utils.CheckForError(err)
 
-		log.Info("Clonr is cloning...")
-		_, cloneErr := git.PlainClone(projectName, false, &git.CloneOptions{
+		cloneOptions := git.CloneOptions{
 			URL:      source,
 			Progress: os.Stdout,
-		})
+		}
+		if strings.Contains(source, "git@") {
+			var publicKey *ssh.PublicKeys
+			var sshPath string
+
+			// TODO: add functionality for user to customize location of RSA
+			if runtime.GOOS == "windows" {
+				sshPath = os.Getenv("HOMEDRIVE") + "/" +  os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
+			} else {
+				sshPath = os.Getenv("HOME") + "/.ssh/id_rsa"
+			}
+			sshKey, _ := ioutil.ReadFile(sshPath)
+
+			_, sshErr := sshutils.ParseRawPrivateKey(sshKey)
+			sshPass := ""
+
+			if sshErr != nil {
+				sshPass = utils.GetPassword()
+			}
+
+			publicKey, keyError := ssh.NewPublicKeys("git", sshKey, sshPass)
+			utils.CheckForError(keyError)
+			cloneOptions.Auth = publicKey
+		}
+
+		log.Info("Clonr is cloning...")
+		_, cloneErr := git.PlainClone(projectName, false, &cloneOptions)
 		utils.CheckForError(cloneErr)
 
 		log.Debugf("Project root: %s", destination)
@@ -86,8 +116,14 @@ func validateAndExtractUrl(args []string) (string, error) {
 		return "", err
 	}
 
-	_, err = url.ParseRequestURI(args[0])
-	return args[0], err
+	sourceUrl := args[0]
+
+	if strings.Contains(sourceUrl, "git@") {
+		return sourceUrl, err
+	} else {
+		_, err = url.ParseRequestURI(sourceUrl)
+	}
+	return sourceUrl, err
 }
 
 func determineProjectName(cmdArguments *CloneCmdArguments) (string, error) {
