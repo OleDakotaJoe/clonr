@@ -9,3 +9,4 @@ npx commitlint --edit ""
 npx commitlint --edit ""
 npx commitlint --edit 
 npx commitlint --edit 
+npx --no-install commitlint --edit $1
