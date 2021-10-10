@@ -158,5 +158,3 @@ fabric.properties
 
 dist/
 /node_modules/
-bin
-
