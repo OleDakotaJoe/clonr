@@ -42,7 +42,7 @@ jobs:
           node-version: 12
 
       - name: npm publish
-        run: npm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}" && npm publish
+        run: npm install && npm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}" && npm publish
         working-directory: ./npm-publish
 
 
