@@ -31,18 +31,19 @@ jobs:
 
   npm-publish:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      - name: Set up node
+      - name: Use Node.js 12
         uses: actions/setup-node@v1
         with:
-          node-version: 14
-      run: export NPM_TOKEN=${{ secrets.NPM_TOKEN }}
-      run: sudo apt-get update
-      run: sudo apt-get install npm
-      run: sudo npm publish
+          node-version: 12
+      - run: npm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
+      - run: npm publish
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
 
