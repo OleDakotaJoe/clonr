@@ -1,11 +1,27 @@
 # Clonr Project Templating CLI
 
+- [About](#about)
+   * [Quick start for developers](#quick-start-for-developers)
+   * [Installation](#installation)
+      + [Homebrew](#homebrew)
+      + [Go install](#go-install)
+   * [Configuring a project.](#configuring-a-project)
+      + [Basic Example](#basic-example)
+      + [Example With Globals](#example-with-globals)
+      + [Full Example:](#full-example)
+   * [Known Issues](#known-issues)
+   * [Commands](#commands)
+      + [Clone](#clone)
+         - [Usage:](#usage)
+      + [Version](#version)
+
+
 # About
 This project is aimed to make creating template projects very easy, so that you can set up a project one time, and not worry about configuration again. 
 Simply host your template project in a git repostory, configure your template variables in a .clonrrc file, as well as providing a placeholder in the 
 template files, and run `clonr clone <repo_url>`. The rest will unfold before your eyes.
 
-## Quick start
+## Quick start for developers
 Make sure you have Go installed on your machine. [Find out how](https://golang.org/doc/install)
 
 In your terminal: 
@@ -27,6 +43,19 @@ After you run this command, any template variables that are configured in your .
 and you will be asked to provide input via the terminal.
 
 ## Installation 
+
+### Homebrew
+If you would like to install the project via homebrew: 
+`brew install oledakotajoe/clonr/clonr`
+then  run 
+`clonr version`
+to check the installation
+
+### Go install
+
+If you have go installed on your machine 
+
+`go install github.com/oledakotajoe/clonr`
 
 
 ## Configuring a project.
@@ -98,19 +127,25 @@ The syntax for the placeholder for a global variable is as follows:
 Note that the syntax is identical, EXCEPT prefix your variable name with `globals.`
 
 ### Full Example: 
-```yaml 
+```yaml
+globals:
+  variables:
+    project-name:
+      question: What do you want the project name to be?
 templates: 
   package.json:
     location: /package.json
     variables:
-      - package-name: What do you want the package name to be?
+      globals: # This key lets clonr know that there are global variables in /some-file.txt, and to scan for them. You do not need to provide a corresponding value for this key
+      starting-version:
+        question: What do you want the starting version to be?
 ```
 
 And in your package.json file you might have this:
 ```json
 {
-  "name": "{@clonr{package-name}}",
-  "version": "1.0.0"
+  "name": "{@clonr{globals.project-name}}",
+  "version": "{@clonr{starting-version}}"
 }
 ```
 
@@ -120,8 +155,16 @@ When you run the CLI you will be asked:
     What do you want the package name to be?
 ```
 
-Type in your response and then go check your results.
-Let's say for example, my response was `awesome-react-app`
+Type in your response.
+Let's say for example, my response was `awesome-react-app
+
+Then you'll be asked 
+```
+What do you want the starting version to be?
+```
+Type in your response. Lets say I said "1.0.0"
+
+Go check your files:
 Your file should now look like this
 ```json
 {
@@ -130,9 +173,6 @@ Your file should now look like this
 }
 ```
 
-
-## Known Issues
-Currently, only https git addresses are supported
 
 
 ## Commands
