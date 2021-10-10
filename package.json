@@ -1,18 +1,16 @@
 {
   "name": "go-clonr",
-  "description": "# About This project is aimed to make creating template projects very easy, so that you can set up a project one time, and not worry about configuration again.  Simply host your template project in a git repostory, configure your template variables in a .clonrrc file, as well as providing a placeholder in the  template files, and run `clonr clone <repo_url>`. The rest will unfold before your eyes.",
-  "version": "1.0.6",
-  "main": "main.go",
+  "description": "This project is aimed to make creating template projects very easy, so that you can set up a project one time, and not worry about configuration again.  Simply host your template project in a git repostory, configure your template variables in a .clonrrc file, as well as providing a placeholder in the  template files, and run `clonr clone <repo_url>`. The rest will unfold before your eyes.",
+  "version": "1.0.7",
   "scripts": {
     "test": "go test ./...",
-    "postinstall": "go-npm install",
-    "preuninstall": "go-npm uninstall",
+    "postinstall": "npm run setup:husky && npm run greeting",
     "greeting": "echo You can use the command 'npm run cz' to use commitizen to set up your commits for you. && echo Otherwise, follow the conventional commits standard for commits && echo If you already have go installed on your machine, run `npm run setup:go` or `npm run setup:all` if you want to install commitizen as well ",
     "cz": "npx cz",
     "setup": "npm run setup:cz && npm run setup:go",
-    "setup:husky": "husky install && npm run greeting",
+    "setup:husky": "husky install",
     "setup:cz": "npm install -g commitizen",
-    "setup:go": "go get && go run main.go version && go build && go install && npm run greeting"
+    "setup:go": "go get && go run main.go version && go build && go install"
   },
   "repository": {
     "type": "git",
@@ -20,11 +18,6 @@
   },
   "author": "oledakotajoe",
   "license": "MIT",
-  "goBinary": {
-    "name": "clonr",
-    "path": "./bin",
-    "url": "https://github.com/oledakotajoe/clonr/releases/download/v{{version}}/clonr_{{version}}_{{platform}}_{{arch}}.tar.gz"
-  },
   "devDependencies": {
     "@commitlint/cli": "^13.2.1",
     "@commitlint/config-conventional": "^13.2.0",
@@ -45,8 +38,5 @@
   "bugs": {
     "url": "https://github.com/OleDakotaJoe/clonr/issues"
   },
-  "homepage": "https://github.com/OleDakotaJoe/clonr#readme",
-  "dependencies": {
-    "go-npm": "^0.1.9"
-  }
+  "homepage": "https://github.com/OleDakotaJoe/clonr#readme"
 }

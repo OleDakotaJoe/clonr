@@ -158,3 +158,6 @@ fabric.properties
 
 dist/
 /node_modules/
+/npm-publish/src/bin/
+/npm-publish/node_modules/
+/npm-publish/bin/
