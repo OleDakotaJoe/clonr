@@ -41,9 +41,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        - run: sudo apt-get update
-        - run: sudo apt-get install npm
-        - run: sudo npm publish
+      run: export NPM_TOKEN=${{ secrets.NPM_TOKEN }}
+      run: sudo apt-get update
+      run: sudo apt-get install npm
+      run: sudo npm publish
 
