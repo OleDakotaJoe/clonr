@@ -161,3 +161,4 @@ dist/
 /npm-publish/src/bin/
 /npm-publish/node_modules/
 /npm-publish/bin/
+/npm-publish/README.md
