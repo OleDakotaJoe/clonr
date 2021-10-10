@@ -23,7 +23,7 @@
   "goBinary": {
     "name": "clonr",
     "path": "./bin",
-    "url": "https://github.com/oledakotajoe/clonr/releases/download/{{version}}/clonr_{{version}}_{{platform}}_{{arch}}.tar.gz"
+    "url": "https://github.com/oledakotajoe/clonr/releases/download/v{{version}}/clonr_{{version}}_{{platform}}_{{arch}}.tar.gz"
   },
   "devDependencies": {
     "@commitlint/cli": "^13.2.1",
