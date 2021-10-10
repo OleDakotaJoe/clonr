@@ -28,19 +28,22 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
           GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
           FURY_TOKEN: ${{ secrets.FURY_TOKEN }}
-      - name: Run npm publish
-        uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
+
   npm-publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up node
+        uses: actions/setup-node@v1
         with:
           node-version: 14
-      - run: sudo apt-get update
-      - run: sudo apt-get install npm
-      - run: sudo npm publish
-      - env:
+        env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        - run: sudo apt-get update
+        - run: sudo apt-get install npm
+        - run: sudo npm publish
+
