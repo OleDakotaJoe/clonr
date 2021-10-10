@@ -46,4 +46,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-require golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
+require (
+	github.com/cloudrecipes/packagejson v1.0.0 // indirect
+	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
+)
