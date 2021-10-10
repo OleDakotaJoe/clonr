@@ -46,7 +46,3 @@ brews:
     folder: Formula
     description: "A fast and easy to use templating engine."
     license: "MIT"
-
-publishers:
-  - name: npm
-    cmd: sudo apt update && sudo apt install nodejs npm && npm publish
