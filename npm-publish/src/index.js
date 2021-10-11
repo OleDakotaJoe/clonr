@@ -10,6 +10,8 @@ import mkdirp from 'mkdirp'
 import fs from 'fs'
 import { exec } from 'child_process'
 
+const VERSION = "1.0.8"
+
 // Mapping from Node's `process.arch` to Golang's `$GOARCH`
 const ARCH_MAPPING = {
     "ia32": "386",
@@ -69,7 +71,7 @@ function getDownloadData() {
     let binName = "clonr";
     let binPath = "./bin";
     let url = "https://github.com/oledakotajoe/clonr/releases/download/v{{version}}/clonr_{{version}}_{{platform}}_{{arch}}.tar.gz";
-    let version = "1.0.7";
+    let version = VERSION;
     if (version[0] === 'v') version = version.substr(1);  // strip the 'v' if necessary v0.0.1 => 0.0.1
 
     // Binary name on Windows has .exe suffix
