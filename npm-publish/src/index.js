@@ -2,13 +2,13 @@
 
 "use strict"
 
-import request from 'request'
-import path from 'path'
-import tar from 'tar'
-import zlib from 'zlib'
-import mkdirp from 'mkdirp'
-import fs from 'fs'
-import { exec } from 'child_process'
+const request = require('request'),
+    path = require('path'),
+    tar = require('tar'),
+    zlib = require('zlib'),
+    mkdirp = require('mkdirp'),
+    fs = require('fs'),
+    exec = require('child_process').exec;
 
 const VERSION = "1.0.8"
 
