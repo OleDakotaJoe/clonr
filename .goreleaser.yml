@@ -13,13 +13,11 @@ builds:
       - linux
       - windows
       - darwin
-archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -36,14 +34,13 @@ brews:
       owner: oledakotajoe
       name: homebrew-clonr
       branch: main
-    url_template: "https://github.com/oledakotajoe/clonr/releases/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/oledakotajoe/clonr/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
     commit_author:
       name: oledakotajoe
       email: stevendakotasheaves@gmail.com
 
-    # The project name and current git tag are used in the format string.
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
     folder: Formula
     description: "A fast and easy to use templating engine."
-    license: "MIT"
+    license: "MI
