@@ -10,7 +10,7 @@ const request = require('request'),
     fs = require('fs'),
     exec = require('child_process').exec;
 
-const VERSION = "1.0.8"
+const VERSION = "1.0.11"
 
 // Mapping from Node's `process.arch` to Golang's `$GOARCH`
 const ARCH_MAPPING = {
@@ -27,10 +27,10 @@ const PLATFORM_MAPPING = {
     "freebsd": "freebsd"
 };
 
-function getInstallationPath(callback) {
+function getNpmBinLocation(callback) {
 
     // `npm bin` will output the path where binary files should be installed
-    exec("npm bin", function(err, stdout, stderr) {
+    exec("npm bin -g", function(err, stdout, stderr) {
 
         let dir =  null;
         if (err || stderr || !stdout || stdout.length === 0)  {
@@ -55,13 +55,16 @@ function getInstallationPath(callback) {
 }
 
 function verifyAndPlaceBinary(binName, binPath, callback) {
-    if (!fs.existsSync(path.join(binPath, binName))) return callback(`Downloaded binary does not contain the binary specified in configuration - ${binName}`);
+    console.log(`binName: ${binName}, binPath: ${binPath}, ${path.join(binPath, binName)}`)
+    console.log(fs.existsSync("clonr.exe"))
+    if (!fs.existsSync(binName)) return callback(`Downloaded binary does not contain the binary specified in configuration - ${binName}`);
 
-    getInstallationPath(function(err, installationPath) {
+    getNpmBinLocation(function(err, installationPath) {
         if (err) return callback("Error getting binary installation path from `npm bin`");
 
         // Move the binary file
-        fs.renameSync(path.join(binPath, binName), path.join(installationPath, binName));
+
+        fs.renameSync(binName, path.join(installationPath, binName));
 
         callback(null);
     });
@@ -79,7 +82,7 @@ function getDownloadData() {
     }
 
     let binName = "clonr";
-    let binPath = "./";
+    let binPath = "./bin";
     let url = "https://github.com/oledakotajoe/clonr/releases/download/v{{version}}/clonr_{{version}}_{{platform}}_{{arch}}.tar.gz";
     let version = VERSION;
     if (version[0] === 'v') version = version.substr(1);  // strip the 'v' if necessary v0.0.1 => 0.0.1
@@ -133,7 +136,7 @@ function install(callback) {
 function uninstall(callback) {
 
     let opts = getDownloadData();
-    getInstallationPath(function(err, installationPath) {
+    getNpmBinLocation(function(err, installationPath) {
         if (err) callback("Error finding binary installation directory");
 
         try {
