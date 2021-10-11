@@ -38,7 +38,8 @@ If you have go installed on your machine
 ### npm
 
 ```shell
-npm i -g go-clonr
+npm install -g go-clonr
+go-clonr install
 clonr version
 ```
 
@@ -46,8 +47,7 @@ If you are on a unix/linux machine get access denied exception when running this
 different installation method, or run sudo
 
 ```shell
-sudo -s
-sudo npm i -g go-clonr
+sudo npm install -g go-clonr
 clonr version
 ```
 

@@ -8,9 +8,7 @@
     "go-clonr": "./bin/index.js"
   },
   "scripts": {
-    "prepublish": "npx babel src --out-dir bin",
-    "postinstall": "go-clonr install",
-    "uninstall": "go-clonr uninstall"
+    "prepublish": "npx babel src --out-dir bin"
   },
   "author": "Sanath Kumar Ramesh <dayanandasaraswati@gmail.com>",
   "license": "Apache-2.0",
