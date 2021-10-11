@@ -68,8 +68,18 @@ function verifyAndPlaceBinary(binName, binPath, callback) {
 }
 
 function getDownloadData() {
+    if (!(process.arch in ARCH_MAPPING)) {
+        console.error("Installation is not supported for this architecture: " + process.arch);
+        return;
+    }
+
+    if (!(process.platform in PLATFORM_MAPPING)) {
+        console.error("Installation is not supported for this platform: " + process.platform);
+        return
+    }
+
     let binName = "clonr";
-    let binPath = "./bin";
+    let binPath = "./";
     let url = "https://github.com/oledakotajoe/clonr/releases/download/v{{version}}/clonr_{{version}}_{{platform}}_{{arch}}.tar.gz";
     let version = VERSION;
     if (version[0] === 'v') version = version.substr(1);  // strip the 'v' if necessary v0.0.1 => 0.0.1
