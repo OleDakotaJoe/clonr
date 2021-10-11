@@ -41,6 +41,9 @@ jobs:
         with:
           node-version: 12
 
+      - name: copy readme before npm publish
+        run: cp README.md ./npm-publish/
+
       - name: npm publish
         run: npm install && npm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}" && npm publish
         working-directory: ./npm-publish

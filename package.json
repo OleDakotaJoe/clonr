@@ -29,12 +29,6 @@
       "path": "./node_modules/cz-conventional-changelog"
     }
   },
-  "keywords": [
-    "template",
-    "engine",
-    "scaffolding",
-    "cli"
-  ],
   "bugs": {
     "url": "https://github.com/OleDakotaJoe/clonr/issues"
   },

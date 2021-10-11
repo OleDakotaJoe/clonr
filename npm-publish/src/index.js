@@ -65,63 +65,11 @@ function verifyAndPlaceBinary(binName, binPath, callback) {
     });
 }
 
-function validateConfiguration(packageJson) {
-
-    if (!packageJson.version) {
-        return "'version' property must be specified";
-    }
-
-    if (!packageJson.goBinary || typeof(packageJson.goBinary) !== "object") {
-        return "'goBinary' property must be defined and be an object";
-    }
-
-    if (!packageJson.goBinary.name) {
-        return "'name' property is necessary";
-    }
-
-    if (!packageJson.goBinary.path) {
-        return "'path' property is necessary";
-    }
-
-    if (!packageJson.goBinary.url) {
-        return "'url' property is required";
-    }
-
-    // if (!packageJson.bin || typeof(packageJson.bin) !== "object") {
-    //     return "'bin' property of package.json must be defined and be an object";
-    // }
-}
-
-function parsePackageJson() {
-    if (!(process.arch in ARCH_MAPPING)) {
-        console.error("Installation is not supported for this architecture: " + process.arch);
-        return;
-    }
-
-    if (!(process.platform in PLATFORM_MAPPING)) {
-        console.error("Installation is not supported for this platform: " + process.platform);
-        return
-    }
-
-    const packageJsonPath = path.join(".", "package.json");
-    if (!fs.existsSync(packageJsonPath)) {
-        console.error("Unable to find package.json. " +
-            "Please run this script at root of the package you want to be installed");
-        return
-    }
-
-    let packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
-    let error = validateConfiguration(packageJson);
-    if (error && error.length > 0) {
-        console.error("Invalid package.json: " + error);
-        return
-    }
-
-    // We have validated the config. It exists in all its glory
-    let binName = packageJson.goBinary.name;
-    let binPath = packageJson.goBinary.path;
-    let url = packageJson.goBinary.url;
-    let version = packageJson.version;
+function getDownloadData() {
+    let binName = "clonr";
+    let binPath = "./bin";
+    let url = "https://github.com/oledakotajoe/clonr/releases/download/v{{version}}/clonr_{{version}}_{{platform}}_{{arch}}.tar.gz";
+    let version = "1.0.7";
     if (version[0] === 'v') version = version.substr(1);  // strip the 'v' if necessary v0.0.1 => 0.0.1
 
     // Binary name on Windows has .exe suffix
@@ -143,18 +91,10 @@ function parsePackageJson() {
     }
 }
 
-/**
- * Reads the configuration from application's package.json,
- * validates properties, downloads the binary, untars, and stores at
- * ./bin in the package's root. NPM already has support to install binary files
- * specific locations when invoked with "npm install -g"
- *
- *  See: https://docs.npmjs.com/files/package.json#bin
- */
 const INVALID_INPUT = "Invalid inputs";
 function install(callback) {
 
-    let opts = parsePackageJson();
+    let opts = getDownloadData();
     if (!opts) return callback(INVALID_INPUT);
 
     mkdirp.sync(opts.binPath);
@@ -180,7 +120,7 @@ function install(callback) {
 
 function uninstall(callback) {
 
-    let opts = parsePackageJson();
+    let opts = getDownloadData();
     getInstallationPath(function(err, installationPath) {
         if (err) callback("Error finding binary installation directory");
 
