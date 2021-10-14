@@ -24,22 +24,16 @@ template files, and run `clonr clone <repo_url>`. The rest will unfold before yo
 
 ### Homebrew
 If you would like to install the project via homebrew:
-```shell
-brew install oledakotajoe/clonr/clonr
-```
+`brew install oledakotajoe/clonr/clonr`
 then  run
-```shell
-clonr version
-```
+`clonr version`
 to check the installation
 
 ### Go install
 
 If you have go installed on your machine
 
-```shell
-go install github.com/oledakotajoe/clonr
-```
+`go install github.com/oledakotajoe/clonr`
 
 ### npm
 
@@ -54,7 +48,6 @@ different installation method, or run sudo
 
 ```shell
 sudo npm install -g go-clonr
-sudo go-clonr install
 clonr version
 ```
 
@@ -65,20 +58,17 @@ Make sure you have Go installed on your machine. [Find out how](https://golang.o
 
 In your terminal:
 1. Clone the project
-```shell
-git clone https://github.com/OleDakotaJoe/clonr.git
-```
-4. cd into the projects directory
-5. Run `go build` to download all dependencies
-6. Run `go run main.go version` to verify the install.
+   `git clone https://github.com/OleDakotaJoe/clonr.git`
+2. cd into the projects directory
+3. Run `go build` to download all dependencies
+4. Run `go run main.go version` to verify the install.
 
 Now you can use the CLI!
 
 To play with an example project, open your terminal and run
 
-```shell
-go run main.go clone https://github.com/OleDakotaJoe/clonr-example-template.git
-````
+`go run main.go clone https://github.com/OleDakotaJoe/clonr-example-template.git`
+
 This will create a copy of the above git repo on your local machine under the directory 'clonr-app'.
 The CLI will always install your project in your present working directory.
 After you run this command, any template variables that are configured in your .clonrrc file will be picked up by the engine,
@@ -114,7 +104,7 @@ Variables can only contain lowercase letters, numbers, dashes, and underscores.
 
 Syntax for placeholder variables within the template files:
 ```
-{@clonr{your_variable_here}}
+{@clonr{your_variable_inside_these_brackets}}
 ```
 
 You can include as many of these inside the files as you would like.
@@ -152,32 +142,6 @@ The syntax for the placeholder for a global variable is as follows:
 ```
 Note that the syntax is identical, EXCEPT prefix your variable name with `globals.`
 
-### Example with defaults:
-
-```yaml
-globals:
-  variables:
-    project-name:
-      question: What do you want the project name to be?
-      default: some-project-name # note that in this block, if the user presses enter without providing input, the default will be used
-templates:
-  some-file.txt:
-    location: /some-file.txt
-    variables:
-      globals: # This key lets clonr know that there are global variables in /some-file.txt, and to scan for them. You do not need to provide a corresponding value for this key
-      some-other-variable:
-        question: What do you want the value of some-other-variable to be?
-
-
-```
-
-In this case, when processing the global variables, the cli will ask:
-```
-What do you want the project name to be? (some-project-name)
-```
-
-If you press enter, the value accepted will be "some-project-name"
-
 ### Full Example:
 ```yaml
 globals:
@@ -191,7 +155,6 @@ templates:
       globals: # This key lets clonr know that there are global variables in /some-file.txt, and to scan for them. You do not need to provide a corresponding value for this key
       starting-version:
         question: What do you want the starting version to be?
-        default: 1.0.0
 ```
 
 And in your package.json file you might have this:
@@ -213,9 +176,9 @@ Let's say for example, my response was `awesome-react-app
 
 Then you'll be asked
 ```
-What do you want the starting version to be? (1.0.0)
+What do you want the starting version to be?
 ```
-Type in your response. Let's say I just press enter.
+Type in your response. Lets say I said "1.0.0"
 
 Go check your files:
 Your file should now look like this
