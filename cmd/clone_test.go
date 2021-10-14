@@ -3,8 +3,10 @@ package cmd
 import (
 	"github.com/oledakotajoe/clonr/config"
 	"github.com/oledakotajoe/clonr/utils"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/mod/sumdb/dirhash"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -115,6 +117,9 @@ func Test_givenTemplateFile_processFiles(t *testing.T) {
 		nameFlag:    outputDir,
 		isLocalPath: true,
 		inputMethod: func(input string) string {
+			if strings.Contains(input, "(") {
+				log.Error("ITS HAPPENING")
+			}
 			return input
 		},
 	}

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"github.com/oledakotajoe/clonr/config"
 	"github.com/oledakotajoe/clonr/utils"
 	log "github.com/sirupsen/logrus"
@@ -43,15 +44,25 @@ func getFileMapFromConfigFile(settings *FileProcessorSettings) {
 		log.Debugf("Variables: %s", variables)
 
 		processedVarMap := make(ClonrVarMap)
-		for variable, _ := range variables {
-			questionKey := variableKey + "." + variable
-			question := v.GetStringMapString(questionKey)["question"]
-			if variable != globalConfig.GlobalVariablesKeyName {
-				processedVarMap[variable] = inputReader(question)
+		for variableName, _ := range variables {
+			attributesKey := variableKey + "." + variableName
+			question := v.GetStringMapString(attributesKey)["question"]
+			defaultAnswer := v.GetStringMapString(attributesKey)["default"]
+			if variableName != globalConfig.GlobalVariablesKeyName {
+				if defaultAnswer != "" {
+					question += fmt.Sprintf(" (%s)", defaultAnswer)
+				}
+				answer := inputReader(question)
+				if answer == "" && defaultAnswer != "" {
+					processedVarMap[variableName] = defaultAnswer
+				} else {
+					processedVarMap[variableName] = answer
+				}
+
 			} else {
-				processedVarMap[variable] = "" // just need a placeholder here so that the globals indicator ends up in the master variable map
+				processedVarMap[variableName] = "" // just need a placeholder here so that the globals indicator ends up in the master variableName map
 			}
-			log.Debugf("variable: %s, question: %s", variable, question)
+			log.Debugf("variableName: %s, question: %s", variableName, question)
 		}
 
 		masterVariableMap[fileLocation] = processedVarMap

@@ -26,4 +26,10 @@ templates:
     location: "/sub-dir/global-test-2.txt"
     variables:
         globals:
+  default-test.txt:
+    location: "/default-test.txt"
+    variables:
+      defaultVar:
+        question: ignore me
+        default: da default
 
