@@ -60,7 +60,6 @@ func getFileMapFromConfigFile(settings *FileProcessorSettings) {
 			} else {
 				processedVarMap[variableName] = "" // just need a placeholder here so that the globals indicator ends up in the master variableName map
 			}
-			log.Debugf("variableName: %s, question: %s", variableName, question)
 		}
 
 		masterVariableMap[fileLocation] = processedVarMap
