@@ -1,1 +1,3 @@
-This should be the {@clonr{defaultVar}} variable
+This should be the {@clonr{default-var}} variable
+
+This variable should be a {@clonr{globals.clonr-default}} variable
