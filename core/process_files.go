@@ -18,8 +18,6 @@ func ProcessFiles(settings *FileProcessorSettings) {
 
 var globalConfig = config.GlobalConfig()
 
-//TODO: update sister project
-
 func getFileMapFromConfigFile(settings *FileProcessorSettings) {
 
 	configFilePath := settings.ConfigFilePath
@@ -78,8 +76,20 @@ func setGlobalVarMap(settings *FileProcessorSettings) {
 
 	for key, _ := range unprocessedVarMap {
 		questionKey := variablesMapKey + "." + key + "." + globalConfig.QuestionsKeyName
-		question := v.Get(questionKey)
-		globalVarMap[key] = settings.Reader(cast.ToString(question))
+		defaultAnswerKey := variablesMapKey + "." + key + "." + globalConfig.DefaultAnswerKeyName
+		question := cast.ToString(v.Get(questionKey))
+		defaultAnswer := cast.ToString(v.Get(defaultAnswerKey))
+		if defaultAnswer != "" {
+			question += fmt.Sprintf(" (%s)", defaultAnswer)
+		}
+
+		answer := settings.Reader(question)
+
+		if answer == "" && defaultAnswer != "" {
+			globalVarMap[key] = defaultAnswer
+		} else {
+			globalVarMap[key] = answer
+		}
 	}
 
 	settings.globalVariables = globalVarMap
