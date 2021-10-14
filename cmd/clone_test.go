@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/oledakotajoe/clonr/config"
 	"github.com/oledakotajoe/clonr/utils"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/mod/sumdb/dirhash"
 	"os"
 	"strings"
@@ -117,9 +116,26 @@ func Test_givenTemplateFile_processFiles(t *testing.T) {
 		nameFlag:    outputDir,
 		isLocalPath: true,
 		inputMethod: func(input string) string {
-			if strings.Contains(input, "(") {
-				log.Error("ITS HAPPENING")
+			/*
+			* This function is being used to simulate a user's response to questions being asked.
+			* It's 'input' string is the question in the actual implementation, and gets its input from stdout.
+			* in this mocked version of that 'answerQuestion' function, we are simply returning the input as the response,
+			* and checking that that value is present in the output directory.
+			 */
+
+			if strings.Contains(input, "(da default)") {
+				return "" // simulates user responding blank for default-test.txt
 			}
+			if strings.Contains(input, "(should-not-be-returned)") {
+				return "file_sub_dir_multi_diff_2" // this is what would be returned if a default was not chosen
+			}
+			if strings.Contains(input, "(global-should-be-returned)") {
+				return "" // simulates user responding blank for default-test.txt
+			}
+			if strings.Contains(input, "(global-should-not-be-returned)") {
+				return "some-other-variable" // this is what would be returned if a default was not chosen
+			}
+
 			return input
 		},
 	}

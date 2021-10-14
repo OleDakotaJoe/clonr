@@ -4,32 +4,38 @@ globals:
       question: some-variable
     some-other-variable:
       question: some-other-variable
+      default: global-should-not-be-returned
+    clonr-default:
+      question: clonr-default
+      default: global-should-be-returned
 templates:
   test.txt:
     location: "/test.txt"
     variables:
-        file_in_root_multi:
-            question: file_in_root_multi
+      file_in_root_multi:
+        question: file_in_root_multi
   another-test.txt:
     location: "/sub-dir/another-test.txt"
     variables:
-        globals:
-        file_sub_dir_multi_diff_1:
-            question: file_sub_dir_multi_diff_1
-        file_sub_dir_multi_diff_2:
-            question: file_sub_dir_multi_diff_2
+      globals:
+      file_sub_dir_multi_diff_1:
+        question: file_sub_dir_multi_diff_1
+      file_sub_dir_multi_diff_2:
+        question: file_sub_dir_multi_diff_2
+        default: should-not-be-returned
   global-test.txt:
     location: "/global-test.txt"
     variables:
-        globals:
+      globals:
   global-test-2.txt:
     location: "/sub-dir/global-test-2.txt"
     variables:
-        globals:
+      globals:
   default-test.txt:
     location: "/default-test.txt"
     variables:
-      default:
+      globals:
+      default-var:
         question: ignore me
-        defaultVar: da default
+        default: da default
 
