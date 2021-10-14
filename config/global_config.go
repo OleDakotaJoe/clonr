@@ -13,6 +13,7 @@ type globalConfig struct {
 	VariablesArrayKeyName       string
 	GlobalVariablesKeyName      string
 	QuestionsKeyName            string
+	DefaultAnswerKeyName        string
 }
 
 func GlobalConfig() *globalConfig {
@@ -29,6 +30,7 @@ func GlobalConfig() *globalConfig {
 		VariablesArrayKeyName:       "variables",
 		GlobalVariablesKeyName:      "globals",
 		QuestionsKeyName:            "question",
+		DefaultAnswerKeyName:        "default",
 	}
 	return &this
 }
