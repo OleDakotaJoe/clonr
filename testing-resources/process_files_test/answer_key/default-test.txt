@@ -1,0 +1,3 @@
+This should be the da default variable
+
+This variable should be a global-should-be-returned variable
