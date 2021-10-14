@@ -7,10 +7,9 @@
     "postinstall": "npm run setup:husky && npm run greeting",
     "greeting": "echo You can use the command 'npm run cz' to use commitizen to set up your commits for you. && echo Otherwise, follow the conventional commits standard for commits && echo If you already have go installed on your machine, run `npm run setup:go` or `npm run setup:all` if you want to install commitizen as well ",
     "cz": "npx cz",
-    "setup": "npm run setup:cz && npm run setup:go",
+    "setup": "npm run setup:cz",
     "setup:husky": "husky install",
-    "setup:cz": "npm install -g commitizen",
-    "setup:go": "go get && go run main.go version && go build && go install"
+    "setup:cz": "npm install -g commitizen"
   },
   "repository": {
     "type": "git",
