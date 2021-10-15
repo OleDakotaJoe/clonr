@@ -5,6 +5,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/oledakotajoe/clonr/config"
 	"github.com/oledakotajoe/clonr/core"
+	"github.com/oledakotajoe/clonr/types"
 	"github.com/oledakotajoe/clonr/utils"
 	"github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
@@ -17,18 +18,8 @@ import (
 	"strings"
 )
 
-/* COMMAND ARGS */
-
-type CloneCmdArguments struct {
-	nameFlag    string
-	isLocalPath bool
-	inputMethod func(string) string
-	args        []string
-}
-
-var cmdArguments = CloneCmdArguments{
-	inputMethod: utils.InputPrompt,
-}
+var cloneCmdArgs types.CloneCmdArgs
+var cloneProcessorSettings types.FileProcessorSettings
 
 var cloneCmd = &cobra.Command{
 	Use:   "clone",
@@ -36,26 +27,28 @@ var cloneCmd = &cobra.Command{
 	Long:  `This is clonr's primary command. This command will clone a project from a git repository and will `,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Initializing clonr project... Please wait")
-		cmdArguments.args = args
-		cloneProject(&cmdArguments)
+		cloneCmdArgs.Args = args
+		cloneProject(&cloneCmdArgs, &cloneProcessorSettings)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(cloneCmd)
-	cloneCmd.Flags().StringVarP(&cmdArguments.nameFlag, "name", "n", config.GlobalConfig().DefaultProjectName, "The git URL to read from")
-	cloneCmd.Flags().BoolVarP(&cmdArguments.isLocalPath, "local", "l", false, "Indicates that the path you provide is on your local machine.") //(&cloneCmdLocalFlag, "l", false)
+	cloneProcessorSettings.StringInputReader = utils.StringInputReader
+	cloneProcessorSettings.MultipleChoiceInputReader = utils.MultipleChoiceInputReader
+	cloneCmd.Flags().StringVarP(&cloneCmdArgs.NameFlag, "name", "n", config.Global().DefaultProjectName, "The git URL to read from")
+	cloneCmd.Flags().BoolVarP(&cloneCmdArgs.IsLocalPath, "local", "l", false, "Indicates that the path you provide is on your local machine.") //(&cloneCmdLocalFlag, "l", false)
 }
 
-func cloneProject(cmdArguments *CloneCmdArguments) {
-	args := cmdArguments.args
+func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProcessorSettings) {
+	args := cmdArgs.Args
 	pwd, fsErr := os.Getwd()
 	utils.CheckForError(fsErr)
-	projectName, argErr := determineProjectName(cmdArguments)
+	projectName, argErr := determineProjectName(cmdArgs)
 	utils.CheckForError(argErr)
 	destination := pwd + "/" + projectName
 
-	if cmdArguments.isLocalPath {
+	if cmdArgs.IsLocalPath {
 		// Source should be the first argument passed in through the CLI
 		source := args[0]
 		err := copy.Copy(source, destination)
@@ -74,7 +67,7 @@ func cloneProject(cmdArguments *CloneCmdArguments) {
 
 			// TODO: add functionality for user to customize location of RSA
 			if runtime.GOOS == "windows" {
-				sshPath = os.Getenv("HOMEDRIVE") + "/" +  os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
+				sshPath = os.Getenv("HOMEDRIVE") + "/" + os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
 			} else {
 				sshPath = os.Getenv("HOME") + "/.ssh/id_rsa"
 			}
@@ -98,14 +91,10 @@ func cloneProject(cmdArguments *CloneCmdArguments) {
 
 		log.Debugf("Project root: %s", destination)
 	}
+	processorSettings.ConfigFilePath = destination
+	processorSettings.Viper = *utils.ViperReadConfig(destination, config.Global().ClonrConfigFileName, config.Global().ClonrConfigFileType)
 
-	core.ProcessFiles(
-		&core.FileProcessorSettings{
-			ConfigFilePath:    destination,
-			Reader:            cmdArguments.inputMethod,
-			CloneCmdArguments: cmdArguments.args,
-			Viper:             *utils.ViperReadConfig(destination, config.GlobalConfig().ClonrConfigFileName, config.GlobalConfig().ClonrConfigFileType),
-		})
+	core.ProcessFiles(processorSettings)
 }
 
 func validateAndExtractUrl(args []string) (string, error) {
@@ -126,13 +115,13 @@ func validateAndExtractUrl(args []string) (string, error) {
 	return sourceUrl, err
 }
 
-func determineProjectName(cmdArguments *CloneCmdArguments) (string, error) {
-	providedProjectName := cmdArguments.nameFlag
-	args := cmdArguments.args
+func determineProjectName(cmdArguments *types.CloneCmdArgs) (string, error) {
+	providedProjectName := cmdArguments.NameFlag
+	args := cmdArguments.Args
 
 	var result string
 	var err error
-	defaultProjectName := config.GlobalConfig().DefaultProjectName
+	defaultProjectName := config.Global().DefaultProjectName
 
 	if len(args) > 2 {
 		err = utils.ThrowError("SyntaxError: Too many arguments.")
