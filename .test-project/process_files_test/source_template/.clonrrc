@@ -8,6 +8,13 @@ globals:
     clonr-default:
       question: clonr-default
       default: global-should-be-returned
+    language:
+      question: What is your favorite language?
+      choices:
+        - Java
+        - Golang
+        - Javascript
+        - Python
 templates:
   test.txt:
     location: "/test.txt"
@@ -38,4 +45,15 @@ templates:
       default-var:
         question: ignore me
         default: da default
+  multiple-choice.txt:
+    location: "/multiple-choice.txt"
+    variables:
+      globals:
+      multi-choice:
+        question: What do you want?
+        choices:
+          - not-this
+          - or-this
+          - this-one
+          - not-this-either
 
