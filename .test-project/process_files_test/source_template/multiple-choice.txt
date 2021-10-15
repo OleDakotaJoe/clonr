@@ -1,0 +1,5 @@
+Which language do you prefer?
+
+{@clonr{globals.language}}
+
+{@clonr{multi-choice}}
