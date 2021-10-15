@@ -1,7 +1,7 @@
 {
   "name": "go-clonr",
   "description": "This project is aimed to make creating template projects very easy, so that you can set up a project one time, and not worry about configuration again.  Simply host your template project in a git repostory, configure your template variables in a .clonrrc file, as well as providing a placeholder in the  template files, and run `clonr clone <repo_url>`. The rest will unfold before your eyes.",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "main": "index.js",
   "bin": {
     "go-clonr": "./bin/index.js"
