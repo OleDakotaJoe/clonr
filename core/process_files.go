@@ -12,12 +12,12 @@ import (
 )
 
 func ProcessFiles(settings *types.FileProcessorSettings) {
-	setGlobalVarMap(settings)
-	processClonrConfig(settings)
+	processGlobalsVarMap(settings)
+	processTemplatesVarMap(settings)
 	renderAllFiles(settings)
 }
 
-func processClonrConfig(settings *types.FileProcessorSettings) {
+func processTemplatesVarMap(settings *types.FileProcessorSettings) {
 
 	configFilePath := settings.ConfigFilePath
 	v := settings.Viper
@@ -44,7 +44,7 @@ func processClonrConfig(settings *types.FileProcessorSettings) {
 	settings.MainTemplateMap = masterVariableMap
 }
 
-func setGlobalVarMap(processorSettings *types.FileProcessorSettings) {
+func processGlobalsVarMap(processorSettings *types.FileProcessorSettings) {
 	variablesMapKey := config.Global().GlobalVariablesKeyName + "." + config.Global().VariablesArrayKeyName
 	processorSettings.GlobalVariables = generateVarMap(processorSettings, variablesMapKey)
 }
