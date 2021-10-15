@@ -10,6 +10,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"regexp"
+	"strconv"
 )
 
 func CheckForError(err error) {
@@ -35,7 +36,7 @@ func ViperReadConfig(configFilePath string, configFileName string, configFileTyp
 	return v
 }
 
-func InputPrompt(prompt string) string {
+func StringInputReader(prompt string) string {
 	fmt.Println()
 	fmt.Println(prompt)
 	scanner := bufio.NewScanner(os.Stdin)
@@ -43,12 +44,43 @@ func InputPrompt(prompt string) string {
 	return scanner.Text()
 }
 
+func MultipleChoiceInputReader(prompt string, choices []string) string {
+	fmt.Println(prompt)
+	fmt.Println()
+	for index, choice := range choices {
+		fmt.Printf("[%d] : %s\n", index+1, choice)
+	}
+	fmt.Print("Enter the number of your selection: ")
+
+	var resultIndex int
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	temp := scanner.Text()
+	parsedInt, err := strconv.ParseInt(temp, 10, 64)
+	if err != nil {
+		fmt.Printf("You must provide an Integer. You provided %s", temp)
+		fmt.Println()
+		return MultipleChoiceInputReader(prompt, choices)
+	} else {
+		inputValue := int(parsedInt)
+		if inputValue > len(choices) || inputValue <= 0 {
+			fmt.Println("Your choice was out of range.")
+			fmt.Println()
+			return MultipleChoiceInputReader(prompt, choices)
+		} else {
+			resultIndex = int(parsedInt) - 1
+		}
+	}
+
+	return choices[resultIndex]
+}
+
 func RemoveElementFromSlice(list []string, index int) []string {
 	return append(list[:index], list[index+1:]...)
 }
 
 func IsVariableValid(variable string) (bool, error) {
-	return regexp.Match(config.GlobalConfig().VariableRegex, []byte(variable))
+	return regexp.Match(config.Global().VariableRegex, []byte(variable))
 }
 
 func GetKeysFromMap(someMap map[string]string) []string {

@@ -153,13 +153,13 @@ fabric.properties
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,go,visualstudiocode
-/testing-resources/testing-sample-template/
-/testing-resources/process_files_test/test_output/
+/.test-project/testing-sample-template/
+/.test-project/process_files_test/test_output/
 
 dist/
 /node_modules/
-/npm-publish/src/bin/
-/npm-publish/node_modules/
-/npm-publish/bin/
-/npm-publish/src/LICENSE
-/npm-publish/src/README.md
+/.release/src/bin/
+/.release/node_modules/
+/.release/bin/
+/.release/src/LICENSE
+/.release/src/README.md

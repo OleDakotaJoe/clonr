@@ -16,7 +16,7 @@ type LoggerConfig struct {
 func ConfigureLogger() {
 	config := LoggerConfig{
 		Writer:    os.Stdout,
-		InfoLevel: log.DebugLevel,
+		InfoLevel: log.InfoLevel,
 		Formatter: &easy.Formatter{
 			LogFormat: "[%lvl%]: %msg%\n",
 		},

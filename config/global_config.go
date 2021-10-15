@@ -14,9 +14,10 @@ type globalConfig struct {
 	GlobalVariablesKeyName      string
 	QuestionsKeyName            string
 	DefaultAnswerKeyName        string
+	DefaultChoicesKeyName 		string
 }
 
-func GlobalConfig() *globalConfig {
+func Global() *globalConfig {
 	this := globalConfig{
 		DefaultProjectName:          "clonr-app",
 		ClonrConfigFileName:         ".clonrrc",
@@ -31,6 +32,7 @@ func GlobalConfig() *globalConfig {
 		GlobalVariablesKeyName:      "globals",
 		QuestionsKeyName:            "question",
 		DefaultAnswerKeyName:        "default",
+		DefaultChoicesKeyName:       "choices",
 	}
 	return &this
 }

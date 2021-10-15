@@ -217,7 +217,7 @@ This would look like this: `clonr clone <git_url> -name <name_of_project>`
 ### Version
 Just run `clonr version` and you should see something like this:
 <br>
-![clonr-version.png](resources/clonr-version.png)
+![clonr-version.png](.resources/clonr-version.png)
 
 
 
