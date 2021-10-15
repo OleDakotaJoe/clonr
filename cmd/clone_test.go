@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/oledakotajoe/clonr/config"
+	"github.com/oledakotajoe/clonr/types"
 	"github.com/oledakotajoe/clonr/utils"
 	"golang.org/x/mod/sumdb/dirhash"
 	"os"
@@ -15,15 +16,15 @@ func Test_setup(t *testing.T) {
 }
 
 func Test_GivenOneArg_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
-	cmdArgs := CloneCmdArguments{
-		args:     []string{"testing-resources"},
-		nameFlag: config.GlobalConfig().DefaultProjectName,
+	cmdArgs := types.CloneCmdArgs{
+		Args:     []string{".testing-.resources"},
+		NameFlag: config.Global().DefaultProjectName,
 	}
 
 	result, err := determineProjectName(&cmdArgs)
 
-	if result != cmdArgs.nameFlag {
-		t.Fatalf("Result is not equal to providedNameFlag: %s", cmdArgs.nameFlag)
+	if result != cmdArgs.NameFlag {
+		t.Fatalf("Result is not equal to providedNameFlag: %s", cmdArgs.NameFlag)
 	}
 	if err != nil {
 		t.Fatal("Error: ", err)
@@ -31,13 +32,13 @@ func Test_GivenOneArg_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 }
 
 func Test_GivenOneArg_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
-	cmdArgs := CloneCmdArguments{
-		args:     []string{"testing-resources"},
-		nameFlag: "custom-name-flag",
+	cmdArgs := types.CloneCmdArgs{
+		Args:     []string{".testing-.resources"},
+		NameFlag: "custom-name-flag",
 	}
 	result, err := determineProjectName(&cmdArgs)
-	if result != cmdArgs.nameFlag {
-		t.Fatalf("Expected result was \"%s\", but got %s ", cmdArgs.nameFlag, result)
+	if result != cmdArgs.NameFlag {
+		t.Fatalf("Expected result was \"%s\", but got %s ", cmdArgs.NameFlag, result)
 	}
 	if err != nil {
 		t.Fatal("Error: ", err)
@@ -47,9 +48,9 @@ func Test_GivenOneArg_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
 func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 	var expectedResult = "should-be-this-name"
 
-	cmdArgs := CloneCmdArguments{
-		args:     []string{"testing-resources", expectedResult},
-		nameFlag: config.GlobalConfig().DefaultProjectName,
+	cmdArgs := types.CloneCmdArgs{
+		Args:     []string{".testing-.resources", expectedResult},
+		NameFlag: config.Global().DefaultProjectName,
 	}
 
 	result, err := determineProjectName(&cmdArgs)
@@ -64,9 +65,9 @@ func Test_GivenTwoArgs_and_GivenNoNameFlag_DetermineOutputDir(t *testing.T) {
 }
 
 func Test_GivenTwoArgs_and_GivenOneNameFlag_DetermineOutputDir(t *testing.T) {
-	cmdArgs := CloneCmdArguments{
-		args:     []string{"testing-resources", "should-not-be-this-name"},
-		nameFlag: "something-is-wrong",
+	cmdArgs := types.CloneCmdArgs{
+		Args:     []string{".testing-.resources", "should-not-be-this-name"},
+		NameFlag: "something-is-wrong",
 	}
 
 	result, err := determineProjectName(&cmdArgs)
@@ -111,11 +112,14 @@ func Test_givenTemplateFile_processFiles(t *testing.T) {
 	outputDir := config.TestConfig().OutputDir
 	answerKeyDir := config.TestConfig().AnswerKeyDir
 
-	var cmdArguments = CloneCmdArguments{
-		args:        []string{sourceDir},
-		nameFlag:    outputDir,
-		isLocalPath: true,
-		inputMethod: func(input string) string {
+	var cmdArguments = types.CloneCmdArgs{
+		Args:        []string{sourceDir},
+		NameFlag:    outputDir,
+		IsLocalPath: true,
+	}
+
+	var fileProcessorSettings = types.FileProcessorSettings{
+		StringInputReader: func(input string) string {
 			/*
 			* This function is being used to simulate a user's response to questions being asked.
 			* It's 'input' string is the question in the actual implementation, and gets its input from stdout.
@@ -138,9 +142,22 @@ func Test_givenTemplateFile_processFiles(t *testing.T) {
 
 			return input
 		},
+		MultipleChoiceInputReader: func(prompt string, choices []string) string {
+			var answer string
+			for _, choice := range choices {
+				if choice == "this-one" {
+					answer = "this-one"
+				}
+				if choice == "Golang" {
+					answer = "Golang"
+				}
+			}
+
+			return answer
+		},
 	}
 
-	cloneProject(&cmdArguments)
+	cloneProject(&cmdArguments, &fileProcessorSettings)
 
 	// Check the hash of the directories
 	actualHash, actErr := dirhash.HashDir(outputDir, "test", dirhash.DefaultHash)
@@ -152,7 +169,7 @@ func Test_givenTemplateFile_processFiles(t *testing.T) {
 		t.Fatal("output was not correct")
 	}
 
-	// Cleanup the test directory
+	// Cleanup the test directory only if tests pass, so you can look at result if it fails
 	err := os.RemoveAll(outputDir)
 	utils.CheckForError(err)
 }
