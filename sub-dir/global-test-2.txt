@@ -1,0 +1,3 @@
+should succeed with {@clonr{globals.some-variable}}
+
+should succeed with also {@clonr{globals.some-other-variable}}

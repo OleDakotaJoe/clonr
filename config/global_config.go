@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/oledakotajoe/clonr/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -74,21 +73,7 @@ func setDefaults(v *viper.Viper) {
 }
 
 func Global() *globalConfig {
-	v := viper.New()
-	v.SetConfigName(utils.GetLocationOfInstalledBinary())
-	v.SetConfigType("yaml")
-	v.AddConfigPath(".clonr-config.yml")
-	fmt.Println(v.GetString("DefaultProjectName"))
-	fmt.Println(v.GetString("DefaultProjectName"))
-	setDefaults(v)
-	err := v.ReadInConfig()
-	if err == err.(viper.ConfigFileNotFoundError) {
-		log.Debug("Using default configuration.")
-	} else {
-		utils.CheckForError(err)
-
-	}
-
+	v := getConfig()
 	this := globalConfig{
 		DefaultProjectName:      v.GetString("DefaultProjectName"),
 		ConfigFileName:          v.GetString("ConfigFileName"),
@@ -107,4 +92,19 @@ func Global() *globalConfig {
 		LogLevel:                v.GetString("LogLevel"),
 	}
 	return &this
+}
+
+func getConfig() *viper.Viper {
+	v := viper.New()
+	v.SetConfigName(utils.GetLocationOfInstalledBinary())
+	v.SetConfigType("yaml")
+	v.AddConfigPath(".clonr-config.yml")
+	setDefaults(v)
+	err := v.ReadInConfig()
+	if err == err.(viper.ConfigFileNotFoundError) {
+		log.Debug("Using default configuration.")
+	} else {
+		utils.CheckForError(err)
+	}
+	return v
 }

@@ -15,4 +15,5 @@ func init() {
 	config.ConfigureLogger()
 	title := figure.NewFigure("clonr", "rounded", true).String()
 	fmt.Print(title)
+	fmt.Println("Clonr CLI -- Project Templating Engine")
 }

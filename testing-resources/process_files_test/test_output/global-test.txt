@@ -1,3 +1,0 @@
-should succeed with some-variable
-
-should succeed with also some-other-variable
