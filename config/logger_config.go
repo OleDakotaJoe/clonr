@@ -1,10 +1,12 @@
 package config
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	easy "github.com/t-tomalak/logrus-easy-formatter"
 	"io"
 	"os"
+	"strings"
 )
 
 type LoggerConfig struct {
@@ -22,6 +24,26 @@ func ConfigureLogger() {
 		},
 	}
 	log.SetOutput(config.Writer)
-	log.SetLevel(config.InfoLevel)
+	log.SetLevel(getLogLevel())
 	log.SetFormatter(config.Formatter)
+}
+
+func getLogLevel() log.Level{
+	logLevel := strings.ToLower(Global().LogLevel)
+
+	switch logLevel {
+	case "info" :
+		return log.InfoLevel
+	case "debug":
+		return log.DebugLevel
+	case "error":
+		return log.ErrorLevel
+	case "fatal":
+		return log.FatalLevel
+	case "panic":
+		return log.PanicLevel
+	default:
+		fmt.Printf("The log level you specified {%s} is not valid.", logLevel)
+		return log.InfoLevel
+	}
 }

@@ -1,0 +1,35 @@
+globals:
+  variables:
+    some-variable:
+      question: some-variable
+    some-other-variable:
+      question: some-other-variable
+templates:
+  test.txt:
+    location: "/test.txt"
+    variables:
+        file_in_root_multi:
+            question: file_in_root_multi
+  another-test.txt:
+    location: "/sub-dir/another-test.txt"
+    variables:
+        globals:
+        file_sub_dir_multi_diff_1:
+            question: file_sub_dir_multi_diff_1
+        file_sub_dir_multi_diff_2:
+            question: file_sub_dir_multi_diff_2
+  global-test.txt:
+    location: "/global-test.txt"
+    variables:
+        globals:
+  global-test-2.txt:
+    location: "/sub-dir/global-test-2.txt"
+    variables:
+        globals:
+  default-test.txt:
+    location: "/default-test.txt"
+    variables:
+      defaultVar:
+        question: ignore me
+        default: da default
+

@@ -1,74 +1,110 @@
 package config
 
 import (
+	"fmt"
 	"github.com/oledakotajoe/clonr/utils"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 type globalConfig struct {
-	DefaultProjectName          string
-	ClonrConfigFileName         string
-	ClonrConfigFileType         string
-	ClonrPlaceholderRegex       string
-	ClonrPrefix                 string
-	ClonrSuffix                 string
-	ClonrVariableRegex          string
-	ClonrConfigRootKeyName      string
-	TemplateFileLocationKeyName string
-	VariablesArrayKeyName       string
-	GlobalVariablesKeyName      string
-	QuestionsKeyName            string
+	DefaultProjectName  string
+	ConfigFileName        string
+	ConfigFileType         string
+	PlaceholderRegex       string
+	PlaceholderPrefix  string
+	PlaceholderSuffix   string
+	VariableNameRegex   string
+	TemplateRootKeyName string
+	TemplateLocationKeyName string
+	VariablesKeyName        string
+	GlobalsKeyName              string
+	QuestionsKeyName      string
 	DefaultAnswerKeyName        string
-	DefaultChoicesKeyName       string
-	LogLevel                    string
+	DefaultChoicesKeyName string
+	LogLevel              string
+}
+
+func setDefaults(v *viper.Viper) {
+	var err error
+	v.SetDefault("DefaultProjectName", "clonr-app")
+	err = v.BindEnv("DefaultProjectName", "CLONR_DFLT_PROJ_NAME"); utils.CheckForError(err)
+
+	v.SetDefault("ConfigFileName", ".clonrrc")
+	err = v.BindEnv("ConfigFileName", "CLONR_CONFIG_FNAME"); utils.CheckForError(err)
+
+	v.SetDefault("ConfigFileType", "yaml")
+	err = v.BindEnv("ConfigFileType", "CLONR_CONFIG_FTYPE"); utils.CheckForError(err)
+
+	v.SetDefault("PlaceholderRegex", "\\{{1}@{1}clonr\\{{1}[a-z0-9-_]+\\}{2}")
+	err = v.BindEnv("PlaceholderRegex", "CLONR_PH_REGEX"); utils.CheckForError(err)
+
+	v.SetDefault("PlaceholderPrefix", "{@clonr{")
+	err = v.BindEnv("PlaceholderPrefix", "CLONR_PH_PREFIX"); utils.CheckForError(err)
+
+	v.SetDefault("PlaceholderSuffix", "}}")
+	err = v.BindEnv("PlaceholderSuffix", "CLONR_PH_SUFFIX"); utils.CheckForError(err)
+
+	v.SetDefault("VariableNameRegex", "[\\w-]+")
+	err = v.BindEnv("VariableNameRegex", "CLONR_VARS_REGEX"); utils.CheckForError(err)
+
+	v.SetDefault("TemplateRootKeyName", "templates")
+	err = v.BindEnv("TemplateRootKeyName", "CLONR_TEMPLATE_ROOT_KEY"); utils.CheckForError(err)
+
+	v.SetDefault("TemplateLocationKeyName", "location")
+	err = v.BindEnv("TemplateLocationKeyName", "CLONR_TEMPLATE_LOC_KEY"); utils.CheckForError(err)
+
+	v.SetDefault("VariablesKeyName", "variables")
+	err = v.BindEnv("VariablesKeyName", "CLONR_VARS_KEY"); utils.CheckForError(err)
+
+	v.SetDefault("GlobalsKeyName", "globals")
+	err = v.BindEnv("GlobalsKeyName", "CLONR_GLOBALS_KEY"); utils.CheckForError(err)
+
+	v.SetDefault("QuestionsKeyName", "question")
+	err = v.BindEnv("QuestionsKeyName", "CLONR_QUES_KEY"); utils.CheckForError(err)
+
+	v.SetDefault("DefaultAnswerKeyName", "default")
+	err = v.BindEnv("DefaultAnswerKeyName", "CLONR_DFLT_ANS_KEY"); utils.CheckForError(err)
+
+	v.SetDefault("DefaultChoicesKeyName", "choices")
+	err = v.BindEnv("DefaultChoicesKeyName", "CLONR_CHOICES_KEY"); utils.CheckForError(err)
+
+	v.SetDefault("LogLevel", "info")
+	err = v.BindEnv("LogLevel", "CLONR_LOG"); utils.CheckForError(err)
 }
 
 func Global() *globalConfig {
-	v, err := utils.ViperReadConfig(utils.GetLocationOfInstalledBinary(), ".clonr-config.yml", "yaml")
+	v := viper.New()
+	v.SetConfigName(utils.GetLocationOfInstalledBinary())
+	v.SetConfigType("yaml")
+	v.AddConfigPath(".clonr-config.yml")
+	fmt.Println(v.GetString("DefaultProjectName"))
+	fmt.Println(v.GetString("DefaultProjectName"))
+	setDefaults(v)
+	err := v.ReadInConfig()
+	if err == err.(viper.ConfigFileNotFoundError) {
+		log.Debug("Using default configuration.")
+	} else {
+		utils.CheckForError(err)
 
-	v.SetDefault("DefaultProjectName", "clonr-app")
-	v.SetDefault("ClonrConfigFileName", ".clonrrc")
-	v.SetDefault("ClonrConfigFileType", "yaml")
-	v.SetDefault("ClonrPlaceholderRegex", "\\{{1}@{1}clonr\\{{1}[a-z0-9-_]+\\}{2}")
-	v.SetDefault("ClonrPrefix", "{@clonr{")
-	v.SetDefault("ClonrSuffix", "}}")
-	v.SetDefault("ClonrVariableRegex", "[\\w-]+")
-	v.SetDefault("ClonrConfigRootKeyName", "templates")
-	v.SetDefault("TemplateFileLocationKeyName", "location")
-	v.SetDefault("VariablesArrayKeyName", "variables")
-	v.SetDefault("GlobalVariablesKeyName", "globals")
-	v.SetDefault("QuestionsKeyName", "question")
-	v.SetDefault("DefaultAnswerKeyName", "default")
-	v.SetDefault("DefaultChoicesKeyName", "choices")
-	v.SetDefault("LogLevel", "INFO")
-
-	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// Config file not found
-			writeErr := v.WriteConfig()
-			utils.CheckForError(writeErr)
-		} else {
-			// Config file was found but another error was produced, exit status 1
-			utils.CheckForError(err)
-		}
 	}
 
 	this := globalConfig{
-		DefaultProjectName:          v.GetString("DefaultProjectName"),
-		ClonrConfigFileName:         v.GetString("ClonrConfigFileName"),
-		ClonrConfigFileType:         v.GetString("ClonrConfigFileType"),
-		ClonrPlaceholderRegex:       v.GetString("ClonrPlaceholderRegex"),
-		ClonrPrefix:                 v.GetString("ClonrPrefix"),
-		ClonrSuffix:                 v.GetString("ClonrSuffix"),
-		ClonrVariableRegex:          v.GetString("ClonrVariableRegex"),
-		ClonrConfigRootKeyName:      v.GetString("ClonrConfigRootKeyName"),
-		TemplateFileLocationKeyName: v.GetString("TemplateFileLocationKeyName"),
-		VariablesArrayKeyName:       v.GetString("VariablesArrayKeyName"),
-		GlobalVariablesKeyName:      v.GetString("GlobalVariablesKeyName"),
-		QuestionsKeyName:            v.GetString("QuestionsKeyName"),
-		DefaultAnswerKeyName:        v.GetString("DefaultAnswerKeyName"),
-		DefaultChoicesKeyName:       v.GetString("DefaultChoicesKeyName"),
-		LogLevel:                    v.GetString("LogLevel"),
+		DefaultProjectName:      v.GetString("DefaultProjectName"),
+		ConfigFileName:          v.GetString("ConfigFileName"),
+		ConfigFileType:          v.GetString("ConfigFileType"),
+		PlaceholderRegex:        v.GetString("PlaceholderRegex"),
+		PlaceholderPrefix:       v.GetString("PlaceholderPrefix"),
+		PlaceholderSuffix:       v.GetString("PlaceholderSuffix"),
+		VariableNameRegex:       v.GetString("VariableNameRegex"),
+		TemplateRootKeyName:     v.GetString("TemplateRootKeyName"),
+		TemplateLocationKeyName: v.GetString("TemplateLocationKeyName"),
+		VariablesKeyName:        v.GetString("VariablesKeyName"),
+		GlobalsKeyName:          v.GetString("GlobalsKeyName"),
+		QuestionsKeyName:        v.GetString("QuestionsKeyName"),
+		DefaultAnswerKeyName:    v.GetString("DefaultAnswerKeyName"),
+		DefaultChoicesKeyName:   v.GetString("DefaultChoicesKeyName"),
+		LogLevel:                v.GetString("LogLevel"),
 	}
 	return &this
 }

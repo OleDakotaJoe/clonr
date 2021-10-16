@@ -4,13 +4,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/oledakotajoe/clonr/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 )
 
@@ -27,7 +25,7 @@ func ThrowError(message string) error {
 }
 
 func ViperReadConfig(configFilePath string, configFileName string, configFileType string) (*viper.Viper, error) {
-	v := viper.GetViper()
+	v := viper.New()
 	v.SetConfigName(configFileName)
 	v.SetConfigType(configFileType)
 	v.AddConfigPath(configFilePath)
@@ -83,10 +81,6 @@ func GetLocationOfInstalledBinary() string {
 
 func RemoveElementFromSlice(list []string, index int) []string {
 	return append(list[:index], list[index+1:]...)
-}
-
-func IsVariableValid(variable string) (bool, error) {
-	return regexp.Match(config.Global().ClonrVariableRegex, []byte(variable))
 }
 
 func GetKeysFromMap(someMap map[string]string) []string {

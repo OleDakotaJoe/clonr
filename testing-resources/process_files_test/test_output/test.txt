@@ -1,0 +1,6 @@
+Test file_in_root_multi
+
+`1234567890-=-1234567890`xcvbhnm,./asdfgyhujkl;'qwerty7uiop[]\{}(){@{}}
+{@clonr{should_not_change}}
+
+-file_in_root_multi
