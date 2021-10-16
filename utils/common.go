@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 )
@@ -25,15 +26,14 @@ func ThrowError(message string) error {
 	return err
 }
 
-func ViperReadConfig(configFilePath string, configFileName string, configFileType string) *viper.Viper {
+func ViperReadConfig(configFilePath string, configFileName string, configFileType string) (*viper.Viper, error) {
 	v := viper.GetViper()
 	v.SetConfigName(configFileName)
 	v.SetConfigType(configFileType)
 	v.AddConfigPath(configFilePath)
 	log.Debugf("Config File Location: %s", v.ConfigFileUsed())
 	err := v.ReadInConfig()
-	CheckForError(err)
-	return v
+	return v, err
 }
 
 func StringInputReader(prompt string) string {
@@ -75,12 +75,18 @@ func MultipleChoiceInputReader(prompt string, choices []string) string {
 	return choices[resultIndex]
 }
 
+func GetLocationOfInstalledBinary() string {
+	ex, err := os.Executable()
+	CheckForError(err)
+	return filepath.Dir(ex)
+}
+
 func RemoveElementFromSlice(list []string, index int) []string {
 	return append(list[:index], list[index+1:]...)
 }
 
 func IsVariableValid(variable string) (bool, error) {
-	return regexp.Match(config.Global().VariableRegex, []byte(variable))
+	return regexp.Match(config.Global().ClonrVariableRegex, []byte(variable))
 }
 
 func GetKeysFromMap(someMap map[string]string) []string {

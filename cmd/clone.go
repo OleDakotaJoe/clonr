@@ -91,8 +91,10 @@ func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProc
 
 		log.Debugf("Project root: %s", destination)
 	}
+	v, err := utils.ViperReadConfig(destination, config.Global().ClonrConfigFileName, config.Global().ClonrConfigFileType)
+	utils.CheckForError(err)
+	processorSettings.Viper = *v
 	processorSettings.ConfigFilePath = destination
-	processorSettings.Viper = *utils.ViperReadConfig(destination, config.Global().ClonrConfigFileName, config.Global().ClonrConfigFileType)
 
 	core.ProcessFiles(processorSettings)
 }
