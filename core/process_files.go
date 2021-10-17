@@ -104,7 +104,7 @@ func renderAllFiles(settings *types.FileProcessorSettings) {
 
 func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.FileProcessorSettings) {
 	input, err := ioutil.ReadFile(filepath)
-	utils.CheckForError(err)
+	utils.ExitIfError(err)
 	inputFileAsString := string(input)
 	for key, value := range *varMap {
 		if key == config.Global().GlobalsKeyName {
@@ -121,7 +121,7 @@ func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.File
 		}
 	}
 	err = ioutil.WriteFile(filepath, []byte(inputFileAsString), 0644)
-	utils.CheckForError(err)
+	utils.ExitIfError(err)
 }
 
 func IsVariableValid(variable string) (bool, error) {

@@ -43,19 +43,19 @@ func init() {
 func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProcessorSettings) {
 	args := cmdArgs.Args
 	pwd, fsErr := os.Getwd()
-	utils.CheckForError(fsErr)
+	utils.ExitIfError(fsErr)
 	projectName, argErr := determineProjectName(cmdArgs)
-	utils.CheckForError(argErr)
+	utils.ExitIfError(argErr)
 	destination := pwd + "/" + projectName
 
 	if cmdArgs.IsLocalPath {
 		// Source should be the first argument passed in through the CLI
 		source := args[0]
 		err := copy.Copy(source, destination)
-		utils.CheckForError(err)
+		utils.ExitIfError(err)
 	} else {
 		source, err := validateAndExtractUrl(args)
-		utils.CheckForError(err)
+		utils.ExitIfError(err)
 
 		cloneOptions := git.CloneOptions{
 			URL:      source,
@@ -81,18 +81,18 @@ func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProc
 			}
 
 			publicKey, keyError := ssh.NewPublicKeys("git", sshKey, sshPass)
-			utils.CheckForError(keyError)
+			utils.ExitIfError(keyError)
 			cloneOptions.Auth = publicKey
 		}
 
 		log.Info("Clonr is cloning...")
 		_, cloneErr := git.PlainClone(projectName, false, &cloneOptions)
-		utils.CheckForError(cloneErr)
+		utils.ExitIfError(cloneErr)
 
 		log.Debugf("Project root: %s", destination)
 	}
 	v, err := utils.ViperReadConfig(destination, config.Global().ConfigFileName, config.Global().ConfigFileType)
-	utils.CheckForError(err)
+	utils.ExitIfError(err)
 	processorSettings.Viper = *v
 	processorSettings.ConfigFilePath = destination
 

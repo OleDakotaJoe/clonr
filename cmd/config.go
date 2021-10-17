@@ -40,8 +40,8 @@ var showCmd = &cobra.Command{
 			writer := tabwriter.NewWriter(os.Stdout, 28,8,1, '\t', tabwriter.AlignRight)
 			field := typeConf.Field(i).Name
 			value := cast.ToString(v.Field(i))
-			_, pErr := fmt.Fprintf(writer, "%s:\t %s \n", field, value ); utils.CheckForError(pErr)
-			wErr := writer.Flush(); utils.CheckForError(wErr)
+			_, pErr := fmt.Fprintf(writer, "%s:\t %s \n", field, value ); utils.ExitIfError(pErr)
+			wErr := writer.Flush(); utils.ExitIfError(wErr)
 		}
 	},
 }

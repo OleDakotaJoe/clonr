@@ -27,49 +27,49 @@ type globalConfig struct {
 func setDefaults(v *viper.Viper) {
 	var err error
 	v.SetDefault("DefaultProjectName", "clonr-app")
-	err = v.BindEnv("DefaultProjectName", "CLONR_DFLT_PROJ_NAME"); utils.CheckForError(err)
+	err = v.BindEnv("DefaultProjectName", "CLONR_DFLT_PROJ_NAME"); utils.ExitIfError(err)
 
 	v.SetDefault("ConfigFileName", ".clonrrc")
-	err = v.BindEnv("ConfigFileName", "CLONR_CONFIG_FNAME"); utils.CheckForError(err)
+	err = v.BindEnv("ConfigFileName", "CLONR_CONFIG_FNAME"); utils.ExitIfError(err)
 
 	v.SetDefault("ConfigFileType", "yaml")
-	err = v.BindEnv("ConfigFileType", "CLONR_CONFIG_FTYPE"); utils.CheckForError(err)
+	err = v.BindEnv("ConfigFileType", "CLONR_CONFIG_FTYPE"); utils.ExitIfError(err)
 
 	v.SetDefault("PlaceholderRegex", "\\{{1}@{1}clonr\\{{1}[a-z0-9-_]+\\}{2}")
-	err = v.BindEnv("PlaceholderRegex", "CLONR_PH_REGEX"); utils.CheckForError(err)
+	err = v.BindEnv("PlaceholderRegex", "CLONR_PH_REGEX"); utils.ExitIfError(err)
 
 	v.SetDefault("PlaceholderPrefix", "{@clonr{")
-	err = v.BindEnv("PlaceholderPrefix", "CLONR_PH_PREFIX"); utils.CheckForError(err)
+	err = v.BindEnv("PlaceholderPrefix", "CLONR_PH_PREFIX"); utils.ExitIfError(err)
 
 	v.SetDefault("PlaceholderSuffix", "}}")
-	err = v.BindEnv("PlaceholderSuffix", "CLONR_PH_SUFFIX"); utils.CheckForError(err)
+	err = v.BindEnv("PlaceholderSuffix", "CLONR_PH_SUFFIX"); utils.ExitIfError(err)
 
 	v.SetDefault("VariableNameRegex", "[\\w-]+")
-	err = v.BindEnv("VariableNameRegex", "CLONR_VARS_REGEX"); utils.CheckForError(err)
+	err = v.BindEnv("VariableNameRegex", "CLONR_VARS_REGEX"); utils.ExitIfError(err)
 
 	v.SetDefault("TemplateRootKeyName", "templates")
-	err = v.BindEnv("TemplateRootKeyName", "CLONR_TEMPLATE_ROOT_KEY"); utils.CheckForError(err)
+	err = v.BindEnv("TemplateRootKeyName", "CLONR_TEMPLATE_ROOT_KEY"); utils.ExitIfError(err)
 
 	v.SetDefault("TemplateLocationKeyName", "location")
-	err = v.BindEnv("TemplateLocationKeyName", "CLONR_TEMPLATE_LOC_KEY"); utils.CheckForError(err)
+	err = v.BindEnv("TemplateLocationKeyName", "CLONR_TEMPLATE_LOC_KEY"); utils.ExitIfError(err)
 
 	v.SetDefault("VariablesKeyName", "variables")
-	err = v.BindEnv("VariablesKeyName", "CLONR_VARS_KEY"); utils.CheckForError(err)
+	err = v.BindEnv("VariablesKeyName", "CLONR_VARS_KEY"); utils.ExitIfError(err)
 
 	v.SetDefault("GlobalsKeyName", "globals")
-	err = v.BindEnv("GlobalsKeyName", "CLONR_GLOBALS_KEY"); utils.CheckForError(err)
+	err = v.BindEnv("GlobalsKeyName", "CLONR_GLOBALS_KEY"); utils.ExitIfError(err)
 
 	v.SetDefault("QuestionsKeyName", "question")
-	err = v.BindEnv("QuestionsKeyName", "CLONR_QUES_KEY"); utils.CheckForError(err)
+	err = v.BindEnv("QuestionsKeyName", "CLONR_QUES_KEY"); utils.ExitIfError(err)
 
 	v.SetDefault("DefaultAnswerKeyName", "default")
-	err = v.BindEnv("DefaultAnswerKeyName", "CLONR_DFLT_ANS_KEY"); utils.CheckForError(err)
+	err = v.BindEnv("DefaultAnswerKeyName", "CLONR_DFLT_ANS_KEY"); utils.ExitIfError(err)
 
 	v.SetDefault("DefaultChoicesKeyName", "choices")
-	err = v.BindEnv("DefaultChoicesKeyName", "CLONR_CHOICES_KEY"); utils.CheckForError(err)
+	err = v.BindEnv("DefaultChoicesKeyName", "CLONR_CHOICES_KEY"); utils.ExitIfError(err)
 
 	v.SetDefault("LogLevel", "info")
-	err = v.BindEnv("LogLevel", "CLONR_LOG"); utils.CheckForError(err)
+	err = v.BindEnv("LogLevel", "CLONR_LOG"); utils.ExitIfError(err)
 }
 
 func Global() *globalConfig {
@@ -104,7 +104,7 @@ func getConfig() *viper.Viper {
 	if err == err.(viper.ConfigFileNotFoundError) {
 		log.Debug("Using default configuration.")
 	} else {
-		utils.CheckForError(err)
+		utils.ExitIfError(err)
 	}
 	return v
 }

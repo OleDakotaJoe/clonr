@@ -161,9 +161,9 @@ func Test_givenTemplateFile_processFiles(t *testing.T) {
 
 	// Check the hash of the directories
 	actualHash, actErr := dirhash.HashDir(outputDir, "test", dirhash.DefaultHash)
-	utils.CheckForError(actErr)
+	utils.ExitIfError(actErr)
 	expectedHash, expErr := dirhash.HashDir(answerKeyDir, "test", dirhash.DefaultHash)
-	utils.CheckForError(expErr)
+	utils.ExitIfError(expErr)
 
 	if actualHash != expectedHash {
 		t.Fatal("output was not correct")
@@ -171,5 +171,5 @@ func Test_givenTemplateFile_processFiles(t *testing.T) {
 
 	// Cleanup the test directory only if tests pass, so you can look at result if it fails
 	err := os.RemoveAll(outputDir)
-	utils.CheckForError(err)
+	utils.ExitIfError(err)
 }

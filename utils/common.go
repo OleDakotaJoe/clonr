@@ -12,7 +12,7 @@ import (
 	"strconv"
 )
 
-func CheckForError(err error) {
+func ExitIfError(err error) {
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
@@ -75,7 +75,7 @@ func MultipleChoiceInputReader(prompt string, choices []string) string {
 
 func GetLocationOfInstalledBinary() string {
 	ex, err := os.Executable()
-	CheckForError(err)
+	ExitIfError(err)
 	return filepath.Dir(ex)
 }
 
@@ -96,6 +96,6 @@ func GetKeysFromMap(someMap map[string]string) []string {
 func GetPassword() string {
 	fmt.Println("\nPlease enter your password: ")
 	passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
-	CheckForError(err)
+	ExitIfError(err)
 	return string(passwd)
 }
