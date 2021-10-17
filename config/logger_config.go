@@ -28,11 +28,11 @@ func ConfigureLogger() {
 	log.SetFormatter(config.Formatter)
 }
 
-func getLogLevel() log.Level{
+func getLogLevel() log.Level {
 	logLevel := strings.ToLower(Global().LogLevel)
 
 	switch logLevel {
-	case "info" :
+	case "info":
 		return log.InfoLevel
 	case "debug":
 		return log.DebugLevel

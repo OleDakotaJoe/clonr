@@ -26,6 +26,7 @@ func init() {
 
 	// Sub-commands
 	configCmd.AddCommand(showCmd)
+	configCmd.AddCommand(setCmd)
 }
 
 var showCmd = &cobra.Command{
@@ -37,11 +38,13 @@ var showCmd = &cobra.Command{
 		v := reflect.ValueOf(conf)
 		typeConf := v.Type()
 		for i := 0; i < v.NumField(); i++ {
-			writer := tabwriter.NewWriter(os.Stdout, 28,8,1, '\t', tabwriter.AlignRight)
+			writer := tabwriter.NewWriter(os.Stdout, 28, 8, 1, '\t', tabwriter.AlignRight)
 			field := typeConf.Field(i).Name
 			value := cast.ToString(v.Field(i))
-			_, pErr := fmt.Fprintf(writer, "%s:\t %s \n", field, value ); utils.ExitIfError(pErr)
-			wErr := writer.Flush(); utils.ExitIfError(wErr)
+			_, pErr := fmt.Fprintf(writer, "%s:\t %s \n", field, value)
+			utils.ExitIfError(pErr)
+			wErr := writer.Flush()
+			utils.ExitIfError(wErr)
 		}
 	},
 }
@@ -51,8 +54,13 @@ var setCmd = &cobra.Command{
 	Short: "Make an adjustment to clonr's configuration",
 	Long:  `Display clonr's current configuration.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// do stuff
+		v := config.Global().Viper
+		err := v.WriteConfig()
+		if os.IsNotExist(err) {
+			err := v.WriteConfigAs(utils.GetLocationOfInstalledBinary())
+			fmt.Println(utils.GetLocationOfInstalledBinary())
+			utils.ExitIfError(err)
+		}
 	},
 }
-
 
