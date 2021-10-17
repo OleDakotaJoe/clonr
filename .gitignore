@@ -1,3 +1,14 @@
+# Project Specific
+dist/
+/node_modules/
+/.release/src/bin/
+/.release/node_modules/
+/.release/bin/
+/.release/src/LICENSE
+/.release/src/README.md
+/clonr
+/.clonrrc
+/.clonr-config.yml
 
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,go,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,go,visualstudiocode
@@ -155,11 +166,3 @@ fabric.properties
 # End of https://www.toptal.com/developers/gitignore/api/intellij,go,visualstudiocode
 /.test-project/testing-sample-template/
 /.test-project/process_files_test/test_output/
-
-dist/
-/node_modules/
-/.release/src/bin/
-/.release/node_modules/
-/.release/bin/
-/.release/src/LICENSE
-/.release/src/README.md
