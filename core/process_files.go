@@ -108,7 +108,7 @@ func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.File
 	inputFileAsString := string(input)
 	for key, value := range *varMap {
 		if key == config.Global().GlobalsKeyName {
-			// if globals are provided, this is marked by a "globals" key in the .clonrrc file, loop through globals map to check
+			// if globals are provided, this is marked by a "globals" key in the .clonr-config.yml file, loop through globals map to check
 			for key, value := range settings.GlobalVariables {
 				globalPattern := config.Global().PlaceholderPrefix + config.Global().GlobalsKeyName + "." + key + config.Global().PlaceholderSuffix
 				inputFileAsString = strings.Replace(inputFileAsString, globalPattern, value, -1) // -1 makes it replace every occurrence in that file.
