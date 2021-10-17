@@ -34,6 +34,14 @@ func ViperReadConfig(configFilePath string, configFileName string, configFileTyp
 	return v, err
 }
 
+func SaveConfig(v *viper.Viper, location string) {
+	err := v.WriteConfig()
+	if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		err := v.WriteConfigAs(location)
+		ExitIfError(err)
+	}
+}
+
 func StringInputReader(prompt string) string {
 	fmt.Println()
 	fmt.Println(prompt)
