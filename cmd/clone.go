@@ -10,6 +10,7 @@ import (
 	"github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	sshutils "golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net/url"
@@ -91,8 +92,14 @@ func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProc
 
 		log.Debugf("Project root: %s", destination)
 	}
+
+	var v *viper.Viper
 	v, err := utils.ViperReadConfig(destination, config.Global().ConfigFileName, config.Global().ConfigFileType)
-	utils.ExitIfError(err)
+	if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		// This block is here for legacy purposes
+		v, err = utils.ViperReadConfig(destination, ".clonrrc", config.Global().ConfigFileType)
+		utils.ExitIfError(err)
+	}
 	processorSettings.Viper = *v
 	processorSettings.ConfigFilePath = destination
 
