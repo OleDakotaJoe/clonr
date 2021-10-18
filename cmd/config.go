@@ -34,7 +34,9 @@ func init() {
 var showCmd = &cobra.Command{
 	Use:   "show",
 	Short: "Display clonr's current configuration.",
-	Long:  `Display clonr's current configuration.`,
+	Long:  ` - use 'clonr config set' to get a multiple choice list
+			- use 'clonr config set <property>' and you will be prompted for the value
+      		- use 'clonr config set <property> <value>' and if the property you chose exists, it will be set to the value you specified.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		config.ForEachConfigField(&types.ConfigFieldMutator{ConfigMutator: showProperties, Callback: func(mutator *types.ConfigFieldMutator) { /* do nothing */ }})
 	},

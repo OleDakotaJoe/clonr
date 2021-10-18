@@ -193,8 +193,6 @@ Your file should now look like this
 }
 ```
 
-
-
 ## Commands
 
 ### Clone
@@ -228,6 +226,9 @@ The `clonr config <sub_command> <...args>` command has multiple `sub_command`s.
 
 1. `clonr config show`: displays the current values for clonr's configuration
 2. `clonr config set <property> <value>`: sets the property to the value you specify. Beware, some of these can be destructive
+      - use `clonr config set` to get a multiple choice list
+      - use `clonr config set <property>` and you will be prompted for the value
+      - use `clonr config set <property> <value>` and if the property you chose exists, it will be set to the value you specified.
 3. `clonr config reset`: resets the configuration back to default settings
 
 
