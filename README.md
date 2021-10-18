@@ -194,6 +194,7 @@ Your file should now look like this
 ```
 
 ## Commands
+[commands](./.resources/clonr.md)
 
 ### Clone
 The main command of the program.

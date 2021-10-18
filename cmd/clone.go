@@ -34,7 +34,7 @@ var cloneCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(cloneCmd)
+	RootCmd.AddCommand(cloneCmd)
 	cloneProcessorSettings.StringInputReader = utils.StringInputReader
 	cloneProcessorSettings.MultipleChoiceInputReader = utils.MultipleChoiceInputReader
 	cloneCmd.Flags().StringVarP(&cloneCmdArgs.NameFlag, "name", "n", config.Global().DefaultProjectName, "The git URL to read from")

@@ -23,7 +23,7 @@ var configCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(configCmd)
+	RootCmd.AddCommand(configCmd)
 
 	// Sub-commands
 	configCmd.AddCommand(showCmd)
