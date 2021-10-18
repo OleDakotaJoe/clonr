@@ -47,7 +47,7 @@ var setCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		switch len(args) {
 		case 0:
-			config.ForEachConfigField(&types.ConfigFieldMutator{ConfigMutator: generateMapFromConfig, Callback: useMultipleChoiceToSetProp})
+			config.ForEachConfigField(&types.ConfigFieldMutator{ConfigMutator: generateConfigList, Callback: useMultipleChoiceToSetProp})
 			break
 		case 1:
 			property := args[0]
@@ -82,42 +82,29 @@ func showProperties(mutator *types.ConfigFieldMutator) {
 	utils.PrintTabFormattedText(property, value, 28, 8, 4)
 }
 
-func generateMapFromConfig(mutator *types.ConfigFieldMutator) {
+func generateConfigList(mutator *types.ConfigFieldMutator) {
 	property := mutator.Property
-	value := mutator.Value
-	tempMap := make(map[string]string)
-	existingMap := cast.ToStringMapString(mutator.Result)
-	if len(existingMap) == 0 {
-		tempMap[property] = value
-	} else {
-		tempMap = existingMap
-		tempMap[property] = value
-	}
-	mutator.Result = tempMap
+	mutator.Result = append(cast.ToSlice(mutator.Result), property)
 }
 
 func useMultipleChoiceToSetProp(mutator *types.ConfigFieldMutator) {
-	configMap := cast.ToStringMapString(mutator.Result)
-	keys := utils.GetKeysFromMap(configMap)
-	var choiceArray []string
-	for i := 0; i < len(keys); i++ {
-		currentKey := keys[i]
-		choiceArray = append(choiceArray, currentKey)
-	}
+	configArr := cast.ToStringSlice(mutator.Result)
 	prompt := "Which property do you want to configure?"
-	property := utils.MultipleChoiceInputReader(prompt, choiceArray)
+	property := utils.MultipleChoiceInputReader(prompt, configArr)
 
 	setValueForProperty(property)
-
 }
 
 func setValueForPropertyIfExists(property string) {
-	mutator := types.ConfigFieldMutator{ConfigMutator: generateMapFromConfig, Callback: func(mutator *types.ConfigFieldMutator) { /* do nothing */ }}
+	mutator := types.ConfigFieldMutator{ConfigMutator: generateConfigList, Callback: func(mutator *types.ConfigFieldMutator) { /* do nothing */ }}
 	config.ForEachConfigField(&mutator)
-	result := cast.ToStringMapString(mutator.Result)
+	result := cast.ToStringSlice(mutator.Result)
 
-	if _, ok := result[property]; ok {
-		setValueForProperty(property)
+	for _, prop := range result {
+		if prop == property {
+			setValueForProperty(property)
+			break
+		}
 	}
 }
 
