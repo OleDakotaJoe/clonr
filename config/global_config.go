@@ -1,8 +1,11 @@
 package config
 
 import (
+	"fmt"
+	"github.com/oledakotajoe/clonr/types"
 	"github.com/oledakotajoe/clonr/utils"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 	"reflect"
 )
@@ -126,4 +129,73 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 		utils.ExitIfError(err)
 	}
 
+}
+
+func SetPropertyAndSave(propertyName string, value string) {
+	v := Global().Viper
+	log.Infof("Property name being set: %s", propertyName)
+	switch propertyName {
+	case "DefaultProjectName":
+		v.Set("DefaultProjectName", value)
+		break
+	case "ConfigFileName":
+		v.Set("ConfigFileName", value)
+		break
+	case "ConfigFileType":
+		v.Set("ConfigFileType", value)
+		break
+	case "PlaceholderRegex":
+		v.Set("PlaceholderRegex", value)
+		break
+	case "PlaceholderPrefix":
+		v.Set("PlaceholderPrefix", value)
+		break
+	case "PlaceholderSuffix":
+		v.Set("PlaceholderSuffix", value)
+		break
+	case "TemplateRootKeyName":
+		v.Set("TemplateRootKeyName", value)
+		break
+	case "TemplateLocationKeyName":
+		v.Set("TemplateLocationKeyName", value)
+		break
+	case "VariablesKeyName":
+		v.Set("VariablesKeyName", value)
+		break
+	case "GlobalsKeyName":
+		v.Set("GlobalsKeyName", value)
+		break
+	case "QuestionsKeyName":
+		v.Set("QuestionsKeyName", value)
+		break
+	case "DefaultAnswerKeyName":
+		v.Set("DefaultAnswerKeyName", value)
+		break
+	case "DefaultChoicesKeyName":
+		v.Set("DefaultChoicesKeyName", value)
+		break
+	case "LogLevel":
+		v.Set("LogLevel", value)
+		break
+	default:
+		fmt.Println()
+		log.Errorf("%s is not a clonr property or cannot be configured.", propertyName)
+		fmt.Printf("\nRun 'clonr config show' for a list of options. No changes were made\n")
+	}
+	utils.SaveConfig(v, fmt.Sprintf("%s/%s", utils.GetLocationOfInstalledBinary(), Global().ConfigFileName))
+}
+
+func ForEachConfigField(mutator *types.ConfigFieldMutator) {
+	conf := *Global()
+	value := reflect.ValueOf(conf)
+	typeConf := value.Type()
+	for i := 0; i < value.NumField(); i++ {
+		mutator.Property = typeConf.Field(i).Name
+		mutator.Value = cast.ToString(value.Field(i))
+		// Add any properties you don't want available for bulk manipulation to this conditional.
+		if mutator.Property != "Viper" {
+			mutator.ConfigMutator(mutator)
+		}
+	}
+	mutator.Callback(mutator)
 }

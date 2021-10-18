@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"text/tabwriter"
 )
 
 func ExitIfError(err error) {
@@ -50,12 +51,16 @@ func StringInputReader(prompt string) string {
 	return scanner.Text()
 }
 
+// MultipleChoiceInputReader This method takes in a prompt string, and a list of choices, and asks the user for input
+// based on the list of choices, the user enters a number to corresponding to their selection.
+// The value of the selection is returned.
 func MultipleChoiceInputReader(prompt string, choices []string) string {
-	fmt.Println(prompt)
 	fmt.Println()
 	for index, choice := range choices {
-		fmt.Printf("[%d] : %s\n", index+1, choice)
+		PrintTabFormattedText(fmt.Sprintf("[%d]:", index+1), choice, 4, 10, 4)
 	}
+	fmt.Println()
+	fmt.Println(prompt)
 	fmt.Print("Enter the number of your selection: ")
 
 	var resultIndex int
@@ -106,4 +111,12 @@ func GetPassword() string {
 	passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 	ExitIfError(err)
 	return string(passwd)
+}
+
+func PrintTabFormattedText(col1 string, col2 string, minWidth, tabWidth int, padding int) {
+	writer := tabwriter.NewWriter(os.Stdout, minWidth, tabWidth, padding, '\t', tabwriter.AlignRight)
+	_, pErr := fmt.Fprintf(writer, "%s \t %s \n", col1, col2)
+	ExitIfError(pErr)
+	wErr := writer.Flush()
+	ExitIfError(wErr)
 }
