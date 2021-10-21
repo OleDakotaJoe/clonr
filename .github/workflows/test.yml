@@ -22,10 +22,10 @@ jobs:
           go-version: 1.17
 
       - name: Generate cmd docs
-        run: go build && go run ./clonr docs generate -o ./.resources/cmd-docs/
+        run: go build && ./clonr docs -o ./.resources/cmd-docs/
 
-      - name: copy readme
-        run: cp README.md ./.release/ && cp ./.resources/ ./.release/
+#      - name: copy readme
+#        run: cp README.md ./.release/ && cp ./.resources/ ./.release/
 
       - name: commit results
         run: |
