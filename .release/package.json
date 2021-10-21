@@ -7,10 +7,11 @@
     "go-clonr": "./bin/index.js"
   },
   "scripts": {
-    "prepublish": "npx babel src --out-dir bin"
+    "prepublish": "npx babel src --out-dir bin",
+    "uninstall": "go-clonr uninstall"
   },
-  "author": "Sanath Kumar Ramesh <dayanandasaraswati@gmail.com>",
-  "license": "Apache-2.0",
+  "author": "Steven Sheaves <stevendakotasheaves@gmail.com>",
+  "license": "MIT",
   "dependencies": {
     "mkdirp": "^0.5.2",
     "request": "^2.81.0",
