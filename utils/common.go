@@ -4,16 +4,16 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/oledakotajoe/clonr/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
-	"regexp"
+	"path/filepath"
 	"strconv"
+	"text/tabwriter"
 )
 
-func CheckForError(err error) {
+func ExitIfError(err error) {
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
@@ -25,15 +25,22 @@ func ThrowError(message string) error {
 	return err
 }
 
-func ViperReadConfig(configFilePath string, configFileName string, configFileType string) *viper.Viper {
-	v := viper.GetViper()
+func ViperReadConfig(configFilePath string, configFileName string, configFileType string) (*viper.Viper, error) {
+	v := viper.New()
 	v.SetConfigName(configFileName)
 	v.SetConfigType(configFileType)
 	v.AddConfigPath(configFilePath)
 	log.Debugf("Config File Location: %s", v.ConfigFileUsed())
 	err := v.ReadInConfig()
-	CheckForError(err)
-	return v
+	return v, err
+}
+
+func SaveConfig(v *viper.Viper, location string) {
+	err := v.WriteConfig()
+	if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		err := v.WriteConfigAs(location)
+		ExitIfError(err)
+	}
 }
 
 func StringInputReader(prompt string) string {
@@ -44,12 +51,16 @@ func StringInputReader(prompt string) string {
 	return scanner.Text()
 }
 
+// MultipleChoiceInputReader This method takes in a prompt string, and a list of choices, and asks the user for input
+// based on the list of choices, the user enters a number to corresponding to their selection.
+// The value of the selection is returned.
 func MultipleChoiceInputReader(prompt string, choices []string) string {
-	fmt.Println(prompt)
 	fmt.Println()
 	for index, choice := range choices {
-		fmt.Printf("[%d] : %s\n", index+1, choice)
+		PrintTabFormattedText(fmt.Sprintf("[%d]:", index+1), choice, 4, 10, 4)
 	}
+	fmt.Println()
+	fmt.Println(prompt)
 	fmt.Print("Enter the number of your selection: ")
 
 	var resultIndex int
@@ -75,12 +86,14 @@ func MultipleChoiceInputReader(prompt string, choices []string) string {
 	return choices[resultIndex]
 }
 
-func RemoveElementFromSlice(list []string, index int) []string {
-	return append(list[:index], list[index+1:]...)
+func GetLocationOfInstalledBinary() string {
+	ex, err := os.Executable()
+	ExitIfError(err)
+	return filepath.Dir(ex)
 }
 
-func IsVariableValid(variable string) (bool, error) {
-	return regexp.Match(config.Global().VariableRegex, []byte(variable))
+func RemoveElementFromSlice(list []string, index int) []string {
+	return append(list[:index], list[index+1:]...)
 }
 
 func GetKeysFromMap(someMap map[string]string) []string {
@@ -96,6 +109,14 @@ func GetKeysFromMap(someMap map[string]string) []string {
 func GetPassword() string {
 	fmt.Println("\nPlease enter your password: ")
 	passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
-	CheckForError(err)
+	ExitIfError(err)
 	return string(passwd)
+}
+
+func PrintTabFormattedText(col1 string, col2 string, minWidth, tabWidth int, padding int) {
+	writer := tabwriter.NewWriter(os.Stdout, minWidth, tabWidth, padding, '\t', tabwriter.AlignRight)
+	_, pErr := fmt.Fprintf(writer, "%s \t %s \n", col1, col2)
+	ExitIfError(pErr)
+	wErr := writer.Flush()
+	ExitIfError(wErr)
 }

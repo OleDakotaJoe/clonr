@@ -19,3 +19,11 @@ type FileProcessorSettings struct {
 	GlobalVariables ClonrVarMap
 	TemplateVarMap  ClonrVarMap
 }
+
+type ConfigFieldMutator struct {
+	Property      string
+	Value         string
+	ConfigMutator func(mutator *ConfigFieldMutator)
+	Result        interface{}
+	Callback      func(mutator *ConfigFieldMutator)
+}

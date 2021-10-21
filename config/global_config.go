@@ -1,38 +1,201 @@
 package config
 
+import (
+	"fmt"
+	"github.com/oledakotajoe/clonr/types"
+	"github.com/oledakotajoe/clonr/utils"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cast"
+	"github.com/spf13/viper"
+	"reflect"
+)
+
 type globalConfig struct {
-	DefaultProjectName          string
-	ClonrConfigFileName         string
-	ClonrConfigFileType         string
-	ClonrRegex                  string
-	ClonrPrefix                 string
-	ClonrSuffix                 string
-	VariableRegex               string
-	ClonrConfigRootKeyName      string
-	TemplateFileLocationKeyName string
-	VariablesArrayKeyName       string
-	GlobalVariablesKeyName      string
-	QuestionsKeyName            string
-	DefaultAnswerKeyName        string
-	DefaultChoicesKeyName 		string
+	Viper                   *viper.Viper
+	DefaultProjectName      string
+	ConfigFileName          string
+	ConfigFileType          string
+	PlaceholderRegex        string
+	PlaceholderPrefix       string
+	PlaceholderSuffix       string
+	VariableNameRegex       string
+	TemplateRootKeyName     string
+	TemplateLocationKeyName string
+	VariablesKeyName        string
+	GlobalsKeyName          string
+	QuestionsKeyName        string
+	DefaultAnswerKeyName    string
+	DefaultChoicesKeyName   string
+	LogLevel                string
 }
 
 func Global() *globalConfig {
+	v := getConfig()
 	this := globalConfig{
-		DefaultProjectName:          "clonr-app",
-		ClonrConfigFileName:         ".clonrrc",
-		ClonrConfigFileType:         "yaml",
-		ClonrRegex:                  "\\{{1}@{1}clonr\\{{1}[a-z0-9-_]+\\}{2}",
-		ClonrPrefix:                 "{@clonr{",
-		ClonrSuffix:                 "}}",
-		VariableRegex:               "[\\w-]+",
-		ClonrConfigRootKeyName:      "templates",
-		TemplateFileLocationKeyName: "location",
-		VariablesArrayKeyName:       "variables",
-		GlobalVariablesKeyName:      "globals",
-		QuestionsKeyName:            "question",
-		DefaultAnswerKeyName:        "default",
-		DefaultChoicesKeyName:       "choices",
+		Viper:                   v,
+		DefaultProjectName:      v.GetString("DefaultProjectName"),
+		ConfigFileName:          v.GetString("ConfigFileName"),
+		ConfigFileType:          v.GetString("ConfigFileType"),
+		PlaceholderRegex:        v.GetString("PlaceholderRegex"),
+		PlaceholderPrefix:       v.GetString("PlaceholderPrefix"),
+		PlaceholderSuffix:       v.GetString("PlaceholderSuffix"),
+		VariableNameRegex:       v.GetString("VariableNameRegex"),
+		TemplateRootKeyName:     v.GetString("TemplateRootKeyName"),
+		TemplateLocationKeyName: v.GetString("TemplateLocationKeyName"),
+		VariablesKeyName:        v.GetString("VariablesKeyName"),
+		GlobalsKeyName:          v.GetString("GlobalsKeyName"),
+		QuestionsKeyName:        v.GetString("QuestionsKeyName"),
+		DefaultAnswerKeyName:    v.GetString("DefaultAnswerKeyName"),
+		DefaultChoicesKeyName:   v.GetString("DefaultChoicesKeyName"),
+		LogLevel:                v.GetString("LogLevel"),
 	}
 	return &this
+}
+
+func getConfig() *viper.Viper {
+	v := viper.New()
+	v.SetConfigName(".clonr-config.yml")
+	v.SetConfigType("yaml")
+	v.AddConfigPath(utils.GetLocationOfInstalledBinary())
+	initDefaults(v)
+	err := v.ReadInConfig()
+	if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		log.Debug("Using default configuration.")
+	} else {
+		utils.ExitIfError(err)
+	}
+	return v
+}
+
+func initDefaults(v *viper.Viper) {
+	setDefaults(v, v.SetDefault)
+}
+
+func ResetGlobalToDefault() {
+	v := Global().Viper
+	location := utils.GetLocationOfInstalledBinary() + Global().ConfigFileName
+	setDefaults(v, v.Set)
+	utils.SaveConfig(v, location)
+}
+
+func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) {
+	viperFunc("DefaultProjectName", "clonr-app")
+	viperFunc("ConfigFileName", ".clonr-config.yml")
+	viperFunc("ConfigFileType", "yaml")
+	viperFunc("PlaceholderRegex", "\\{{1}@{1}clonr\\{{1}[a-z0-9-_]+\\}{2}")
+	viperFunc("PlaceholderPrefix", "{@clonr{")
+	viperFunc("PlaceholderSuffix", "}}")
+	viperFunc("VariableNameRegex", "[\\w-]+")
+	viperFunc("TemplateRootKeyName", "templates")
+	viperFunc("TemplateLocationKeyName", "location")
+	viperFunc("VariablesKeyName", "variables")
+	viperFunc("GlobalsKeyName", "globals")
+	viperFunc("QuestionsKeyName", "question")
+	viperFunc("DefaultAnswerKeyName", "default")
+	viperFunc("DefaultChoicesKeyName", "choices")
+	viperFunc("LogLevel", "info")
+
+	if reflect.TypeOf(viperFunc) == reflect.TypeOf(viper.GetViper().SetDefault) {
+		var err error
+		err = v.BindEnv("DefaultProjectName", "CLONR_DFLT_PROJ_NAME")
+		utils.ExitIfError(err)
+		err = v.BindEnv("ConfigFileName", "CLONR_CONFIG_FNAME")
+		utils.ExitIfError(err)
+		err = v.BindEnv("ConfigFileType", "CLONR_CONFIG_FTYPE")
+		utils.ExitIfError(err)
+		err = v.BindEnv("PlaceholderRegex", "CLONR_PH_REGEX")
+		utils.ExitIfError(err)
+		err = v.BindEnv("PlaceholderPrefix", "CLONR_PH_PREFIX")
+		utils.ExitIfError(err)
+		err = v.BindEnv("PlaceholderSuffix", "CLONR_PH_SUFFIX")
+		utils.ExitIfError(err)
+		err = v.BindEnv("VariableNameRegex", "CLONR_VARS_REGEX")
+		utils.ExitIfError(err)
+		err = v.BindEnv("TemplateRootKeyName", "CLONR_TEMPLATE_ROOT_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("TemplateLocationKeyName", "CLONR_TEMPLATE_LOC_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("VariablesKeyName", "CLONR_VARS_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("GlobalsKeyName", "CLONR_GLOBALS_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("QuestionsKeyName", "CLONR_QUES_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("DefaultAnswerKeyName", "CLONR_DFLT_ANS_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("DefaultChoicesKeyName", "CLONR_CHOICES_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("LogLevel", "CLONR_LOG")
+		utils.ExitIfError(err)
+	}
+
+}
+
+func SetPropertyAndSave(propertyName string, value string) {
+	v := Global().Viper
+	log.Infof("Property name being set: %s", propertyName)
+	switch propertyName {
+	case "DefaultProjectName":
+		v.Set("DefaultProjectName", value)
+		break
+	case "ConfigFileName":
+		v.Set("ConfigFileName", value)
+		break
+	case "ConfigFileType":
+		v.Set("ConfigFileType", value)
+		break
+	case "PlaceholderRegex":
+		v.Set("PlaceholderRegex", value)
+		break
+	case "PlaceholderPrefix":
+		v.Set("PlaceholderPrefix", value)
+		break
+	case "PlaceholderSuffix":
+		v.Set("PlaceholderSuffix", value)
+		break
+	case "TemplateRootKeyName":
+		v.Set("TemplateRootKeyName", value)
+		break
+	case "TemplateLocationKeyName":
+		v.Set("TemplateLocationKeyName", value)
+		break
+	case "VariablesKeyName":
+		v.Set("VariablesKeyName", value)
+		break
+	case "GlobalsKeyName":
+		v.Set("GlobalsKeyName", value)
+		break
+	case "QuestionsKeyName":
+		v.Set("QuestionsKeyName", value)
+		break
+	case "DefaultAnswerKeyName":
+		v.Set("DefaultAnswerKeyName", value)
+		break
+	case "DefaultChoicesKeyName":
+		v.Set("DefaultChoicesKeyName", value)
+		break
+	case "LogLevel":
+		v.Set("LogLevel", value)
+		break
+	default:
+		fmt.Println()
+		log.Errorf("%s is not a clonr property or cannot be configured.", propertyName)
+		fmt.Printf("\nRun 'clonr config show' for a list of options. No changes were made\n")
+	}
+	utils.SaveConfig(v, fmt.Sprintf("%s/%s", utils.GetLocationOfInstalledBinary(), Global().ConfigFileName))
+}
+
+func ForEachConfigField(mutator *types.ConfigFieldMutator) {
+	conf := *Global()
+	value := reflect.ValueOf(conf)
+	typeConf := value.Type()
+	for i := 0; i < value.NumField(); i++ {
+		mutator.Property = typeConf.Field(i).Name
+		mutator.Value = cast.ToString(value.Field(i))
+		// Add any properties you don't want available for bulk manipulation to this conditional.
+		if mutator.Property != "Viper" {
+			mutator.ConfigMutator(mutator)
+		}
+	}
+	mutator.Callback(mutator)
 }

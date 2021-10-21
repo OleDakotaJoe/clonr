@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"io/ioutil"
+	"regexp"
 	"strings"
 )
 
@@ -22,7 +23,7 @@ func processTemplatesVarMap(settings *types.FileProcessorSettings) {
 	configFilePath := settings.ConfigFilePath
 	v := settings.Viper
 
-	configRootKey := config.Global().ClonrConfigRootKeyName
+	configRootKey := config.Global().TemplateRootKeyName
 	paths := v.GetStringMap(configRootKey)
 	log.Debugf("Paths: %s", paths)
 
@@ -31,8 +32,8 @@ func processTemplatesVarMap(settings *types.FileProcessorSettings) {
 	for path := range paths {
 		log.Debugf("Processing path: %s", path)
 		pathData := cast.ToStringMap(paths[path])
-		fileLocation := configFilePath + cast.ToString(pathData[config.Global().TemplateFileLocationKeyName])
-		variableKey := configRootKey + "." + path + "." + config.Global().VariablesArrayKeyName
+		fileLocation := configFilePath + cast.ToString(pathData[config.Global().TemplateLocationKeyName])
+		variableKey := configRootKey + "." + path + "." + config.Global().VariablesKeyName
 		variables := v.GetStringMap(variableKey)
 
 		log.Debugf("Raw pathData: %s", pathData)
@@ -45,7 +46,7 @@ func processTemplatesVarMap(settings *types.FileProcessorSettings) {
 }
 
 func processGlobalsVarMap(processorSettings *types.FileProcessorSettings) {
-	variablesMapKey := config.Global().GlobalVariablesKeyName + "." + config.Global().VariablesArrayKeyName
+	variablesMapKey := config.Global().GlobalsKeyName + "." + config.Global().VariablesKeyName
 	processorSettings.GlobalVariables = generateVarMap(processorSettings, variablesMapKey)
 }
 
@@ -70,7 +71,7 @@ func generateVarMap(processorSettings *types.FileProcessorSettings, variableKey 
 			isMultipleChoice = true
 		}
 
-		if key != config.Global().GlobalVariablesKeyName {
+		if key != config.Global().GlobalsKeyName {
 			if defaultAnswer != "" {
 				question += fmt.Sprintf(" (%s)", defaultAnswer)
 			}
@@ -103,22 +104,26 @@ func renderAllFiles(settings *types.FileProcessorSettings) {
 
 func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.FileProcessorSettings) {
 	input, err := ioutil.ReadFile(filepath)
-	utils.CheckForError(err)
+	utils.ExitIfError(err)
 	inputFileAsString := string(input)
 	for key, value := range *varMap {
-		if key == config.Global().GlobalVariablesKeyName {
-			// if globals are provided, this is marked by a "globals" key in the .clonrrc file, loop through globals map to check
+		if key == config.Global().GlobalsKeyName {
+			// if globals are provided, this is marked by a "globals" key in the .clonr-config.yml file, loop through globals map to check
 			for key, value := range settings.GlobalVariables {
-				globalPattern := config.Global().ClonrPrefix + config.Global().GlobalVariablesKeyName + "." + key + config.Global().ClonrSuffix
+				globalPattern := config.Global().PlaceholderPrefix + config.Global().GlobalsKeyName + "." + key + config.Global().PlaceholderSuffix
 				inputFileAsString = strings.Replace(inputFileAsString, globalPattern, value, -1) // -1 makes it replace every occurrence in that file.
 				log.Infof("Rendering Variable: %s", key)
 			}
 		} else {
-			clonrPattern := config.Global().ClonrPrefix + key + config.Global().ClonrSuffix
+			clonrPattern := config.Global().PlaceholderPrefix + key + config.Global().PlaceholderSuffix
 			inputFileAsString = strings.Replace(inputFileAsString, clonrPattern, value, -1) // -1 makes it replace every occurrence in that file.
 
 		}
 	}
 	err = ioutil.WriteFile(filepath, []byte(inputFileAsString), 0644)
-	utils.CheckForError(err)
+	utils.ExitIfError(err)
+}
+
+func IsVariableValid(variable string) (bool, error) {
+	return regexp.Match(config.Global().VariableNameRegex, []byte(variable))
 }

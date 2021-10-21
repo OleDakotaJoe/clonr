@@ -10,11 +10,10 @@ var versionCmd = &cobra.Command{
 	Short: "Print the version number of Clonr",
 	Long:  `All software has versions. This is Clonr's`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("v1.0.15")
-		fmt.Println("Clonr CLI -- Project Templating Engine")
+		fmt.Println("Clonr v1.0.16")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
+	RootCmd.AddCommand(versionCmd)
 }

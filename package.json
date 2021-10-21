@@ -1,6 +1,6 @@
 {
   "name": "go-clonr",
-  "description": "This project is aimed to make creating template projects very easy, so that you can set up a project one time, and not worry about configuration again.  Simply host your template project in a git repostory, configure your template variables in a .clonrrc file, as well as providing a placeholder in the  template files, and run `clonr clone <repo_url>`. The rest will unfold before your eyes.",
+  "description": "This project is aimed to make creating template projects very easy, so that you can set up a project one time, and not worry about configuration again.  Simply host your template project in a git repository, configure your template variables in a .clonr-config.yml file, as well as providing a placeholder in the  template files, and run `clonr clone <repo_url>`. The rest will unfold before your eyes.",
   "scripts": {
     "test": "go test ./...",
     "postinstall": "npm run setup:husky && npm run greeting",
@@ -8,11 +8,12 @@
     "cz": "npx cz",
     "setup": "npm run setup:cz",
     "setup:husky": "husky install",
-    "setup:cz": "npm install -g commitizen"
+    "setup:cz": "npm install -g commitizen",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OleDakotaJoe/clonr.git"
+    "url": "https://github.com/OleDakotaJoe/clonr.git"
   },
   "author": "oledakotajoe",
   "license": "MIT",

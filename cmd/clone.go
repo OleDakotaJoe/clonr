@@ -10,6 +10,7 @@ import (
 	"github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	sshutils "golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net/url"
@@ -24,7 +25,22 @@ var cloneProcessorSettings types.FileProcessorSettings
 var cloneCmd = &cobra.Command{
 	Use:   "clone",
 	Short: "Initializes a git project and initializes template engine",
-	Long:  `This is clonr's primary command. This command will clone a project from a git repository and will `,
+	Long: `
+There are multiple ways to use the clone command.
+1. 'clonr clone <git_url> <name_of_project>'
+    * Clones a remote git repository
+    * Replace <git_url> with the url you would use if running git clone <url>
+    * <name_of_project> is optional. This will be the name of the directory (inside your working directory) where the project will be cloned to.
+    * If you don't provide a name for your project, the name will be clonr-app
+2. 'clonr clone -local <local_path> <name_of_project>'
+    * Clones a local directory on your filesystem.
+    * Notice the '-local' flag. This indicates the local filepath. You can also use '-l' for short
+    * Replace <local_path> with either an absolute or relative path to the directory you want to clone
+
+NOTE: You can actually pass in the name using a '-name' flag, if you prefer.
+
+This would look like this: clonr clone <git_url> -name <name_of_project>
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Initializing clonr project... Please wait")
 		cloneCmdArgs.Args = args
@@ -33,7 +49,7 @@ var cloneCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(cloneCmd)
+	RootCmd.AddCommand(cloneCmd)
 	cloneProcessorSettings.StringInputReader = utils.StringInputReader
 	cloneProcessorSettings.MultipleChoiceInputReader = utils.MultipleChoiceInputReader
 	cloneCmd.Flags().StringVarP(&cloneCmdArgs.NameFlag, "name", "n", config.Global().DefaultProjectName, "The git URL to read from")
@@ -43,19 +59,19 @@ func init() {
 func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProcessorSettings) {
 	args := cmdArgs.Args
 	pwd, fsErr := os.Getwd()
-	utils.CheckForError(fsErr)
+	utils.ExitIfError(fsErr)
 	projectName, argErr := determineProjectName(cmdArgs)
-	utils.CheckForError(argErr)
+	utils.ExitIfError(argErr)
 	destination := pwd + "/" + projectName
 
 	if cmdArgs.IsLocalPath {
 		// Source should be the first argument passed in through the CLI
 		source := args[0]
 		err := copy.Copy(source, destination)
-		utils.CheckForError(err)
+		utils.ExitIfError(err)
 	} else {
 		source, err := validateAndExtractUrl(args)
-		utils.CheckForError(err)
+		utils.ExitIfError(err)
 
 		cloneOptions := git.CloneOptions{
 			URL:      source,
@@ -81,18 +97,26 @@ func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProc
 			}
 
 			publicKey, keyError := ssh.NewPublicKeys("git", sshKey, sshPass)
-			utils.CheckForError(keyError)
+			utils.ExitIfError(keyError)
 			cloneOptions.Auth = publicKey
 		}
 
 		log.Info("Clonr is cloning...")
 		_, cloneErr := git.PlainClone(projectName, false, &cloneOptions)
-		utils.CheckForError(cloneErr)
+		utils.ExitIfError(cloneErr)
 
 		log.Debugf("Project root: %s", destination)
 	}
+
+	var v *viper.Viper
+	v, err := utils.ViperReadConfig(destination, config.Global().ConfigFileName, config.Global().ConfigFileType)
+	if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		// This block is here for legacy purposes
+		v, err = utils.ViperReadConfig(destination, ".clonrrc", config.Global().ConfigFileType)
+		utils.ExitIfError(err)
+	}
+	processorSettings.Viper = *v
 	processorSettings.ConfigFilePath = destination
-	processorSettings.Viper = *utils.ViperReadConfig(destination, config.Global().ClonrConfigFileName, config.Global().ClonrConfigFileType)
 
 	core.ProcessFiles(processorSettings)
 }
