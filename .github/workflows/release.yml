@@ -44,7 +44,7 @@ jobs:
           git add ./.release/package.json
           git add ./.release/package-lock.json
           git commit -m "ci: Updating documentation"
-          git push
+          git push origin HEAD:main
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2

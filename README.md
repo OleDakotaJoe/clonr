@@ -11,10 +11,6 @@
         + [Example With Globals](#example-with-globals)
         + [Full Example:](#full-example)
     * [Commands](#commands)
-        + [Clone](#clone)
-            - [Usage:](#usage)
-        + [Version](#version)
-        + [Config](#config)
 
 # About
 This project is aimed to make creating template projects very easy, so that you can set up a project one time, and not worry about configuration again.
@@ -195,7 +191,7 @@ Your file should now look like this
 
 ## Commands
 
-View documentation for the commands [here](./.resources/cmd-docs/clonr.md)
+View documentation for the commands [here](https://github.com/OleDakotaJoe/clonr/blob/main/.resources/cmd-docs/clonr.md)
 
 
 
