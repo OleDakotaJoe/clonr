@@ -25,7 +25,22 @@ var cloneProcessorSettings types.FileProcessorSettings
 var cloneCmd = &cobra.Command{
 	Use:   "clone",
 	Short: "Initializes a git project and initializes template engine",
-	Long:  `This is clonr's primary command. This command will clone a project from a git repository and will `,
+	Long: `
+There are multiple ways to use the clone command.
+1. 'clonr clone <git_url> <name_of_project>'
+    * Clones a remote git repository
+    * Replace <git_url> with the url you would use if running git clone <url>
+    * <name_of_project> is optional. This will be the name of the directory (inside your working directory) where the project will be cloned to.
+    * If you don't provide a name for your project, the name will be clonr-app
+2. 'clonr clone -local <local_path> <name_of_project>'
+    * Clones a local directory on your filesystem.
+    * Notice the '-local' flag. This indicates the local filepath. You can also use '-l' for short
+    * Replace <local_path> with either an absolute or relative path to the directory you want to clone
+
+NOTE: You can actually pass in the name using a '-name' flag, if you prefer.
+
+This would look like this: clonr clone <git_url> -name <name_of_project>
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Initializing clonr project... Please wait")
 		cloneCmdArgs.Args = args

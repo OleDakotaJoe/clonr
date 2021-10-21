@@ -193,43 +193,10 @@ Your file should now look like this
 }
 ```
 
-## [Commands](./.resources/cmd-docs/clonr.md)
+## Commands
 
-### Clone
-The main command of the program.
-When you run `clonr clone <...args>`, clonr will first clone a git repository and then process the files in that repository
-according to the `.clonr-config.yml` file
+View documentation for the commands [here](./.resources/cmd-docs/clonr.md)
 
-#### Usage:
-There are multiple ways to use the clone command.
-1. `clonr clone <git_url> <name_of_project>`
-    * Clones a remote git repository
-    * Replace `<git_url>` with the url you would use if running `git clone <url>`
-    * `<name_of_project>` is optional. This will be the name of the directory (inside your working directory) where the project will be cloned to.
-    * If you don't provide a name for your project, the name will be `clonr-app`
-2. `clonr clone -local <local_path> <name_of_project>`
-    * Clones a local directory on your filesystem.
-    * Notice the `-local` flag. This indicates the local filepath. You can also use `-l` for short
-    * Replace `<local_path>` with either an absolute or relative path to the directory you want to clone
-
-NOTE: You can actually pass in the name using a `-name` flag, if you prefer.
-
-This would look like this: `clonr clone <git_url> -name <name_of_project>`
-
-### Version
-Just run `clonr version` and you should see something like this:
-<br>
-![clonr-version.png](.resources/clonr-version.png)
-
-### Config
-The `clonr config <sub_command> <...args>` command has multiple `sub_command`s.
-
-1. `clonr config show`: displays the current values for clonr's configuration
-2. `clonr config set <property> <value>`: sets the property to the value you specify. Beware, some of these can be destructive
-      - use `clonr config set` to get a multiple choice list
-      - use `clonr config set <property>` and you will be prompted for the value
-      - use `clonr config set <property> <value>` and if the property you chose exists, it will be set to the value you specified.
-3. `clonr config reset`: resets the configuration back to default settings
 
 
 

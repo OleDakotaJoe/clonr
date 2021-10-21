@@ -12,8 +12,8 @@ var docsCmdArgs types.DocsCmdArgs
 
 var docsCmd = &cobra.Command{
 	Use:   "docs",
-	Short: "Print the version number of Clonr",
-	Long:  `All software has versions. This is Clonr's`,
+	Short: "Generates markdown documentation for Clonr.",
+	Long:  `Generates markdown documentation for Clonr in the directory you specify, or ./clonr-docs/ if you do not specify one`,
 	Run: func(cmd *cobra.Command, args []string) {
 		dirErr := os.MkdirAll(docsCmdArgs.OutputDir, os.ModePerm)
 		utils.ExitIfError(dirErr)

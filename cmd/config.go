@@ -15,7 +15,16 @@ import (
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Change clonr's configuration",
-	Long:  `Configure your clonr setup however your like.`,
+	Long:  `
+The clonr config <sub_command> <...args> command has multiple sub_command s.
+
+1. 'clonr config show': displays the current values for clonr's configuration
+2. 'clonr config set <property> <value>': sets the property to the value you specify. Beware, some of these can be destructive
+      - use 'clonr config set' to get a multiple choice list
+      - use 'clonr config set <property>' and you will be prompted for the value
+      - use 'clonr config set <property> <value>' and if the property you chose exists, it will be set to the value you specified.
+3. 'clonr config reset': resets the configuration back to default settings
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		_ = cmd.Help()
 		os.Exit(0)
@@ -34,9 +43,7 @@ func init() {
 var showCmd = &cobra.Command{
 	Use:   "show",
 	Short: "Display clonr's current configuration.",
-	Long:  ` - use 'clonr config set' to get a multiple choice list
-			- use 'clonr config set <property>' and you will be prompted for the value
-      		- use 'clonr config set <property> <value>' and if the property you chose exists, it will be set to the value you specified.`,
+	Long:  `Display clonr's current configuration.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		config.ForEachConfigField(&types.ConfigFieldMutator{ConfigMutator: showProperties, Callback: func(mutator *types.ConfigFieldMutator) { /* do nothing */ }})
 	},
@@ -45,7 +52,11 @@ var showCmd = &cobra.Command{
 var setCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Make an adjustment to clonr's configuration",
-	Long:  `Display clonr's current configuration.`,
+	Long:  `
+	- Use 'clonr config set' to get a multiple choice list
+	- Use 'clonr config set <property>' and you will be prompted for the value
+	- Use 'clonr config set <property> <value>' and if the property you chose exists, it will be set to the value you specified.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		switch len(args) {
 		case 0:
@@ -67,8 +78,8 @@ var setCmd = &cobra.Command{
 }
 var resetCmd = &cobra.Command{
 	Use:   "reset",
-	Short: "Display clonr's current configuration.",
-	Long:  `Display clonr's current configuration.`,
+	Short: "Resets the configuration back to default settings.",
+	Long:  `Resets the configuration back to default settings.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		response := utils.StringInputReader("Are you sure you what to reset to default settings [this cannot be undone]? (y/n)")
 		if strings.ToLower(response) != "y" {
