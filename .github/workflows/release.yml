@@ -41,13 +41,26 @@ jobs:
         with:
           node-version: 12
 
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
 
+      - name: Generate cmd docs
+        run: go build && ./clonr docs -o ./.resources/cmd-docs/
 
-      - name: copy readme before npm publish
+      - name: copy readme
         run: cp README.md ./.release/ && cp ./.resources/ ./.release/
+
 
       - name: npm publish
         run: npm install && npm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}" && npm publish
         working-directory: ./.release
 
-
+      - name: commit results
+        run: |
+          git config --global user.name 'Steven Sheaves'
+          git config --global user.email 'OleDakotaJoe@users.noreply.github.com'
+          git add ./.resources/*
+          git commit -m "ci: Updating documentation"
+          git push
