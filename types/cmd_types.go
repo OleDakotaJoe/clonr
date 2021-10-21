@@ -1,7 +1,12 @@
 package types
 
 type CloneCmdArgs struct {
+	Args        []string
 	NameFlag    string
 	IsLocalPath bool
-	Args        []string
+}
+
+type DocsCmdArgs struct {
+	Args []string
+	OutputDir   string
 }

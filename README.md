@@ -193,7 +193,7 @@ Your file should now look like this
 }
 ```
 
-## [Commands](./.resources/clonr.md)
+## [Commands](./.resources/cmd-docs/clonr.md)
 
 ### Clone
 The main command of the program.
