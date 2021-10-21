@@ -167,3 +167,4 @@ fabric.properties
 /.test-project/testing-sample-template/
 /.test-project/process_files_test/test_output/
 /clonr-docs/
+/.release/.resources/
