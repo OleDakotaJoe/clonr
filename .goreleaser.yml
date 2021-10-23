@@ -18,6 +18,8 @@ builds:
       - amd64
       - arm
       - arm64
+    ldflags:
+      - -X "github.com/version-go/ldflags.buildVersion={{.Tag}}"
 checksum:
   name_template: 'checksums.txt'
 snapshot:
