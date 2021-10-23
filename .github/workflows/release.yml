@@ -1,111 +1,111 @@
-#name: release
-#
-#on:
-#  push:
-#    tags:
-#      - '*'
-#jobs:
-#  goreleaser:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#        with:
-#          fetch-depth: 0
-#
-#      - name: Set up Go
-#        uses: actions/setup-go@v2
-#        with:
-#          go-version: 1.17
-#
-#      - name: Run GoReleaser
-#        uses: goreleaser/goreleaser-action@v2
-#        with:
-#          distribution: goreleaser-pro
-#          version: latest
-#          args: release --rm-dist
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
-#          GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
-#          FURY_TOKEN: ${{ secrets.FURY_TOKEN }}
-#  release:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#        with:
-#          fetch-depth: 0
-#
-#      - name: Set up node
-#        uses: actions/setup-node@v1
-#        with:
-#          node-version: 12
-#
-#      - name: Set up Go
-#        uses: actions/setup-go@v2
-#        with:
-#          go-version: 1.17
-#
-#      - name: Generate cmd docs
-#        run: go build && ./clonr docs -o ./.resources/cmd-docs/
-#
-#      - name: copy readme
-#        run: |
-#          cp README.md ./.release/
-#          cp -r ./.resources/ ./.release/
-#
-#      - name: npm publish
-#        run: |
-#          npm install
-#          npm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}" && npm publish
-#        working-directory: ./.release
-#
-#      - name: Branch protection OFF
-#        uses: octokit/request-action@v2.x
-#        with:
-#          route: PUT /repos/oledakotajoe/clonr/branches/main/protection
-#          repository: ${{ github.repository }}
-#          required_status_checks: |
-#            null
-#          enforce_admins: |
-#            null
-#          required_pull_request_reviews: |
-#            null
-#          restrictions: |
-#            null
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_REPO_ADMIN_CI_TOKEN }}
-#
-#      - name: commit results
-#        run: |
-#          git config --global user.name 'Steven Sheaves'
-#          git config --global user.email 'OleDakotaJoe@users.noreply.github.com'
-#          git add ./.resources/*
-#          git add ./.release/package.json
-#          git add ./.release/package-lock.json
-#          git commit -m "ci: Updating documentation"
-#          git push origin HEAD:main
-#        env:
-#          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-#
-#      - name: Branch protection ON
-#        uses: octokit/request-action@v2.x
-#        with:
-#          route: PUT /repos/oledakotajoe/clonr/branches/main/protection
-#          repository: ${{ github.repository }}
-#          mediaType: |
-#            previews:
-#              - luke-cage
-#          required_status_checks: |
-#            strict: true
-#            contexts:
-#              - Test
-#          enforce_admins: |
-#            null
-#          required_pull_request_reviews: |
-#            dismiss_stale_reviews: true
-#            required_approving_review_count: 1
-#          restrictions: |
-#            null
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_REPO_ADMIN_CI_TOKEN }}
-#
+name: release
+
+on:
+  push:
+    tags:
+      - 'none'
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          distribution: goreleaser-pro
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
+          GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
+          FURY_TOKEN: ${{ secrets.FURY_TOKEN }}
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Generate cmd docs
+        run: go build && ./clonr docs -o ./.resources/cmd-docs/
+
+      - name: copy readme
+        run: |
+          cp README.md ./.release/
+          cp -r ./.resources/ ./.release/
+
+      - name: npm publish
+        run: |
+          npm install
+          npm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}" && npm publish
+        working-directory: ./.release
+
+      - name: Branch protection OFF
+        uses: octokit/request-action@v2.x
+        with:
+          route: PUT /repos/oledakotajoe/clonr/branches/main/protection
+          repository: ${{ github.repository }}
+          required_status_checks: |
+            null
+          enforce_admins: |
+            null
+          required_pull_request_reviews: |
+            null
+          restrictions: |
+            null
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_REPO_ADMIN_CI_TOKEN }}
+
+      - name: commit results
+        run: |
+          git config --global user.name 'Steven Sheaves'
+          git config --global user.email 'OleDakotaJoe@users.noreply.github.com'
+          git add ./.resources/*
+          git add ./.release/package.json
+          git add ./.release/package-lock.json
+          git commit -m "ci: Updating documentation"
+          git push origin HEAD:main
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Branch protection ON
+        uses: octokit/request-action@v2.x
+        with:
+          route: PUT /repos/oledakotajoe/clonr/branches/main/protection
+          repository: ${{ github.repository }}
+          mediaType: |
+            previews:
+              - luke-cage
+          required_status_checks: |
+            strict: true
+            contexts:
+              - Test
+          enforce_admins: |
+            null
+          required_pull_request_reviews: |
+            dismiss_stale_reviews: true
+            required_approving_review_count: 1
+          restrictions: |
+            null
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_REPO_ADMIN_CI_TOKEN }}
+
