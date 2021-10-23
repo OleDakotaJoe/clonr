@@ -30,7 +30,7 @@ type globalConfig struct {
 }
 
 func Global() *globalConfig {
-	v := getConfig()
+	v := loadConfig()
 	this := globalConfig{
 		Viper:                   v,
 		DefaultProjectName:      v.GetString("DefaultProjectName"),
@@ -52,7 +52,7 @@ func Global() *globalConfig {
 	return &this
 }
 
-func getConfig() *viper.Viper {
+func loadConfig() *viper.Viper {
 	v := viper.New()
 	v.SetConfigName(".clonr-config.yml")
 	v.SetConfigType("yaml")

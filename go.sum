@@ -346,6 +346,8 @@ github.com/subosito/gotenv v1.2.0 h1:Slr1R9HxAlEKefgq5jn9U+DnETlIUa6HfgEzj0g5d7s
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816 h1:J6v8awz+me+xeb/cUTotKgceAYouhIB3pjzgRd6IlGk=
 github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816/go.mod h1:tzym/CEb5jnFI+Q0k4Qq3+LvRF4gO3E2pxS8fHP8jcA=
+github.com/version-go/ldflags v0.0.0-20201113154248-6ea18db16ace h1:zv8vSCdFnHfgQEpNBZhFuJCY9RT14qpx13XFu2NBDnQ=
+github.com/version-go/ldflags v0.0.0-20201113154248-6ea18db16ace/go.mod h1:2hcTHCV3mLqrJqsmC4IrncL741ULetQk/7ndx45VsDM=
 github.com/xanzy/ssh-agent v0.3.0/go.mod h1:3s9xbODqPuuhK9JV1R321M/FlMZSBvE5aY6eAcqrDh0=
 github.com/xanzy/ssh-agent v0.3.1 h1:AmzO1SSWxw73zxFZPRwaMN1MohDw8UyHnmuxyceTEGo=
 github.com/xanzy/ssh-agent v0.3.1/go.mod h1:QIE4lCeL7nkC25x+yA3LBIYfwCc1TFziCtG7cBAac6w=
