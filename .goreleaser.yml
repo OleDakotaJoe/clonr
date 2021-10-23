@@ -19,7 +19,7 @@ builds:
       - arm
       - arm64
     ldflags:
-      - -X "github.com/version-go/ldflags.buildVersion={{.Tag}}"
+      - -X "github.com/version-go/ldflags.buildVersion={{.Version}}"
 checksum:
   name_template: 'checksums.txt'
 snapshot:
