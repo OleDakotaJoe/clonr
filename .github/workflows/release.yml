@@ -58,7 +58,6 @@ jobs:
       - name: copy readme
         run: |
           cp README.md ./.release/
-          cp -r ./.resources/ ./.release/
 
       - name: npm publish
         run: |
