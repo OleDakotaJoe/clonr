@@ -15,7 +15,7 @@ jobs:
           node-version: 12
       - name: Set Version
         run: node -e "let pkg=require('./package.json'); pkg.version='$RELEASE_VERSION'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));"
-        working-directory: ./release
+        working-directory: ./.release
       - name: Testing node version
         run: |
           git add .
