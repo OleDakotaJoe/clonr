@@ -22,4 +22,4 @@ jobs:
           git config --global user.name "Your Name"
           git add .
           git commit -m "ci: test"
-          git push
+          git push origin HEAD:feat/auto_increment_version
