@@ -10,7 +10,10 @@ const request = require('request'),
     fs = require('fs'),
     exec = require('child_process').exec;
 
-const VERSION = require('project-version')
+const { version } = require('../package.json');
+const VERSION = version.replace("v",'');
+
+console.log(VERSION)
 
 // Mapping from Node's `process.arch` to Golang's `$GOARCH`
 const ARCH_MAPPING = {
