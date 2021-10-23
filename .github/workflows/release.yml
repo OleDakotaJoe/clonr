@@ -46,7 +46,7 @@ jobs:
           go-version: 1.17
 
       - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
 
       - name: Set Version
         run: node -e "let pkg=require('./package.json'); pkg.version='$RELEASE_VERSION'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));"
