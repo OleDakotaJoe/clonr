@@ -10,7 +10,7 @@ const request = require('request'),
     fs = require('fs'),
     exec = require('child_process').exec;
 
-const VERSION = "1.0.11"
+const VERSION = require('project-version')
 
 // Mapping from Node's `process.arch` to Golang's `$GOARCH`
 const ARCH_MAPPING = {
@@ -55,8 +55,6 @@ function getNpmBinLocation(callback) {
 }
 
 function verifyAndPlaceBinary(binName, binPath, callback) {
-    console.log(`binName: ${binName}, binPath: ${binPath}, ${path.join(binPath, binName)}`)
-    console.log(fs.existsSync("clonr.exe"))
     if (!fs.existsSync(binName)) return callback(`Downloaded binary does not contain the binary specified in configuration - ${binName}`);
 
     getNpmBinLocation(function(err, installationPath) {
