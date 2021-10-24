@@ -1,0 +1,7 @@
+should_be_valid
+
+pick_me
+
+!@#$%^
+
+is_not_valid
