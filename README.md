@@ -73,8 +73,8 @@ and you will be asked to provide input via the terminal.
 
 ## Configuring a project.
 
-To configure your project, simply place a file named `.clonr-config.yml` into the root directory of the git repo.
-(NOTE: if you are using a `.clonrrc` file -- Congratulations! You were an early adopter! `.clonrrc` will still work, but I'd suggest upgrading :D.)
+To configure your project, place a file named `.clonr-config.yml` into the root directory of the git repo.
+(NOTE: if you are using a `.clonrrc` file -- Congratulations! You were an early adopter! `.clonrrc` will still work, but I'd suggest upgrading :D )
 
 
 Inside this yaml file you will need to provide the paths to the files which need to be processed, the name of the
