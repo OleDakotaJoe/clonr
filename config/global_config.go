@@ -31,6 +31,7 @@ type globalConfig struct {
 	ValidationKeyName       string
 	LogLevel                string
 	SSHKeyLocation          string
+	Aliases 				map[string]string
 }
 
 func Global() *globalConfig {
@@ -54,6 +55,7 @@ func Global() *globalConfig {
 		ValidationKeyName:       v.GetString("ValidationKeyName"),
 		LogLevel:                v.GetString("LogLevel"),
 		SSHKeyLocation:          v.GetString("SSHKeyLocation"),
+		Aliases: 				 v.GetStringMapString("Aliases"),
 	}
 	return &this
 }
@@ -101,14 +103,7 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 	viperFunc("DefaultChoicesKeyName", "choices")
 	viperFunc("ValidationKeyName", "validation")
 	viperFunc("LogLevel", "info")
-	// SSH Key location is platform dependent
-	var sshPath string
-	if runtime.GOOS == "windows" {
-		sshPath = os.Getenv("HOMEDRIVE") + "/" + os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
-	} else {
-		sshPath = os.Getenv("HOME") + "/.ssh/id_rsa"
-	}
-	viperFunc("SSHKeyLocation", sshPath)
+	viperFunc("SSHKeyLocation", getSshLocation())
 
 	if reflect.TypeOf(viperFunc) == reflect.TypeOf(viper.GetViper().SetDefault) {
 		var err error
@@ -196,6 +191,9 @@ func SetPropertyAndSave(propertyName string, value string) {
 	case "SSHKeyLocation":
 		v.Set("SSHKeyLocation", value)
 		break
+	case "Aliases":
+		v.Set("Aliases", cast.ToStringMapString(value))
+		break
 	default:
 		fmt.Println()
 		log.Errorf("%s is not a clonr property or cannot be configured.", propertyName)
@@ -219,4 +217,12 @@ func ForEachConfigField(mutator *types.ConfigFieldMutator) {
 		}
 	}
 	mutator.Callback(mutator)
+}
+
+func getSshLocation() string {
+	if runtime.GOOS == "windows" {
+		return os.Getenv("HOMEDRIVE") + "/" + os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
+	} else {
+		return os.Getenv("HOME") + "/.ssh/id_rsa"
+	}
 }
