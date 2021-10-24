@@ -15,7 +15,6 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
-	"runtime"
 	"strings"
 )
 
@@ -79,15 +78,7 @@ func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProc
 		}
 		if strings.Contains(source, "git@") {
 			var publicKey *ssh.PublicKeys
-			var sshPath string
-
-			// TODO: add functionality for user to customize location of RSA
-			if runtime.GOOS == "windows" {
-				sshPath = os.Getenv("HOMEDRIVE") + "/" + os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
-			} else {
-				sshPath = os.Getenv("HOME") + "/.ssh/id_rsa"
-			}
-			sshKey, _ := ioutil.ReadFile(sshPath)
+			sshKey, _ := ioutil.ReadFile(config.Global().SSHKeyLocation)
 
 			_, sshErr := sshutils.ParseRawPrivateKey(sshKey)
 			sshPass := ""

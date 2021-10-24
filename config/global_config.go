@@ -7,7 +7,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
+	"os"
 	"reflect"
+	"runtime"
 )
 
 type globalConfig struct {
@@ -28,6 +30,7 @@ type globalConfig struct {
 	DefaultChoicesKeyName   string
 	ValidationKeyName       string
 	LogLevel                string
+	SSHKeyLocation          string
 }
 
 func Global() *globalConfig {
@@ -50,6 +53,7 @@ func Global() *globalConfig {
 		DefaultChoicesKeyName:   v.GetString("DefaultChoicesKeyName"),
 		ValidationKeyName:       v.GetString("ValidationKeyName"),
 		LogLevel:                v.GetString("LogLevel"),
+		SSHKeyLocation:          v.GetString("SSHKeyLocation"),
 	}
 	return &this
 }
@@ -97,6 +101,14 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 	viperFunc("DefaultChoicesKeyName", "choices")
 	viperFunc("ValidationKeyName", "validation")
 	viperFunc("LogLevel", "info")
+	// SSH Key location is platform dependent
+	var sshPath string
+	if runtime.GOOS == "windows" {
+		sshPath = os.Getenv("HOMEDRIVE") + "/" + os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
+	} else {
+		sshPath = os.Getenv("HOME") + "/.ssh/id_rsa"
+	}
+	viperFunc("SSHKeyLocation", sshPath)
 
 	if reflect.TypeOf(viperFunc) == reflect.TypeOf(viper.GetViper().SetDefault) {
 		var err error
@@ -132,6 +144,8 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 		utils.ExitIfError(err)
 		err = v.BindEnv("LogLevel", "CLONR_LOG")
 		utils.ExitIfError(err)
+		err = v.BindEnv("SSHKeyLocation", "CLONR_SSH_PATH")
+		utils.ExitIfError(err)
 	}
 
 }
@@ -142,12 +156,6 @@ func SetPropertyAndSave(propertyName string, value string) {
 	switch propertyName {
 	case "DefaultProjectName":
 		v.Set("DefaultProjectName", value)
-		break
-	case "ConfigFileName":
-		v.Set("ConfigFileName", value)
-		break
-	case "ConfigFileType":
-		v.Set("ConfigFileType", value)
 		break
 	case "PlaceholderRegex":
 		v.Set("PlaceholderRegex", value)
@@ -185,6 +193,9 @@ func SetPropertyAndSave(propertyName string, value string) {
 	case "LogLevel":
 		v.Set("LogLevel", value)
 		break
+	case "SSHKeyLocation":
+		v.Set("SSHKeyLocation", value)
+		break
 	default:
 		fmt.Println()
 		log.Errorf("%s is not a clonr property or cannot be configured.", propertyName)
@@ -201,7 +212,9 @@ func ForEachConfigField(mutator *types.ConfigFieldMutator) {
 		mutator.Property = typeConf.Field(i).Name
 		mutator.Value = cast.ToString(value.Field(i))
 		// Add any properties you don't want available for bulk manipulation to this conditional.
-		if mutator.Property != "Viper" {
+		if mutator.Property != "Viper" &&
+			mutator.Property != "ConfigFileName" &&
+			mutator.Property != "ConfigFileType" {
 			mutator.ConfigMutator(mutator)
 		}
 	}
