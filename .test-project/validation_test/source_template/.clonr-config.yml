@@ -1,0 +1,23 @@
+globals:
+  variables:
+    has_default:
+      question: not_checked
+      default: pick_me
+      validation: "[\\w]"
+    other_default:
+      question: "!@#$%^"
+      default: doesn't matter
+      validation: "[^\\w]"
+templates:
+  test.txt:
+    location: "/validation-test.txt"
+    variables:
+      globals:
+      is_valid:
+        question: should_be_valid
+        validation: "[\\w]"
+      is_not_valid:
+        question: "!@#$%^"
+        validation: "[\\w]"
+
+

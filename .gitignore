@@ -168,3 +168,4 @@ fabric.properties
 /.test-project/process_files_test/test_output/
 /clonr-docs/
 /.release/.resources/
+/.test-project/validation_test/test_output/

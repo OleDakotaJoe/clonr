@@ -1,0 +1,7 @@
+{@clonr{is_valid}}
+
+{@clonr{globals.has_default}}
+
+{@clonr{globals.other_default}}
+
+{@clonr{is_not_valid}}

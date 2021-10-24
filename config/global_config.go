@@ -26,6 +26,7 @@ type globalConfig struct {
 	QuestionsKeyName        string
 	DefaultAnswerKeyName    string
 	DefaultChoicesKeyName   string
+	ValidationKeyName       string
 	LogLevel                string
 }
 
@@ -47,6 +48,7 @@ func Global() *globalConfig {
 		QuestionsKeyName:        v.GetString("QuestionsKeyName"),
 		DefaultAnswerKeyName:    v.GetString("DefaultAnswerKeyName"),
 		DefaultChoicesKeyName:   v.GetString("DefaultChoicesKeyName"),
+		ValidationKeyName:       v.GetString("ValidationKeyName"),
 		LogLevel:                v.GetString("LogLevel"),
 	}
 	return &this
@@ -93,6 +95,7 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 	viperFunc("QuestionsKeyName", "question")
 	viperFunc("DefaultAnswerKeyName", "default")
 	viperFunc("DefaultChoicesKeyName", "choices")
+	viperFunc("ValidationKeyName", "validation")
 	viperFunc("LogLevel", "info")
 
 	if reflect.TypeOf(viperFunc) == reflect.TypeOf(viper.GetViper().SetDefault) {
@@ -124,6 +127,8 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 		err = v.BindEnv("DefaultAnswerKeyName", "CLONR_DFLT_ANS_KEY")
 		utils.ExitIfError(err)
 		err = v.BindEnv("DefaultChoicesKeyName", "CLONR_CHOICES_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("ValidationKeyName", "CLONR_VALIDATION_KEY")
 		utils.ExitIfError(err)
 		err = v.BindEnv("LogLevel", "CLONR_LOG")
 		utils.ExitIfError(err)
@@ -173,6 +178,9 @@ func SetPropertyAndSave(propertyName string, value string) {
 		break
 	case "DefaultChoicesKeyName":
 		v.Set("DefaultChoicesKeyName", value)
+		break
+	case "ValidationKeyName":
+		v.Set("ValidationKeyName", value)
 		break
 	case "LogLevel":
 		v.Set("LogLevel", value)

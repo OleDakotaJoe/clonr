@@ -142,6 +142,30 @@ The syntax for the placeholder for a global variable is as follows:
 ```
 Note that the syntax is identical, EXCEPT prefix your variable name with `globals.`
 
+### Validation
+It is recommended that you provide a regex for validating the end-user input for your template variables. 
+To add validation, simply add a `validation` key under the variable you would like to validate, and pass in a regex 
+for validation. 
+
+NOTE: If a default variable is provided, it is not checked against validation in this step.
+
+Validation Example: 
+```yaml
+templates: 
+  some-file: 
+    location: /some-file.txt
+    variables:
+      some-variable:
+        question: you got this part by now.
+        validation: "[\\w]" // This would correspond to a "word" type regex.
+```
+
+It is important that you escape your slashes and wrap in double quotes like seen above. 
+For example the regex: `[\w]` should be provided in this syntax: `"[\\w]"`
+Note the two \'s and "s.
+For more information on golang regexes, see [this cheat sheet](https://yourbasic.org/golang/regexp-cheat-sheet/)
+For more information on escaping regexes see [this article](https://www.threesl.com/blog/special-characters-regular-expressions-escape/)
+
 ### Full Example:
 ```yaml
 globals:
