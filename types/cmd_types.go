@@ -7,6 +7,6 @@ type CloneCmdArgs struct {
 }
 
 type DocsCmdArgs struct {
-	Args []string
-	OutputDir   string
+	Args      []string
+	OutputDir string
 }

@@ -15,7 +15,7 @@ import (
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Change clonr's configuration",
-	Long:  `
+	Long: `
 The clonr config <sub_command> <...args> command has multiple sub_command s.
 
 1. 'clonr config show': displays the current values for clonr's configuration
@@ -52,7 +52,7 @@ var showCmd = &cobra.Command{
 var setCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Make an adjustment to clonr's configuration",
-	Long:  `
+	Long: `
 	- Use 'clonr config set' to get a multiple choice list
 	- Use 'clonr config set <property>' and you will be prompted for the value
 	- Use 'clonr config set <property> <value>' and if the property you chose exists, it will be set to the value you specified.

@@ -24,5 +24,5 @@ var docsCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(docsCmd)
-	docsCmd.Flags().StringVarP(&docsCmdArgs.OutputDir,"out","o", "./clonr-docs", "The filepath of the directory you would like to output the files")
+	docsCmd.Flags().StringVarP(&docsCmdArgs.OutputDir, "out", "o", "./clonr-docs", "The filepath of the directory you would like to output the files")
 }
