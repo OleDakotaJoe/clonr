@@ -8,7 +8,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"io/ioutil"
-	"regexp"
 	"strings"
 )
 
@@ -61,10 +60,12 @@ func generateVarMap(processorSettings *types.FileProcessorSettings, variableKey 
 		questionKey := baseKey + config.Global().QuestionsKeyName
 		defaultAnswerKey := baseKey + config.Global().DefaultAnswerKeyName
 		choicesKey := baseKey + config.Global().DefaultChoicesKeyName
+		validationKey := baseKey + config.Global().ValidationKeyName
 
 		question := cast.ToString(v.Get(questionKey))
 		defaultAnswer := cast.ToString(v.Get(defaultAnswerKey))
 		choices := v.GetStringSlice(choicesKey)
+		validationRegex := v.GetString(validationKey)
 
 		isMultipleChoice := false
 		if len(choices) > 0 {
@@ -79,7 +80,16 @@ func generateVarMap(processorSettings *types.FileProcessorSettings, variableKey 
 			if isMultipleChoice {
 				answer = processorSettings.MultipleChoiceInputReader(question, choices)
 			} else {
-				answer = processorSettings.StringInputReader(question)
+				// Asks for an answer recursively until it gets one that matches the regex (if applicable)
+				isValidAnswer := false
+				for !isValidAnswer {
+					answer = processorSettings.StringInputReader(question)
+					if validationRegex != "" && !(defaultAnswer != "" && answer == "") {
+						isValidAnswer = utils.IsVariableValid(validationRegex, answer)
+					} else {
+						break
+					}
+				}
 			}
 
 			if answer == "" && defaultAnswer != "" {
@@ -122,8 +132,4 @@ func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.File
 	}
 	err = ioutil.WriteFile(filepath, []byte(inputFileAsString), 0644)
 	utils.ExitIfError(err)
-}
-
-func IsVariableValid(variable string) (bool, error) {
-	return regexp.Match(config.Global().VariableNameRegex, []byte(variable))
 }
