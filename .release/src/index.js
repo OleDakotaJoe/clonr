@@ -1,5 +1,14 @@
 #!/usr/bin/env node
 
+/**  This file code was originally developed by sanathkr. Here is a link to the original repo  https://github.com/sanathkr/go-npm
+ * As part of the Apache 2.0 License, here is a list of changes:
+ * Converted the code to hardcoded values, instead of dynamically grabbing its values from a package.json file.
+ * In my .github/workflows/release.yml file, we are copying in readme from main project.
+ * grabbing the version from the package.json which is part of this project. (this may actually have been the original behavior.
+ * Updated dependencies to most update to date packages, had to change syntax of one call which was deprecated in the older package.
+ * changed the npm bin call to include the -g flag, which was a more reliable way of getting the npm bin location, even if a user accidentally installs
+ * the package locally (as opposed to passing the -g flag when running `npm install -g go-clonr`.
+*/
 "use strict"
 
 const request = require('request'),
