@@ -108,9 +108,9 @@ func Test_GivenValidUrl_ShouldReturnUrl_ValidateAndExtractUrl(t *testing.T) {
 
 func Test_givenTemplateFile_processFiles(t *testing.T) {
 	config.ConfigureLogger()
-	sourceDir := config.TestConfig().SourceDir
-	outputDir := config.TestConfig().OutputDir
-	answerKeyDir := config.TestConfig().AnswerKeyDir
+	sourceDir := config.TestConfig().ProcessFilesTestSource
+	outputDir := config.TestConfig().ProcessFilesTestOutput
+	answerKeyDir := config.TestConfig().ProcessFilesTestAnswer
 
 	var cmdArguments = types.CloneCmdArgs{
 		Args:        []string{sourceDir},
