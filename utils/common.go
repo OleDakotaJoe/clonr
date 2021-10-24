@@ -9,6 +9,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"text/tabwriter"
 )
@@ -119,4 +120,10 @@ func PrintTabFormattedText(col1 string, col2 string, minWidth, tabWidth int, pad
 	ExitIfError(pErr)
 	wErr := writer.Flush()
 	ExitIfError(wErr)
+}
+
+func IsVariableValid(regex string, input string) bool {
+	match, err := regexp.Match(regex, []byte(input))
+	ExitIfError(err)
+	return match
 }
