@@ -33,7 +33,7 @@ type globalConfig struct {
 	SSHKeyLocation           string
 	Aliases                  map[string]interface{}
 	AliasesKeyName           string
-	AliasesLocationKey       string
+	AliasesUrlKey            string
 	AliasesLocalIndicatorKey string
 }
 
@@ -60,7 +60,7 @@ func Global() *globalConfig {
 		SSHKeyLocation:           v.GetString("SSHKeyLocation"),
 		Aliases:                  v.GetStringMap("Aliases"),
 		AliasesKeyName:           v.GetString("AliasesKeyName"),
-		AliasesLocationKey:       v.GetString("AliasesLocationKey"),
+		AliasesUrlKey:            v.GetString("AliasesUrlKey"),
 		AliasesLocalIndicatorKey: v.GetString("AliasesLocalIndicatorKey"),
 	}
 	return &this
@@ -111,7 +111,7 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 	viperFunc("LogLevel", "info")
 	viperFunc("SSHKeyLocation", getSshLocation())
 	viperFunc("AliasesKeyName", "aliases")
-	viperFunc("AliasesLocationKey", "location")
+	viperFunc("AliasesUrlKey", "url")
 	viperFunc("AliasesLocalIndicatorKey", "local")
 
 	if reflect.TypeOf(viperFunc) == reflect.TypeOf(viper.GetViper().SetDefault) {
@@ -152,7 +152,7 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 		utils.ExitIfError(err)
 		err = v.BindEnv("AliasesKeyName", "CLONR_ALIAS_KEY")
 		utils.ExitIfError(err)
-		err = v.BindEnv("AliasesLocationKey", "CLONR_ALIAS_LOCATION_KEY")
+		err = v.BindEnv("AliasesUrlKey", "CLONR_ALIAS_URL_KEY")
 		utils.ExitIfError(err)
 		err = v.BindEnv("AliasesLocalIndicatorKey", "CLONR_ALIAS_LOCAL_KEY")
 		utils.ExitIfError(err)
@@ -214,9 +214,9 @@ func SetPropertyAndSave(propertyName string, value interface{}) {
 		fmt.Println(value)
 		v.Set("AliasesKeyName", value)
 		break
-	case "AliasesLocationKey":
+	case "AliasesUrlKey":
 		fmt.Println(value)
-		v.Set("AliasesLocationKey", value)
+		v.Set("AliasesUrlKey", value)
 		break
 	case "AliasesLocalIndicatorKey":
 		fmt.Println(value)
