@@ -9,8 +9,10 @@
     * [Configuring a project.](#configuring-a-project)
         + [Basic Example](#basic-example)
         + [Example With Globals](#example-with-globals)
+        + [Validation](#validation)
         + [Full Example:](#full-example)
-    * [Commands](#commands)
+        + [Using Aliases](#using-aliases)
+
 
 # About
 This project is aimed to make creating template projects very easy, so that you can set up a project one time, and not worry about configuration again.
@@ -212,6 +214,10 @@ Your file should now look like this
   "version": "1.0.0"
 }
 ```
+
+### Using Aliases
+You can set aliases for your projects by using the `clonr alias [args] [flags]` command. 
+See more information about aliases [here](https://github.com/OleDakotaJoe/clonr/blob/main/.resources/cmd-docs/clonr_alias.md)
 
 ## Commands
 
