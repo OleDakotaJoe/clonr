@@ -36,8 +36,14 @@ There are multiple ways to use the clone command.
     * Clones a local directory on your filesystem.
     * Notice the '-local' flag. This indicates the local filepath. You can also use '-l' for short
     * Replace <local_path> with either an absolute or relative path to the directory you want to clone
+3. 'clonr clone -alias <alias_name> <name_of_project>'
+    * Clones a project based on information you've stored as an alias.
+    * Notice the '-alias' flag. This indicates that you've provided an alias'. You can also use '-a' for short
+    * Replace <alias_name> with the alias of the project you want to clone.
+	* You can still use the '-name' or '-n' flag to set the name of the directory the project outputs to.
+	* For more information on aliases, run the command 'clonr alias --help'
 
-NOTE: You can actually pass in the name using a '-name' flag, if you prefer.
+NOTE: You can actually pass in the name using a '-name' or '-n' flag, if you prefer.
 
 This would look like this: clonr clone <git_url> -name <name_of_project>
 `,
