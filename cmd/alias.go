@@ -131,9 +131,10 @@ func aliasManager(args *types.AliasCmdArgs) {
 		if _, ok := existingAliases[args.AliasNameFlag]; ok {
 			fmt.Println("This Alias already exists, if you continue you will override it.")
 			utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to update the alias: %s?", args.AliasNameFlag))
+		} else {
+			utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to add the alias: %s?", args.AliasNameFlag))
 		}
 		resultingAliases = utils.MergeStringMaps(existingAliases, makeAliasMap(args))
-		utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to add the alias: %s?", args.AliasNameFlag))
 		log.Infof("Adding alias: %s, %s\n", args.AliasNameFlag, args.AliasLocation)
 	} else if args.UpdateFlag {
 		resultingAliases = existingAliases
