@@ -34,6 +34,9 @@ If you have go installed on your machine
 
 `go install github.com/oledakotajoe/clonr`
 
+Alternatively you may clone this repo, then run `go build && go install`
+(if you already have your PATH set up for golang, then you should be good to go)
+
 ### npm
 
 ```shell
