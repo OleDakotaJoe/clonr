@@ -45,7 +45,7 @@ There are multiple ways to use the clone command.
 
 NOTE: You can actually pass in the name using a '-name' or '-n' flag, if you prefer.
 
-This would look like this: clonr clone <git_url> -name <name_of_project>
+This would look like this: clonr clone <git_url> -name=<name_of_project>
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Initializing clonr project... Please wait")

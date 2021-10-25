@@ -18,7 +18,19 @@ var aliasCmd = &cobra.Command{
 	Use:   "alias",
 	Short: "Adds an alias for a git url to be used with the clone command's -alias flag",
 	// TODO: add better long descriptions
-	Long: `All software has versions. This is Clonr's`,
+	Long: `
+There are multiple ways to use the alias command.
+1. 'clonr alias show': displays a list of available aliases
+2. 'clonr alias -a -name=<alias_name> <alias_url>': sets the property to the value you specify. Beware, some of these can be destructive
+      - use 'clonr alias -a' to walk through a short alias wizard
+      - use 'clonr config set <property>' and you will be prompted for the value
+      - use 'clonr config set <property> <value>' and if the property you chose exists, it will be set to the value you specified.
+3. 'clonr config reset': resets the configuration back to default settings
+
+NOTE: You can actually pass in the name using a '-name' or '-n' flag, if you prefer.
+
+This would look like this: clonr clone <git_url> -name <name_of_project>
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		aliasCmdArgs.Args = args
 		processAlias(&aliasCmdArgs)
@@ -31,20 +43,7 @@ var aliasShowCmd = &cobra.Command{
 	// TODO: add better long descriptions
 	Long: `some description`,
 	Run: func(cmd *cobra.Command, args []string) {
-		aliases := config.Global().Aliases
-		for alias, props := range aliases {
-			propsMap := cast.ToStringMapString(props)
-			propsKeys := utils.GetKeysFromMap(propsMap)
-			for i, prop := range propsKeys {
-				value := propsMap[prop]
-				propValuePairString := fmt.Sprintf("%s: %s", prop, value)
-				if i == 0 {
-					utils.PrintTabFormattedText(alias, propValuePairString, 8, 8, 2)
-				} else {
-					utils.PrintTabFormattedText(" ", propValuePairString, 8, 8, 2)
-				}
-			}
-		}
+		displayAliases()
 	},
 }
 var aliasCmdArgs types.AliasCmdArgs
@@ -59,23 +58,44 @@ func init() {
 	aliasCmd.Flags().BoolVarP(&aliasCmdArgs.DeleteFlag, "delete", "d", false, "Use this flag to remove an alias from the list.")
 	aliasCmd.Flags().BoolVarP(&aliasCmdArgs.IsLocalFlag, "local", "l", false, "Use this flag to indicate that an alias points to a local directory.")
 	aliasCmd.Flags().StringVarP(&aliasCmdArgs.AliasNameFlag, "name", "n", "", "The name you want to use for your alias.")
-	// TODO: add show command
 }
 
 func processAlias(args *types.AliasCmdArgs) {
-	fmt.Printf("%+v\n", args)
 	if !isValidFlags(args) {
 		log.Errorln("You must provide exactly one action flag. You must choose only one, -update (-u), -add (-a), or -delete (-d). ")
 		return
 	}
 
 	for args.AliasNameFlag == "" {
-		args.AliasNameFlag = utils.StringInputReader("What do you want the alias name to be?")
+		var prompt string
+		if args.DeleteFlag {
+			prompt = "Which alias do you want to delete?"
+			displayAliases()
+		} else {
+			prompt = "What do you want the alias name to be?"
+		}
+		args.AliasNameFlag = utils.StringInputReader(prompt)
 	}
 
 	setTemplateLocationForAlias(args)
 	aliasManager(args)
 
+}
+
+func displayAliases() {
+	aliases := config.Global().Aliases
+	for alias, props := range aliases {
+		propsMap := cast.ToStringMapString(props)
+		propsKeys := utils.GetKeysFromMap(propsMap)
+		for i, prop := range propsKeys {
+			value := propsMap[prop]
+			propValuePairString := fmt.Sprintf("%s: %s", prop, value)
+			if i == 0 {
+				fmt.Printf("%s:\n", alias)
+			}
+			fmt.Printf("\t%s\n", propValuePairString)
+		}
+	}
 }
 
 func isValidFlags(args *types.AliasCmdArgs) bool {
@@ -95,6 +115,10 @@ func isValidFlags(args *types.AliasCmdArgs) bool {
 }
 
 func setTemplateLocationForAlias(args *types.AliasCmdArgs) {
+	if args.DeleteFlag {
+		return
+	}
+
 	var templateLocation string
 	switch len(args.Args) {
 	case 0:
@@ -145,6 +169,9 @@ func aliasManager(args *types.AliasCmdArgs) {
 		resultingAliases = existingAliases
 		delete(resultingAliases, args.AliasNameFlag)
 		utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to delete the alias: %s?", args.AliasNameFlag))
+		// Here we are setting Aliases to an empty string to trick viper into removing all aliases.
+		// After this, we add all aliases and save config, without the deleted alias
+		config.SetPropertyAndSave("Aliases", "")
 		log.Infof("Deleting Alias: %s\n", args.AliasNameFlag)
 	}
 
