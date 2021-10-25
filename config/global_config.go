@@ -13,52 +13,54 @@ import (
 )
 
 type globalConfig struct {
-	Viper                   *viper.Viper
-	DefaultProjectName      string
-	ConfigFileName          string
-	ConfigFileType          string
-	PlaceholderRegex        string
-	PlaceholderPrefix       string
-	PlaceholderSuffix       string
-	VariableNameRegex       string
-	TemplateRootKeyName     string
-	TemplateLocationKeyName string
-	VariablesKeyName        string
-	GlobalsKeyName          string
-	QuestionsKeyName        string
-	DefaultAnswerKeyName    string
-	DefaultChoicesKeyName   string
-	ValidationKeyName       string
-	LogLevel                string
-	SSHKeyLocation          string
-	Aliases 				map[string]interface{}
-	AliasesLocationKey 		string
+	Viper                    *viper.Viper
+	DefaultProjectName       string
+	ConfigFileName           string
+	ConfigFileType           string
+	PlaceholderRegex         string
+	PlaceholderPrefix        string
+	PlaceholderSuffix        string
+	VariableNameRegex        string
+	TemplateRootKeyName      string
+	TemplateLocationKeyName  string
+	VariablesKeyName         string
+	GlobalsKeyName           string
+	QuestionsKeyName         string
+	DefaultAnswerKeyName     string
+	DefaultChoicesKeyName    string
+	ValidationKeyName        string
+	LogLevel                 string
+	SSHKeyLocation           string
+	Aliases                  map[string]interface{}
+	AliasesKeyName           string
+	AliasesLocationKey       string
 	AliasesLocalIndicatorKey string
 }
 
 func Global() *globalConfig {
 	v := loadConfig()
 	this := globalConfig{
-		Viper:                   v,
-		DefaultProjectName:      v.GetString("DefaultProjectName"),
-		ConfigFileName:          v.GetString("ConfigFileName"),
-		ConfigFileType:          v.GetString("ConfigFileType"),
-		PlaceholderRegex:        v.GetString("PlaceholderRegex"),
-		PlaceholderPrefix:       v.GetString("PlaceholderPrefix"),
-		PlaceholderSuffix:       v.GetString("PlaceholderSuffix"),
-		VariableNameRegex:       v.GetString("VariableNameRegex"),
-		TemplateRootKeyName:     v.GetString("TemplateRootKeyName"),
-		TemplateLocationKeyName: v.GetString("TemplateLocationKeyName"),
-		VariablesKeyName:        v.GetString("VariablesKeyName"),
-		GlobalsKeyName:          v.GetString("GlobalsKeyName"),
-		QuestionsKeyName:        v.GetString("QuestionsKeyName"),
-		DefaultAnswerKeyName:    v.GetString("DefaultAnswerKeyName"),
-		DefaultChoicesKeyName:   v.GetString("DefaultChoicesKeyName"),
-		ValidationKeyName:       v.GetString("ValidationKeyName"),
-		LogLevel:                v.GetString("LogLevel"),
-		SSHKeyLocation:          v.GetString("SSHKeyLocation"),
-		Aliases: 				 v.GetStringMap("Aliases"),
-		AliasesLocationKey: 	 v.GetString("AliasesLocationKey"),
+		Viper:                    v,
+		DefaultProjectName:       v.GetString("DefaultProjectName"),
+		ConfigFileName:           v.GetString("ConfigFileName"),
+		ConfigFileType:           v.GetString("ConfigFileType"),
+		PlaceholderRegex:         v.GetString("PlaceholderRegex"),
+		PlaceholderPrefix:        v.GetString("PlaceholderPrefix"),
+		PlaceholderSuffix:        v.GetString("PlaceholderSuffix"),
+		VariableNameRegex:        v.GetString("VariableNameRegex"),
+		TemplateRootKeyName:      v.GetString("TemplateRootKeyName"),
+		TemplateLocationKeyName:  v.GetString("TemplateLocationKeyName"),
+		VariablesKeyName:         v.GetString("VariablesKeyName"),
+		GlobalsKeyName:           v.GetString("GlobalsKeyName"),
+		QuestionsKeyName:         v.GetString("QuestionsKeyName"),
+		DefaultAnswerKeyName:     v.GetString("DefaultAnswerKeyName"),
+		DefaultChoicesKeyName:    v.GetString("DefaultChoicesKeyName"),
+		ValidationKeyName:        v.GetString("ValidationKeyName"),
+		LogLevel:                 v.GetString("LogLevel"),
+		SSHKeyLocation:           v.GetString("SSHKeyLocation"),
+		Aliases:                  v.GetStringMap("Aliases"),
+		AliasesKeyName:           v.GetString("AliasesKeyName"),
+		AliasesLocationKey:       v.GetString("AliasesLocationKey"),
 		AliasesLocalIndicatorKey: v.GetString("AliasesLocalIndicatorKey"),
 	}
 	return &this
@@ -108,11 +110,9 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 	viperFunc("ValidationKeyName", "validation")
 	viperFunc("LogLevel", "info")
 	viperFunc("SSHKeyLocation", getSshLocation())
-	// Aliases should be read in as default
-	//viperFunc("Aliases", v.GetStringMap("Aliases"))
+	viperFunc("AliasesKeyName", "aliases")
 	viperFunc("AliasesLocationKey", "location")
 	viperFunc("AliasesLocalIndicatorKey", "local")
-
 
 	if reflect.TypeOf(viperFunc) == reflect.TypeOf(viper.GetViper().SetDefault) {
 		var err error
@@ -150,6 +150,8 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 		utils.ExitIfError(err)
 		err = v.BindEnv("SSHKeyLocation", "CLONR_SSH_PATH")
 		utils.ExitIfError(err)
+		err = v.BindEnv("AliasesKeyName", "CLONR_ALIAS_KEY")
+		utils.ExitIfError(err)
 		err = v.BindEnv("AliasesLocationKey", "CLONR_ALIAS_LOCATION_KEY")
 		utils.ExitIfError(err)
 		err = v.BindEnv("AliasesLocalIndicatorKey", "CLONR_ALIAS_LOCAL_KEY")
@@ -160,7 +162,7 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 
 func SetPropertyAndSave(propertyName string, value interface{}) {
 	v := Global().Viper
-	log.Infof("Property name being set: %s", propertyName)
+	log.Debugf("Setting property: %s...", propertyName)
 	switch propertyName {
 	case "DefaultProjectName":
 		v.Set("DefaultProjectName", value)
@@ -207,6 +209,10 @@ func SetPropertyAndSave(propertyName string, value interface{}) {
 	case "Aliases":
 		fmt.Println(value)
 		v.Set("Aliases", value)
+		break
+	case "AliasesKeyName":
+		fmt.Println(value)
+		v.Set("AliasesKeyName", value)
 		break
 	case "AliasesLocationKey":
 		fmt.Println(value)

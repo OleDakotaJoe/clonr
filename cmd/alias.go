@@ -15,7 +15,19 @@ import (
 var aliasCmd = &cobra.Command{
 	Use:   "alias",
 	Short: "Adds an alias for a git url to be used with the clone command's -alias flag",
-	Long:  `All software has versions. This is Clonr's`,
+	// TODO: add better long descriptions
+	Long: `All software has versions. This is Clonr's`,
+	Run: func(cmd *cobra.Command, args []string) {
+		aliasCmdArgs.Args = args
+		processAlias(&aliasCmdArgs)
+	},
+}
+
+var aliasShowCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Displays all currently saved aliases",
+	// TODO: add better long descriptions
+	Long: `some description`,
 	Run: func(cmd *cobra.Command, args []string) {
 		aliasCmdArgs.Args = args
 		processAlias(&aliasCmdArgs)
@@ -25,6 +37,7 @@ var aliasCmdArgs types.AliasCmdArgs
 
 func init() {
 	RootCmd.AddCommand(aliasCmd)
+	aliasCmd.AddCommand(aliasShowCmd)
 
 	// Set Flags
 	aliasCmd.Flags().BoolVarP(&aliasCmdArgs.AddFlag, "add", "a", false, "Use this flag to add an alias to the list.")
@@ -58,7 +71,7 @@ func isValidFlags(args *types.AliasCmdArgs) bool {
 
 	conditions := []bool{add, update, rm}
 	trueCount := 0
-	for _,condition := range conditions {
+	for _, condition := range conditions {
 		if condition {
 			trueCount++
 		}
@@ -72,7 +85,6 @@ func setTemplateLocationForAlias(args *types.AliasCmdArgs) {
 	switch len(args.Args) {
 	case 0:
 		templateLocation = utils.StringInputReader("What is the git address, or the local path to the template")
-		// TODO: add question about is this local
 		break
 	case 1:
 		templateLocation = args.Args[0]
@@ -81,7 +93,13 @@ func setTemplateLocationForAlias(args *types.AliasCmdArgs) {
 		log.Errorln("You must provide no more than one argument, the git url or local filepath (if you passed -l).")
 		os.Exit(1)
 	}
-	// TODO: add is this local question
+	if !args.IsLocalFlag {
+		ans := utils.StringInputReader("Is this a directory on your local machine? (y/n)")
+		if strings.ToLower(ans) == "y" {
+			args.IsLocalFlag = true
+		}
+	}
+
 	if args.IsLocalFlag || strings.Contains(templateLocation, "git@") {
 		args.AliasLocation = templateLocation
 	} else {
@@ -98,48 +116,26 @@ func aliasManager(args *types.AliasCmdArgs) {
 	if args.AddFlag {
 		if _, ok := existingAliases[args.AliasNameFlag]; ok {
 			fmt.Println("This Alias already exists, if you continue you will override it.")
-			if !getConfirmation("update", args) {
-				return
-			}
+			utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to update the alias: %s?", args.AliasNameFlag))
 		}
-			resultingAliases =  utils.MergeStringMaps(existingAliases, makeAliasMap(args))
-		if !getConfirmation("add", args) {
-			return
-		}
+		resultingAliases = utils.MergeStringMaps(existingAliases, makeAliasMap(args))
+		utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to add the alias: %s?", args.AliasNameFlag))
 		log.Infof("Adding alias: %s, %s\n", args.AliasNameFlag, args.AliasLocation)
-	} else
-
-	if args.UpdateFlag {
+	} else if args.UpdateFlag {
 		resultingAliases = existingAliases
 		resultingAliases[args.AliasNameFlag] = utils.MergeStringMaps(existingAliases, makeAliasMap(args))
-		if !getConfirmation("update", args) {
-			return
-		}
+		utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to update the alias: %s?", args.AliasNameFlag))
 		log.Infof("Updating alias to: %s, %s\n", args.AliasNameFlag, args.AliasLocation)
-	} else
-
-	if args.DeleteFlag {
+	} else if args.DeleteFlag {
 		resultingAliases = existingAliases
 		delete(resultingAliases, args.AliasNameFlag)
-		if !getConfirmation("delete", args) {
-			return
-		}
+		utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to delete the alias: %s?", args.AliasNameFlag))
 		log.Infof("Deleting Alias: %s\n", args.AliasNameFlag)
 	}
-	
+
 	config.SetPropertyAndSave("Aliases", resultingAliases)
 }
 
-
 func makeAliasMap(args *types.AliasCmdArgs) map[string]interface{} {
-	return map[string]interface{}{args.AliasNameFlag: map[string]interface{}{ "url": args.AliasLocation, "local": args.IsLocalFlag }}
-}
-
-func getConfirmation(action string, args *types.AliasCmdArgs) bool {
-	ans := utils.StringInputReader(fmt.Sprintf("Are you sure you want to %s the alias: %s? (y/n)", action, args.AliasNameFlag))
-	if strings.ToLower(ans) != "y" {
-		log.Infoln("No changes have been made!")
-		return false
-	}
-	return true
+	return map[string]interface{}{args.AliasNameFlag: map[string]interface{}{"url": args.AliasLocation, "local": args.IsLocalFlag}}
 }

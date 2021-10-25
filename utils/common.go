@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"text/tabwriter"
 )
 
@@ -133,4 +134,14 @@ func MergeStringMaps(a map[string]interface{}, b map[string]interface{}) map[str
 		a[k] = v
 	}
 	return a
+}
+
+func GetConfirmationOrExit(prompt string) {
+	prompt += " (y/n)"
+	ans := StringInputReader(prompt)
+	if strings.ToLower(ans) != "y" {
+		log.Infoln("No changes have been made!")
+		os.Exit(0)
+	}
+
 }

@@ -12,11 +12,11 @@ type DocsCmdArgs struct {
 }
 
 type AliasCmdArgs struct {
-	Args              []string
-	AddFlag           bool
-	UpdateFlag        bool
-	DeleteFlag        bool
-	IsLocalFlag       bool
-	AliasNameFlag     string
+	Args          []string
+	AddFlag       bool
+	UpdateFlag    bool
+	DeleteFlag    bool
+	IsLocalFlag   bool
+	AliasNameFlag string
 	AliasLocation string
 }
