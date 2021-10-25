@@ -119,7 +119,7 @@ func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProc
 
 func resolveAlias(args *types.CloneCmdArgs) {
 	aliases := config.Global().Aliases
-	if len(args.Args) > 1 {
+	if len(args.Args) > 2 {
 		log.Errorln("You've entered too many arguments.")
 		os.Exit(1)
 	}
@@ -129,7 +129,7 @@ func resolveAlias(args *types.CloneCmdArgs) {
 		os.Exit(1)
 	}
 
-	args.Args = []string{cast.ToString(alias[config.Global().AliasesUrlKey])}
+	args.Args[0] = cast.ToString(alias[config.Global().AliasesUrlKey])
 	args.IsLocalPath = cast.ToBool(alias[config.Global().AliasesLocalIndicatorKey])
 }
 
