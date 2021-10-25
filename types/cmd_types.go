@@ -4,6 +4,7 @@ type CloneCmdArgs struct {
 	Args        []string
 	NameFlag    string
 	IsLocalPath bool
+	IsAlias     bool
 }
 
 type DocsCmdArgs struct {
