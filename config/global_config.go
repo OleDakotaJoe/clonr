@@ -31,7 +31,9 @@ type globalConfig struct {
 	ValidationKeyName       string
 	LogLevel                string
 	SSHKeyLocation          string
-	Aliases 				map[string]string
+	Aliases 				map[string]interface{}
+	AliasesLocationKey 		string
+	AliasesLocalIndicatorKey string
 }
 
 func Global() *globalConfig {
@@ -55,7 +57,9 @@ func Global() *globalConfig {
 		ValidationKeyName:       v.GetString("ValidationKeyName"),
 		LogLevel:                v.GetString("LogLevel"),
 		SSHKeyLocation:          v.GetString("SSHKeyLocation"),
-		Aliases: 				 v.GetStringMapString("Aliases"),
+		Aliases: 				 v.GetStringMap("Aliases"),
+		AliasesLocationKey: 	 v.GetString("AliasesLocationKey"),
+		AliasesLocalIndicatorKey: v.GetString("AliasesLocalIndicatorKey"),
 	}
 	return &this
 }
@@ -104,6 +108,11 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 	viperFunc("ValidationKeyName", "validation")
 	viperFunc("LogLevel", "info")
 	viperFunc("SSHKeyLocation", getSshLocation())
+	// Aliases should be read in as default
+	//viperFunc("Aliases", v.GetStringMap("Aliases"))
+	viperFunc("AliasesLocationKey", "location")
+	viperFunc("AliasesLocalIndicatorKey", "local")
+
 
 	if reflect.TypeOf(viperFunc) == reflect.TypeOf(viper.GetViper().SetDefault) {
 		var err error
@@ -141,11 +150,15 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 		utils.ExitIfError(err)
 		err = v.BindEnv("SSHKeyLocation", "CLONR_SSH_PATH")
 		utils.ExitIfError(err)
+		err = v.BindEnv("AliasesLocationKey", "CLONR_ALIAS_LOCATION_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("AliasesLocalIndicatorKey", "CLONR_ALIAS_LOCAL_KEY")
+		utils.ExitIfError(err)
 	}
 
 }
 
-func SetPropertyAndSave(propertyName string, value string) {
+func SetPropertyAndSave(propertyName string, value interface{}) {
 	v := Global().Viper
 	log.Infof("Property name being set: %s", propertyName)
 	switch propertyName {
@@ -192,7 +205,16 @@ func SetPropertyAndSave(propertyName string, value string) {
 		v.Set("SSHKeyLocation", value)
 		break
 	case "Aliases":
-		v.Set("Aliases", cast.ToStringMapString(value))
+		fmt.Println(value)
+		v.Set("Aliases", value)
+		break
+	case "AliasesLocationKey":
+		fmt.Println(value)
+		v.Set("AliasesLocationKey", value)
+		break
+	case "AliasesLocalIndicatorKey":
+		fmt.Println(value)
+		v.Set("AliasesLocalIndicatorKey", value)
 		break
 	default:
 		fmt.Println()
@@ -212,7 +234,8 @@ func ForEachConfigField(mutator *types.ConfigFieldMutator) {
 		// Add any properties you don't want available for bulk manipulation to this conditional.
 		if mutator.Property != "Viper" &&
 			mutator.Property != "ConfigFileName" &&
-			mutator.Property != "ConfigFileType" {
+			mutator.Property != "ConfigFileType" &&
+			mutator.Property != "Aliases" {
 			mutator.ConfigMutator(mutator)
 		}
 	}

@@ -127,3 +127,10 @@ func IsVariableValid(regex string, input string) bool {
 	ExitIfError(err)
 	return match
 }
+
+func MergeStringMaps(a map[string]interface{}, b map[string]interface{}) map[string]interface{} {
+	for k, v := range b {
+		a[k] = v
+	}
+	return a
+}
