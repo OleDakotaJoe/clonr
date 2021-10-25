@@ -15,7 +15,7 @@ var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Change clonr's configuration",
 	Long: `
-The clonr config <sub_command> <...args> command has multiple sub_command s.
+The clonr config <sub_command> <...args> command has multiple sub_commands.
 
 1. 'clonr config show': displays the current values for clonr's configuration
 2. 'clonr config set <property> <value>': sets the property to the value you specify. Beware, some of these can be destructive
