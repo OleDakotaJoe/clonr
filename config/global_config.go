@@ -207,19 +207,15 @@ func SetPropertyAndSave(propertyName string, value interface{}) {
 		v.Set("SSHKeyLocation", value)
 		break
 	case "Aliases":
-		fmt.Println(value)
 		v.Set("Aliases", value)
 		break
 	case "AliasesKeyName":
-		fmt.Println(value)
 		v.Set("AliasesKeyName", value)
 		break
 	case "AliasesUrlKey":
-		fmt.Println(value)
 		v.Set("AliasesUrlKey", value)
 		break
 	case "AliasesLocalIndicatorKey":
-		fmt.Println(value)
 		v.Set("AliasesLocalIndicatorKey", value)
 		break
 	default:
