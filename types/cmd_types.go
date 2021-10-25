@@ -13,13 +13,15 @@ type DocsCmdArgs struct {
 }
 
 type AliasCmdArgs struct {
-	Args          []string
-	AddFlag       bool
-	UpdateFlag    bool
-	DeleteFlag    bool
-	IsLocalFlag   bool
-	AliasNameFlag     string
-	ActualAliasName   string
-	AliasLocationFlag string
+	Args                []string
+	AddFlag             bool
+	UpdateFlag          bool
+	DeleteFlag          bool
+	IsLocalFlag         bool
+	AliasNameFlag       string
+	ActualAliasName     string
+	AliasLocationFlag   string
 	ActualAliasLocation string
+	ConfirmFunction     func(string)
+	StringInputReader   InputReader
 }
