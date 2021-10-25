@@ -16,19 +16,18 @@ import (
 
 var aliasCmd = &cobra.Command{
 	Use:   "alias",
-	Short: "Adds an alias for a git url to be used with the clone command's -alias flag",
-	// TODO: add better long descriptions
+	Short: "Adds an alias for a git url to be used with the clone command's '--alias' flag",
 	Long: `
 There are many ways to use the alias command.
 1. 'clonr alias show': displays a list of available aliases
-2. 'clonr alias (-a|-u) -name=<alias_name> -url=<template_url> (-l)': sets the alias with the values you specified
+2. 'clonr alias (-a|-u) --name=<alias_name> --url=<template_url> (-l)': sets the alias with the values you specified
 3. 'clonr alias (-a|-u) <alias_name> <template_url> (-l)'
-4. 'clonr alias (-a|-u) -name=<alias_name> <template_url> (-l)'
-5. 'clonr alias (-a|-u) <alias_name> -url=<template_url> (-l)'
+4. 'clonr alias (-a|-u) --name=<alias_name> <template_url> (-l)'
+5. 'clonr alias (-a|-u) <alias_name> --url=<template_url> (-l)'
 6. 'clonr alias (-a|-u)': walks you through a wizard to set the alias
 7. 'clonr alias -d ': walks you through a wizard for deleting the alias
 8. 'clonr alias -d <alias_name>' deletes the specified alias
-9. 'clonr alias -d -name=<alias-name>' deletes the specified alias
+9. 'clonr alias -d --name=<alias-name>' deletes the specified alias
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		aliasCmdArgs.Args = args
