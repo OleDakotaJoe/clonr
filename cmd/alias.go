@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -150,5 +151,15 @@ func aliasManager(args *types.AliasCmdArgs) {
 }
 
 func makeAliasMap(args *types.AliasCmdArgs) map[string]interface{} {
-	return map[string]interface{}{args.AliasNameFlag: map[string]interface{}{"url": args.AliasLocation, "local": args.IsLocalFlag}}
+	var location string
+	if args.IsLocalFlag {
+		location, _ = filepath.Abs(args.AliasLocation)
+	} else {
+		location = args.AliasLocation
+	}
+
+	return map[string]interface{}{args.AliasNameFlag: map[string]interface{}{
+		config.Global().AliasesUrlKey:            location,
+		config.Global().AliasesLocalIndicatorKey: args.IsLocalFlag,
+	}}
 }
