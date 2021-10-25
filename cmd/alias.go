@@ -19,17 +19,16 @@ var aliasCmd = &cobra.Command{
 	Short: "Adds an alias for a git url to be used with the clone command's -alias flag",
 	// TODO: add better long descriptions
 	Long: `
-There are multiple ways to use the alias command.
+There are many ways to use the alias command.
 1. 'clonr alias show': displays a list of available aliases
-2. 'clonr alias -a -name=<alias_name> <alias_url>': sets the property to the value you specify. Beware, some of these can be destructive
-      - use 'clonr alias -a' to walk through a short alias wizard
-      - use 'clonr config set <property>' and you will be prompted for the value
-      - use 'clonr config set <property> <value>' and if the property you chose exists, it will be set to the value you specified.
-3. 'clonr config reset': resets the configuration back to default settings
-
-NOTE: You can actually pass in the name using a '-name' or '-n' flag, if you prefer.
-
-This would look like this: clonr clone <git_url> -name <name_of_project>
+2. 'clonr alias (-a|-u) -name=<alias_name> -url=<template_url> (-l)': sets the alias with the values you specified
+3. 'clonr alias (-a|-u) <alias_name> <template_url> (-l)'
+4. 'clonr alias (-a|-u) -name=<alias_name> <template_url> (-l)'
+5. 'clonr alias (-a|-u) <alias_name> -url=<template_url> (-l)'
+6. 'clonr alias (-a|-u)': walks you through a wizard to set the alias
+7. 'clonr alias -d ': walks you through a wizard for deleting the alias
+8. 'clonr alias -d <alias_name>' deletes the specified alias
+9. 'clonr alias -d -name=<alias-name>' deletes the specified alias
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		aliasCmdArgs.Args = args
@@ -41,7 +40,7 @@ var aliasShowCmd = &cobra.Command{
 	Use:   "show",
 	Short: "Displays all currently saved aliases",
 	// TODO: add better long descriptions
-	Long: `some description`,
+	Long: `Run 'clonr alias show' to see a list of all available aliases`,
 	Run: func(cmd *cobra.Command, args []string) {
 		displayAliases()
 	},
@@ -58,28 +57,52 @@ func init() {
 	aliasCmd.Flags().BoolVarP(&aliasCmdArgs.DeleteFlag, "delete", "d", false, "Use this flag to remove an alias from the list.")
 	aliasCmd.Flags().BoolVarP(&aliasCmdArgs.IsLocalFlag, "local", "l", false, "Use this flag to indicate that an alias points to a local directory.")
 	aliasCmd.Flags().StringVarP(&aliasCmdArgs.AliasNameFlag, "name", "n", "", "The name you want to use for your alias.")
+	aliasCmd.Flags().StringVar(&aliasCmdArgs.AliasLocationFlag, "url", "", "The url or local filepath that the alias represents.")
 }
 
 func processAlias(args *types.AliasCmdArgs) {
 	if !isValidFlags(args) {
 		log.Errorln("You must provide exactly one action flag. You must choose only one, -update (-u), -add (-a), or -delete (-d). ")
-		return
+		os.Exit(1)
 	}
 
-	for args.AliasNameFlag == "" {
+	if len(args.Args) > 2 {
+		log.Errorln("Too many arguments.")
+		os.Exit(1)
+	}
+
+	setNameForAlias(args)
+	setTemplateLocationForAlias(args)
+	aliasManager(args)
+
+}
+
+func setNameForAlias(args *types.AliasCmdArgs) {
+	args.ActualAliasName = args.AliasNameFlag
+	for args.ActualAliasName == "" {
 		var prompt string
 		if args.DeleteFlag {
 			prompt = "Which alias do you want to delete?"
 			displayAliases()
-		} else {
-			prompt = "What do you want the alias name to be?"
+		} else if len(args.Args) == 0 {
+			if args.AddFlag {
+				prompt = "What do you want the alias name to be?"
+			} else if args.UpdateFlag {
+				displayAliases()
+				prompt = "Which alias do you want to update?"
+			}
+		} else if len(args.Args) > 0 {
+			args.ActualAliasName = args.Args[0]
+			break
 		}
-		args.AliasNameFlag = utils.StringInputReader(prompt)
+		args.ActualAliasName = utils.StringInputReader(prompt)
+		existingAliases := config.Global().Aliases
+		if _, ok := existingAliases[args.ActualAliasName]; !ok {
+			fmt.Println("That alias does not exist!!!")
+			args.ActualAliasName = ""
+		}
 	}
-
-	setTemplateLocationForAlias(args)
-	aliasManager(args)
-
+	log.Infof("Alias: %s", args.ActualAliasName)
 }
 
 func displayAliases() {
@@ -115,22 +138,28 @@ func isValidFlags(args *types.AliasCmdArgs) bool {
 }
 
 func setTemplateLocationForAlias(args *types.AliasCmdArgs) {
-	if args.DeleteFlag {
+	if args.DeleteFlag || args.AliasLocationFlag != "" {
 		return
 	}
 
 	var templateLocation string
-	switch len(args.Args) {
-	case 0:
-		templateLocation = utils.StringInputReader("What is the git address, or the local path to the template")
-		break
-	case 1:
-		templateLocation = args.Args[0]
-		break
-	default:
-		log.Errorln("You must provide no more than one argument, the git url or local filepath (if you passed -l).")
-		os.Exit(1)
+	if args.AliasNameFlag == "" {
+		if len(args.Args) < 2 {
+			templateLocation = utils.StringInputReader("What is the git address, or the local path to the template")
+		} else {
+			templateLocation = args.Args[1]
+		}
+	} else {
+		if len(args.Args) > 1 {
+			log.Errorln("Too many Arguments.")
+			os.Exit(1)
+		} else if len(args.Args) == 1 {
+			templateLocation = args.Args[0]
+		} else {
+			templateLocation = utils.StringInputReader("What is the git address, or the local path to the template")
+		}
 	}
+
 	if !args.IsLocalFlag {
 		ans := utils.StringInputReader("Is this a directory on your local machine? (y/n)")
 		if strings.ToLower(ans) == "y" {
@@ -139,11 +168,11 @@ func setTemplateLocationForAlias(args *types.AliasCmdArgs) {
 	}
 
 	if args.IsLocalFlag || strings.Contains(templateLocation, "git@") {
-		args.AliasLocation = templateLocation
+		args.ActualAliasLocation = templateLocation
 	} else {
 		_, err := url.ParseRequestURI(templateLocation)
 		utils.ExitIfError(err)
-		args.AliasLocation = templateLocation
+		args.ActualAliasLocation = templateLocation
 	}
 }
 
@@ -152,27 +181,27 @@ func aliasManager(args *types.AliasCmdArgs) {
 	resultingAliases := make(map[string]interface{})
 
 	if args.AddFlag {
-		if _, ok := existingAliases[args.AliasNameFlag]; ok {
+		if _, ok := existingAliases[args.ActualAliasName]; ok {
 			fmt.Println("This Alias already exists, if you continue you will override it.")
-			utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to update the alias: %s?", args.AliasNameFlag))
+			utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to update the alias: %s?", args.ActualAliasName))
 		} else {
-			utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to add the alias: %s?", args.AliasNameFlag))
+			utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to add the alias: %s?", args.ActualAliasName))
 		}
 		resultingAliases = utils.MergeStringMaps(existingAliases, makeAliasMap(args))
-		log.Infof("Adding alias: %s, %s\n", args.AliasNameFlag, args.AliasLocation)
+		log.Infof("Adding alias: %s, %s\n", args.ActualAliasName, args.ActualAliasLocation)
 	} else if args.UpdateFlag {
 		resultingAliases = existingAliases
-		resultingAliases[args.AliasNameFlag] = utils.MergeStringMaps(existingAliases, makeAliasMap(args))
-		utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to update the alias: %s?", args.AliasNameFlag))
-		log.Infof("Updating alias to: %s, %s\n", args.AliasNameFlag, args.AliasLocation)
+		resultingAliases[args.ActualAliasName] = utils.MergeStringMaps(existingAliases, makeAliasMap(args))
+		utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to update the alias: %s?", args.ActualAliasName))
+		log.Infof("Updating alias to: %s, %s\n", args.ActualAliasName, args.ActualAliasLocation)
 	} else if args.DeleteFlag {
 		resultingAliases = existingAliases
-		delete(resultingAliases, args.AliasNameFlag)
-		utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to delete the alias: %s?", args.AliasNameFlag))
+		delete(resultingAliases, args.ActualAliasName)
+		utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to delete the alias: %s?", args.ActualAliasName))
 		// Here we are setting Aliases to an empty string to trick viper into removing all aliases.
 		// After this, we add all aliases and save config, without the deleted alias
 		config.SetPropertyAndSave("Aliases", "")
-		log.Infof("Deleting Alias: %s\n", args.AliasNameFlag)
+		log.Infof("Deleting Alias: %s\n", args.ActualAliasName)
 	}
 
 	config.SetPropertyAndSave("Aliases", resultingAliases)
@@ -181,12 +210,12 @@ func aliasManager(args *types.AliasCmdArgs) {
 func makeAliasMap(args *types.AliasCmdArgs) map[string]interface{} {
 	var location string
 	if args.IsLocalFlag {
-		location, _ = filepath.Abs(args.AliasLocation)
+		location, _ = filepath.Abs(args.ActualAliasLocation)
 	} else {
-		location = args.AliasLocation
+		location = args.ActualAliasLocation
 	}
 
-	return map[string]interface{}{args.AliasNameFlag: map[string]interface{}{
+	return map[string]interface{}{args.ActualAliasName: map[string]interface{}{
 		config.Global().AliasesUrlKey:            location,
 		config.Global().AliasesLocalIndicatorKey: args.IsLocalFlag,
 	}}

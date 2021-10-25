@@ -18,6 +18,8 @@ type AliasCmdArgs struct {
 	UpdateFlag    bool
 	DeleteFlag    bool
 	IsLocalFlag   bool
-	AliasNameFlag string
-	AliasLocation string
+	AliasNameFlag     string
+	ActualAliasName   string
+	AliasLocationFlag string
+	ActualAliasLocation string
 }
