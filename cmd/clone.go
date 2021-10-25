@@ -9,6 +9,7 @@ import (
 	"github.com/oledakotajoe/clonr/utils"
 	"github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	sshutils "golang.org/x/crypto/ssh"
@@ -53,23 +54,27 @@ func init() {
 	cloneProcessorSettings.MultipleChoiceInputReader = utils.MultipleChoiceInputReader
 	cloneCmd.Flags().StringVarP(&cloneCmdArgs.NameFlag, "name", "n", config.Global().DefaultProjectName, "The git URL to read from")
 	cloneCmd.Flags().BoolVarP(&cloneCmdArgs.IsLocalPath, "local", "l", false, "Indicates that the path you provide is on your local machine.") //(&cloneCmdLocalFlag, "l", false)
+	cloneCmd.Flags().BoolVarP(&cloneCmdArgs.IsAlias, "alias", "a", false, "Indicates that the argument you provided is an alias")              //(&cloneCmdLocalFlag, "l", false)
 }
 
 func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProcessorSettings) {
-	args := cmdArgs.Args
 	pwd, fsErr := os.Getwd()
 	utils.ExitIfError(fsErr)
 	projectName, argErr := determineProjectName(cmdArgs)
 	utils.ExitIfError(argErr)
 	destination := pwd + "/" + projectName
 
+	if cmdArgs.IsAlias {
+		resolveAlias(cmdArgs)
+	}
+
 	if cmdArgs.IsLocalPath {
 		// Source should be the first argument passed in through the CLI
-		source := args[0]
+		source := cmdArgs.Args[0]
 		err := copy.Copy(source, destination)
 		utils.ExitIfError(err)
 	} else {
-		source, err := validateAndExtractUrl(args)
+		source, err := validateAndExtractUrl(cmdArgs.Args)
 		utils.ExitIfError(err)
 
 		cloneOptions := git.CloneOptions{
@@ -110,6 +115,22 @@ func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProc
 	processorSettings.ConfigFilePath = destination
 
 	core.ProcessFiles(processorSettings)
+}
+
+func resolveAlias(args *types.CloneCmdArgs) {
+	aliases := config.Global().Aliases
+	if len(args.Args) > 1 {
+		log.Errorln("You've entered too many arguments.")
+		os.Exit(1)
+	}
+	alias := cast.ToStringMapString(aliases[args.Args[0]])
+	if alias == nil {
+		log.Errorln("You've provided an invalid alias. Try running 'clonr alias show' to see what is available.")
+		os.Exit(1)
+	}
+
+	args.Args = []string{cast.ToString(alias[config.Global().AliasesUrlKey])}
+	args.IsLocalPath = cast.ToBool(alias[config.Global().AliasesLocalIndicatorKey])
 }
 
 func validateAndExtractUrl(args []string) (string, error) {
