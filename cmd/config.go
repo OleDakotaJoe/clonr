@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"os"
-	"strings"
 )
 
 var configCmd = &cobra.Command{
@@ -81,10 +80,7 @@ var resetCmd = &cobra.Command{
 	Short: "Resets the configuration back to default settings.",
 	Long:  `Resets the configuration back to default settings.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		response := utils.StringInputReader("Are you sure you what to reset to default settings [this cannot be undone]? (y/n)")
-		if strings.ToLower(response) != "y" {
-			return
-		}
+		utils.GetConfirmationOrExit("Are you sure you what to reset to default settings? This cannot be undone.")
 		config.ResetGlobalToDefault()
 	},
 }
@@ -127,12 +123,7 @@ func setValueForProperty(property string) {
 }
 
 func getConfirmationAndSaveProperty(property string, value string) {
-	confirm := utils.StringInputReader(fmt.Sprintf("Are you sure you want to set %s to %s? (y/n)", property, value))
-
-	if strings.ToLower(confirm) == "y" {
-		log.Infof("Saving Property: %s as %s", property, value)
-		config.SetPropertyAndSave(property, value)
-	} else {
-		os.Exit(0)
-	}
+	utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to set %s to %s? (y/n)", property, value))
+	log.Infof("Saving Property: %s as %s", property, value)
+	config.SetPropertyAndSave(property, value)
 }

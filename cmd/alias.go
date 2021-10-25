@@ -6,6 +6,7 @@ import (
 	"github.com/oledakotajoe/clonr/types"
 	"github.com/oledakotajoe/clonr/utils"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
@@ -29,8 +30,20 @@ var aliasShowCmd = &cobra.Command{
 	// TODO: add better long descriptions
 	Long: `some description`,
 	Run: func(cmd *cobra.Command, args []string) {
-		aliasCmdArgs.Args = args
-		processAlias(&aliasCmdArgs)
+		aliases := config.Global().Aliases
+		for alias, props := range aliases {
+			propsMap := cast.ToStringMapString(props)
+			propsKeys := utils.GetKeysFromMap(propsMap)
+			for i, prop := range propsKeys {
+				value := propsMap[prop]
+				propValuePairString := fmt.Sprintf("%s: %s", prop, value)
+				if i == 0 {
+					utils.PrintTabFormattedText(alias, propValuePairString, 8, 8, 2)
+				} else {
+					utils.PrintTabFormattedText(" ", propValuePairString, 8, 8, 2)
+				}
+			}
+		}
 	},
 }
 var aliasCmdArgs types.AliasCmdArgs
