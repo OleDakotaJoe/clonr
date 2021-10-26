@@ -30,5 +30,6 @@
   "bugs": {
     "url": "https://github.com/OleDakotaJoe/clonr/issues"
   },
-  "homepage": "https://github.com/OleDakotaJoe/clonr#readme"
+  "homepage": "https://github.com/OleDakotaJoe/clonr#readme",
+  "dependencies": {}
 }

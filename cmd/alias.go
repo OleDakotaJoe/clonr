@@ -80,6 +80,15 @@ func setNameForAlias(args *types.AliasCmdArgs) {
 	for args.ActualAliasName == "" {
 		var prompt string
 		if args.DeleteFlag {
+			numArgs := len(args.Args)
+			if numArgs == 1 {
+				args.ActualAliasName = args.Args[0]
+				break
+			} else if numArgs > 1 {
+				_ = RootCmd.Help()
+				log.Errorln("Too many arguments.")
+				os.Exit(1)
+			}
 			displayAliases()
 			prompt = "Which alias do you want to delete?"
 		} else if len(args.Args) == 0 {
