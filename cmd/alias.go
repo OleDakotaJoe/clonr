@@ -14,6 +14,8 @@ import (
 	"strings"
 )
 
+var aliasCmdArgs types.AliasCmdArgs
+
 var aliasCmd = &cobra.Command{
 	Use:   "alias",
 	Short: "Adds an alias for a git url to be used with the clone command's '--alias' flag",
@@ -34,7 +36,6 @@ There are many ways to use the alias command.
 		processAlias(&aliasCmdArgs)
 	},
 }
-
 var aliasShowCmd = &cobra.Command{
 	Use:   "show",
 	Short: "Displays all currently saved aliases",
@@ -43,7 +44,6 @@ var aliasShowCmd = &cobra.Command{
 		displayAliases()
 	},
 }
-var aliasCmdArgs types.AliasCmdArgs
 
 func init() {
 	RootCmd.AddCommand(aliasCmd)
@@ -73,7 +73,6 @@ func processAlias(args *types.AliasCmdArgs) {
 	setNameForAlias(args)
 	setTemplateLocationForAlias(args)
 	aliasManager(args)
-
 }
 
 func setNameForAlias(args *types.AliasCmdArgs) {
@@ -139,11 +138,21 @@ func isValidFlags(args *types.AliasCmdArgs) bool {
 }
 
 func setTemplateLocationForAlias(args *types.AliasCmdArgs) {
-	if args.DeleteFlag || args.AliasLocationFlag != "" {
+	if args.DeleteFlag {
+		return
+	}
+
+	if args.AliasLocationFlag != "" {
+		if len(args.Args) > 0 {
+			log.Errorln("Too many Arguments.")
+			os.Exit(1)
+		}
+		args.ActualAliasLocation = args.AliasLocationFlag
 		return
 	}
 
 	var templateLocation string
+	// It matters whether the name flag is empty or not, because if it has a value, then any args must set the git url
 	if args.AliasNameFlag == "" {
 		if len(args.Args) < 2 {
 			templateLocation = args.StringInputReader("What is the git address, or the local path to the template")
@@ -156,6 +165,7 @@ func setTemplateLocationForAlias(args *types.AliasCmdArgs) {
 			os.Exit(1)
 		} else if len(args.Args) == 1 {
 			templateLocation = args.Args[0]
+			args.ConfirmFunction(fmt.Sprintf("Are you sure you want to use '%s' as the url/location for this alias?", templateLocation))
 		} else {
 			templateLocation = args.StringInputReader("What is the git address, or the local path to the template")
 		}
@@ -192,7 +202,7 @@ func aliasManager(args *types.AliasCmdArgs) {
 		log.Infof("Adding alias: %s, %s\n", args.ActualAliasName, args.ActualAliasLocation)
 	} else if args.UpdateFlag {
 		resultingAliases = existingAliases
-		resultingAliases[args.ActualAliasName] = utils.MergeStringMaps(existingAliases, makeAliasMap(args))
+		resultingAliases = utils.MergeStringMaps(existingAliases, makeAliasMap(args))
 		args.ConfirmFunction(fmt.Sprintf("Are you sure you want to update the alias: %s?", args.ActualAliasName))
 		log.Infof("Updating alias to: %s, %s\n", args.ActualAliasName, args.ActualAliasLocation)
 	} else if args.DeleteFlag {
