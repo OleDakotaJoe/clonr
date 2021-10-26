@@ -9,14 +9,13 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"os"
-	"strings"
 )
 
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Change clonr's configuration",
-	Long:  `
-The clonr config <sub_command> <...args> command has multiple sub_command s.
+	Long: `
+The clonr config <sub_command> <...args> command has multiple sub_commands.
 
 1. 'clonr config show': displays the current values for clonr's configuration
 2. 'clonr config set <property> <value>': sets the property to the value you specify. Beware, some of these can be destructive
@@ -52,7 +51,7 @@ var showCmd = &cobra.Command{
 var setCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Make an adjustment to clonr's configuration",
-	Long:  `
+	Long: `
 	- Use 'clonr config set' to get a multiple choice list
 	- Use 'clonr config set <property>' and you will be prompted for the value
 	- Use 'clonr config set <property> <value>' and if the property you chose exists, it will be set to the value you specified.
@@ -81,10 +80,7 @@ var resetCmd = &cobra.Command{
 	Short: "Resets the configuration back to default settings.",
 	Long:  `Resets the configuration back to default settings.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		response := utils.StringInputReader("Are you sure you what to reset to default settings [this cannot be undone]? (y/n)")
-		if strings.ToLower(response) != "y" {
-			return
-		}
+		utils.GetConfirmationOrExit("Are you sure you what to reset to default settings? This cannot be undone.")
 		config.ResetGlobalToDefault()
 	},
 }
@@ -127,12 +123,7 @@ func setValueForProperty(property string) {
 }
 
 func getConfirmationAndSaveProperty(property string, value string) {
-	confirm := utils.StringInputReader(fmt.Sprintf("Are you sure you want to set %s to %s? (y/n)", property, value))
-
-	if strings.ToLower(confirm) == "y" {
-		log.Infof("Saving Property: %s as %s", property, value)
-		config.SetPropertyAndSave(property, value)
-	} else {
-		os.Exit(0)
-	}
+	utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to set %s to %s? (y/n)", property, value))
+	log.Infof("Saving Property: %s as %s", property, value)
+	config.SetPropertyAndSave(property, value)
 }

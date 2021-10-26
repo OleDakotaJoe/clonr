@@ -7,49 +7,61 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
+	"os"
 	"reflect"
+	"runtime"
 )
 
 type globalConfig struct {
-	Viper                   *viper.Viper
-	DefaultProjectName      string
-	ConfigFileName          string
-	ConfigFileType          string
-	PlaceholderRegex        string
-	PlaceholderPrefix       string
-	PlaceholderSuffix       string
-	VariableNameRegex       string
-	TemplateRootKeyName     string
-	TemplateLocationKeyName string
-	VariablesKeyName        string
-	GlobalsKeyName          string
-	QuestionsKeyName        string
-	DefaultAnswerKeyName    string
-	DefaultChoicesKeyName   string
-	ValidationKeyName       string
-	LogLevel                string
+	Viper                    *viper.Viper
+	DefaultProjectName       string
+	ConfigFileName           string
+	ConfigFileType           string
+	PlaceholderRegex         string
+	PlaceholderPrefix        string
+	PlaceholderSuffix        string
+	VariableNameRegex        string
+	TemplateRootKeyName      string
+	TemplateLocationKeyName  string
+	VariablesKeyName         string
+	GlobalsKeyName           string
+	QuestionsKeyName         string
+	DefaultAnswerKeyName     string
+	DefaultChoicesKeyName    string
+	ValidationKeyName        string
+	LogLevel                 string
+	SSHKeyLocation           string
+	Aliases                  map[string]interface{}
+	AliasesKeyName           string
+	AliasesUrlKey            string
+	AliasesLocalIndicatorKey string
 }
 
 func Global() *globalConfig {
 	v := loadConfig()
 	this := globalConfig{
-		Viper:                   v,
-		DefaultProjectName:      v.GetString("DefaultProjectName"),
-		ConfigFileName:          v.GetString("ConfigFileName"),
-		ConfigFileType:          v.GetString("ConfigFileType"),
-		PlaceholderRegex:        v.GetString("PlaceholderRegex"),
-		PlaceholderPrefix:       v.GetString("PlaceholderPrefix"),
-		PlaceholderSuffix:       v.GetString("PlaceholderSuffix"),
-		VariableNameRegex:       v.GetString("VariableNameRegex"),
-		TemplateRootKeyName:     v.GetString("TemplateRootKeyName"),
-		TemplateLocationKeyName: v.GetString("TemplateLocationKeyName"),
-		VariablesKeyName:        v.GetString("VariablesKeyName"),
-		GlobalsKeyName:          v.GetString("GlobalsKeyName"),
-		QuestionsKeyName:        v.GetString("QuestionsKeyName"),
-		DefaultAnswerKeyName:    v.GetString("DefaultAnswerKeyName"),
-		DefaultChoicesKeyName:   v.GetString("DefaultChoicesKeyName"),
-		ValidationKeyName:       v.GetString("ValidationKeyName"),
-		LogLevel:                v.GetString("LogLevel"),
+		Viper:                    v,
+		DefaultProjectName:       v.GetString("DefaultProjectName"),
+		ConfigFileName:           v.GetString("ConfigFileName"),
+		ConfigFileType:           v.GetString("ConfigFileType"),
+		PlaceholderRegex:         v.GetString("PlaceholderRegex"),
+		PlaceholderPrefix:        v.GetString("PlaceholderPrefix"),
+		PlaceholderSuffix:        v.GetString("PlaceholderSuffix"),
+		VariableNameRegex:        v.GetString("VariableNameRegex"),
+		TemplateRootKeyName:      v.GetString("TemplateRootKeyName"),
+		TemplateLocationKeyName:  v.GetString("TemplateLocationKeyName"),
+		VariablesKeyName:         v.GetString("VariablesKeyName"),
+		GlobalsKeyName:           v.GetString("GlobalsKeyName"),
+		QuestionsKeyName:         v.GetString("QuestionsKeyName"),
+		DefaultAnswerKeyName:     v.GetString("DefaultAnswerKeyName"),
+		DefaultChoicesKeyName:    v.GetString("DefaultChoicesKeyName"),
+		ValidationKeyName:        v.GetString("ValidationKeyName"),
+		LogLevel:                 v.GetString("LogLevel"),
+		SSHKeyLocation:           v.GetString("SSHKeyLocation"),
+		Aliases:                  v.GetStringMap("Aliases"),
+		AliasesKeyName:           v.GetString("AliasesKeyName"),
+		AliasesUrlKey:            v.GetString("AliasesUrlKey"),
+		AliasesLocalIndicatorKey: v.GetString("AliasesLocalIndicatorKey"),
 	}
 	return &this
 }
@@ -97,6 +109,10 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 	viperFunc("DefaultChoicesKeyName", "choices")
 	viperFunc("ValidationKeyName", "validation")
 	viperFunc("LogLevel", "info")
+	viperFunc("SSHKeyLocation", getSshLocation())
+	viperFunc("AliasesKeyName", "aliases")
+	viperFunc("AliasesUrlKey", "url")
+	viperFunc("AliasesLocalIndicatorKey", "local")
 
 	if reflect.TypeOf(viperFunc) == reflect.TypeOf(viper.GetViper().SetDefault) {
 		var err error
@@ -132,22 +148,24 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 		utils.ExitIfError(err)
 		err = v.BindEnv("LogLevel", "CLONR_LOG")
 		utils.ExitIfError(err)
+		err = v.BindEnv("SSHKeyLocation", "CLONR_SSH_PATH")
+		utils.ExitIfError(err)
+		err = v.BindEnv("AliasesKeyName", "CLONR_ALIAS_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("AliasesUrlKey", "CLONR_ALIAS_URL_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("AliasesLocalIndicatorKey", "CLONR_ALIAS_LOCAL_KEY")
+		utils.ExitIfError(err)
 	}
 
 }
 
-func SetPropertyAndSave(propertyName string, value string) {
+func SetPropertyAndSave(propertyName string, value interface{}) {
 	v := Global().Viper
-	log.Infof("Property name being set: %s", propertyName)
+	log.Debugf("Setting property: %s...", propertyName)
 	switch propertyName {
 	case "DefaultProjectName":
 		v.Set("DefaultProjectName", value)
-		break
-	case "ConfigFileName":
-		v.Set("ConfigFileName", value)
-		break
-	case "ConfigFileType":
-		v.Set("ConfigFileType", value)
 		break
 	case "PlaceholderRegex":
 		v.Set("PlaceholderRegex", value)
@@ -185,6 +203,21 @@ func SetPropertyAndSave(propertyName string, value string) {
 	case "LogLevel":
 		v.Set("LogLevel", value)
 		break
+	case "SSHKeyLocation":
+		v.Set("SSHKeyLocation", value)
+		break
+	case "Aliases":
+		v.Set("Aliases", value)
+		break
+	case "AliasesKeyName":
+		v.Set("AliasesKeyName", value)
+		break
+	case "AliasesUrlKey":
+		v.Set("AliasesUrlKey", value)
+		break
+	case "AliasesLocalIndicatorKey":
+		v.Set("AliasesLocalIndicatorKey", value)
+		break
 	default:
 		fmt.Println()
 		log.Errorf("%s is not a clonr property or cannot be configured.", propertyName)
@@ -201,9 +234,20 @@ func ForEachConfigField(mutator *types.ConfigFieldMutator) {
 		mutator.Property = typeConf.Field(i).Name
 		mutator.Value = cast.ToString(value.Field(i))
 		// Add any properties you don't want available for bulk manipulation to this conditional.
-		if mutator.Property != "Viper" {
+		if mutator.Property != "Viper" &&
+			mutator.Property != "ConfigFileName" &&
+			mutator.Property != "ConfigFileType" &&
+			mutator.Property != "Aliases" {
 			mutator.ConfigMutator(mutator)
 		}
 	}
 	mutator.Callback(mutator)
+}
+
+func getSshLocation() string {
+	if runtime.GOOS == "windows" {
+		return os.Getenv("HOMEDRIVE") + "/" + os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
+	} else {
+		return os.Getenv("HOME") + "/.ssh/id_rsa"
+	}
 }

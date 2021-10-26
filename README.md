@@ -9,8 +9,10 @@
     * [Configuring a project.](#configuring-a-project)
         + [Basic Example](#basic-example)
         + [Example With Globals](#example-with-globals)
+        + [Validation](#validation)
         + [Full Example:](#full-example)
-    * [Commands](#commands)
+        + [Using Aliases](#using-aliases)
+
 
 # About
 This project is aimed to make creating template projects very easy, so that you can set up a project one time, and not worry about configuration again.
@@ -31,6 +33,9 @@ to check the installation
 If you have go installed on your machine
 
 `go install github.com/oledakotajoe/clonr`
+
+Alternatively you may clone this repo, then run `go build && go install`
+(if you already have your PATH set up for golang, then you should be good to go)
 
 ### npm
 
@@ -73,8 +78,8 @@ and you will be asked to provide input via the terminal.
 
 ## Configuring a project.
 
-To configure your project, simply place a file named `.clonr-config.yml` into the root directory of the git repo.
-(NOTE: if you are using a `.clonrrc` file -- Congratulations! You were an early adopter! `.clonrrc` will still work, but I'd suggest upgrading :D.)
+To configure your project, place a file named `.clonr-config.yml` into the root directory of the git repo.
+(NOTE: if you are using a `.clonrrc` file -- Congratulations! You were an early adopter! `.clonrrc` will still work, but I'd suggest upgrading :D )
 
 
 Inside this yaml file you will need to provide the paths to the files which need to be processed, the name of the
@@ -212,6 +217,10 @@ Your file should now look like this
   "version": "1.0.0"
 }
 ```
+
+### Using Aliases
+You can set aliases for your projects by using the `clonr alias [args] [flags]` command. 
+See more information about aliases [here](https://github.com/OleDakotaJoe/clonr/blob/main/.resources/cmd-docs/clonr_alias.md)
 
 ## Commands
 

@@ -9,13 +9,13 @@ import (
 	"github.com/oledakotajoe/clonr/utils"
 	"github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	sshutils "golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net/url"
 	"os"
-	"runtime"
 	"strings"
 )
 
@@ -32,14 +32,20 @@ There are multiple ways to use the clone command.
     * Replace <git_url> with the url you would use if running git clone <url>
     * <name_of_project> is optional. This will be the name of the directory (inside your working directory) where the project will be cloned to.
     * If you don't provide a name for your project, the name will be clonr-app
-2. 'clonr clone -local <local_path> <name_of_project>'
+2. 'clonr clone --local <local_path> <name_of_project>'
     * Clones a local directory on your filesystem.
-    * Notice the '-local' flag. This indicates the local filepath. You can also use '-l' for short
+    * Notice the '--local' flag. This indicates the local filepath. You can also use '-l' for short
     * Replace <local_path> with either an absolute or relative path to the directory you want to clone
+3. 'clonr clone --alias <alias_name> <name_of_project>'
+    * Clones a project based on information you've stored as an alias.
+    * Notice the '--alias' flag. This indicates that you've provided an alias'. You can also use '-a' for short
+    * Replace <alias_name> with the alias of the project you want to clone.
+	* You can still use the '--name' or '-n' flag to set the name of the directory the project outputs to.
+	* For more information on aliases, run the command 'clonr alias --help'
 
-NOTE: You can actually pass in the name using a '-name' flag, if you prefer.
+NOTE: You can actually pass in the name using a '--name' or '-n' flag, if you prefer.
 
-This would look like this: clonr clone <git_url> -name <name_of_project>
+This would look like this: clonr clone <git_url> --name=<name_of_project>
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Initializing clonr project... Please wait")
@@ -54,23 +60,27 @@ func init() {
 	cloneProcessorSettings.MultipleChoiceInputReader = utils.MultipleChoiceInputReader
 	cloneCmd.Flags().StringVarP(&cloneCmdArgs.NameFlag, "name", "n", config.Global().DefaultProjectName, "The git URL to read from")
 	cloneCmd.Flags().BoolVarP(&cloneCmdArgs.IsLocalPath, "local", "l", false, "Indicates that the path you provide is on your local machine.") //(&cloneCmdLocalFlag, "l", false)
+	cloneCmd.Flags().BoolVarP(&cloneCmdArgs.IsAlias, "alias", "a", false, "Indicates that the argument you provided is an alias")              //(&cloneCmdLocalFlag, "l", false)
 }
 
 func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProcessorSettings) {
-	args := cmdArgs.Args
 	pwd, fsErr := os.Getwd()
 	utils.ExitIfError(fsErr)
 	projectName, argErr := determineProjectName(cmdArgs)
 	utils.ExitIfError(argErr)
 	destination := pwd + "/" + projectName
 
+	if cmdArgs.IsAlias {
+		resolveAlias(cmdArgs)
+	}
+
 	if cmdArgs.IsLocalPath {
 		// Source should be the first argument passed in through the CLI
-		source := args[0]
+		source := cmdArgs.Args[0]
 		err := copy.Copy(source, destination)
 		utils.ExitIfError(err)
 	} else {
-		source, err := validateAndExtractUrl(args)
+		source, err := validateAndExtractUrl(cmdArgs.Args)
 		utils.ExitIfError(err)
 
 		cloneOptions := git.CloneOptions{
@@ -79,15 +89,7 @@ func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProc
 		}
 		if strings.Contains(source, "git@") {
 			var publicKey *ssh.PublicKeys
-			var sshPath string
-
-			// TODO: add functionality for user to customize location of RSA
-			if runtime.GOOS == "windows" {
-				sshPath = os.Getenv("HOMEDRIVE") + "/" + os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
-			} else {
-				sshPath = os.Getenv("HOME") + "/.ssh/id_rsa"
-			}
-			sshKey, _ := ioutil.ReadFile(sshPath)
+			sshKey, _ := ioutil.ReadFile(config.Global().SSHKeyLocation)
 
 			_, sshErr := sshutils.ParseRawPrivateKey(sshKey)
 			sshPass := ""
@@ -119,6 +121,22 @@ func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProc
 	processorSettings.ConfigFilePath = destination
 
 	core.ProcessFiles(processorSettings)
+}
+
+func resolveAlias(args *types.CloneCmdArgs) {
+	aliases := config.Global().Aliases
+	if len(args.Args) > 2 {
+		log.Errorln("You've entered too many arguments.")
+		os.Exit(1)
+	}
+	alias := cast.ToStringMapString(aliases[args.Args[0]])
+	if alias == nil {
+		log.Errorln("You've provided an invalid alias. Try running 'clonr alias show' to see what is available.")
+		os.Exit(1)
+	}
+
+	args.Args[0] = cast.ToString(alias[config.Global().AliasesUrlKey])
+	args.IsLocalPath = cast.ToBool(alias[config.Global().AliasesLocalIndicatorKey])
 }
 
 func validateAndExtractUrl(args []string) (string, error) {
