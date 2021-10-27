@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
-	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"text/tabwriter"
@@ -41,6 +41,8 @@ func SaveConfig(v *viper.Viper, location string) {
 	err := v.WriteConfig()
 	if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 		err := v.WriteConfigAs(location)
+		ExitIfError(err)
+	} else if err != nil {
 		ExitIfError(err)
 	}
 }
@@ -88,26 +90,6 @@ func MultipleChoiceInputReader(prompt string, choices []string) string {
 	return choices[resultIndex]
 }
 
-func GetLocationOfInstalledBinary() string {
-	ex, err := os.Executable()
-	ExitIfError(err)
-	return filepath.Dir(ex)
-}
-
-func RemoveElementFromSlice(list []string, index int) []string {
-	return append(list[:index], list[index+1:]...)
-}
-
-func GetKeysFromMap(someMap map[string]string) []string {
-	keys := make([]string, len(someMap))
-	i := 0
-	for k := range someMap {
-		keys[i] = k
-		i++
-	}
-	return keys
-}
-
 func GetPassword() string {
 	fmt.Println("\nPlease enter your password: ")
 	passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
@@ -144,4 +126,12 @@ func GetConfirmationOrExit(prompt string) {
 		os.Exit(0)
 	}
 
+}
+
+func GetHomeDir() string {
+	if runtime.GOOS == "windows" {
+		return os.Getenv("HOMEDRIVE") + "/" + os.Getenv("HOMEPATH")
+	} else {
+		return os.Getenv("HOME")
+	}
 }
