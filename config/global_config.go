@@ -7,9 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
-	"os"
 	"reflect"
-	"runtime"
 )
 
 type globalConfig struct {
@@ -70,7 +68,7 @@ func loadConfig() *viper.Viper {
 	v := viper.New()
 	v.SetConfigName(".clonr-config.yml")
 	v.SetConfigType("yaml")
-	v.AddConfigPath(utils.GetLocationOfInstalledBinary())
+	v.AddConfigPath(utils.GetHomeDir())
 	initDefaults(v)
 	err := v.ReadInConfig()
 	if _, ok := err.(viper.ConfigFileNotFoundError); ok {
@@ -87,7 +85,7 @@ func initDefaults(v *viper.Viper) {
 
 func ResetGlobalToDefault() {
 	v := Global().Viper
-	location := utils.GetLocationOfInstalledBinary() + Global().ConfigFileName
+	location := utils.GetHomeDir() + Global().ConfigFileName
 	setDefaults(v, v.Set)
 	utils.SaveConfig(v, location)
 }
@@ -223,7 +221,7 @@ func SetPropertyAndSave(propertyName string, value interface{}) {
 		log.Errorf("%s is not a clonr property or cannot be configured.", propertyName)
 		fmt.Printf("\nRun 'clonr config show' for a list of options. No changes were made\n")
 	}
-	utils.SaveConfig(v, fmt.Sprintf("%s/%s", utils.GetLocationOfInstalledBinary(), Global().ConfigFileName))
+	utils.SaveConfig(v, fmt.Sprintf("%s/%s", utils.GetHomeDir(), Global().ConfigFileName))
 }
 
 func ForEachConfigField(mutator *types.ConfigFieldMutator) {
@@ -245,9 +243,5 @@ func ForEachConfigField(mutator *types.ConfigFieldMutator) {
 }
 
 func getSshLocation() string {
-	if runtime.GOOS == "windows" {
-		return os.Getenv("HOMEDRIVE") + "/" + os.Getenv("HOMEPATH") + "/.ssh/id_rsa"
-	} else {
-		return os.Getenv("HOME") + "/.ssh/id_rsa"
-	}
+	return utils.GetHomeDir() + "/.ssh/id_rsa"
 }
