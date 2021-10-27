@@ -126,13 +126,11 @@ func cloneProject(cmdArgs *types.CloneCmdArgs, processorSettings *types.FileProc
 func resolveAlias(args *types.CloneCmdArgs) {
 	aliases := config.Global().Aliases
 	if len(args.Args) > 2 {
-		log.Errorln("You've entered too many arguments.")
-		os.Exit(1)
+		utils.ExitIfError(utils.ThrowError("Too many arguments."))
 	}
 	alias := cast.ToStringMapString(aliases[args.Args[0]])
 	if alias == nil {
-		log.Errorln("You've provided an invalid alias. Try running 'clonr alias show' to see what is available.")
-		os.Exit(1)
+		utils.ExitIfError(utils.ThrowError("You've provided an invalid alias. Try running 'clonr alias show' to see what is available."))
 	}
 
 	args.Args[0] = cast.ToString(alias[config.Global().AliasesUrlKey])

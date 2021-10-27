@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"net/url"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -61,13 +60,11 @@ func init() {
 
 func processAlias(args *types.AliasCmdArgs) {
 	if !isValidFlags(args) {
-		log.Errorln("You must provide exactly one action flag. You must choose only one, -update (-u), -add (-a), or -delete (-d). ")
-		os.Exit(1)
+		utils.ExitIfError(utils.ThrowError("You must provide exactly one action flag. You must choose only one, -update (-u), -add (-a), or -delete (-d). "))
 	}
 
 	if len(args.Args) > 2 {
-		log.Errorln("Too many arguments.")
-		os.Exit(1)
+		utils.ExitIfError(utils.ThrowError("Too many arguments."))
 	}
 
 	setNameForAlias(args)
@@ -86,8 +83,7 @@ func setNameForAlias(args *types.AliasCmdArgs) {
 				break
 			} else if numArgs > 1 {
 				_ = RootCmd.Help()
-				log.Errorln("Too many arguments.")
-				os.Exit(1)
+				utils.ExitIfError(utils.ThrowError("Too many arguments."))
 			}
 			displayAliases()
 			prompt = "Which alias do you want to delete?"
@@ -153,8 +149,7 @@ func setTemplateLocationForAlias(args *types.AliasCmdArgs) {
 
 	if args.AliasLocationFlag != "" {
 		if len(args.Args) > 0 {
-			log.Errorln("Too many Arguments.")
-			os.Exit(1)
+			utils.ExitIfError(utils.ThrowError("Too many arguments."))
 		}
 		args.ActualAliasLocation = args.AliasLocationFlag
 		return
@@ -170,8 +165,7 @@ func setTemplateLocationForAlias(args *types.AliasCmdArgs) {
 		}
 	} else {
 		if len(args.Args) > 1 {
-			log.Errorln("Too many Arguments.")
-			os.Exit(1)
+			utils.ExitIfError(utils.ThrowError("Too many arguments."))
 		} else if len(args.Args) == 1 {
 			templateLocation = args.Args[0]
 			args.ConfirmFunction(fmt.Sprintf("Are you sure you want to use '%s' as the url/location for this alias?", templateLocation))
