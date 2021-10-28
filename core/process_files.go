@@ -8,6 +8,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -31,7 +33,7 @@ func processTemplatesVarMap(settings *types.FileProcessorSettings) {
 	for path := range paths {
 		log.Debugf("Processing path: %s", path)
 		pathData := cast.ToStringMap(paths[path])
-		fileLocation := configFilePath + cast.ToString(pathData[config.Global().TemplateLocationKeyName])
+		fileLocation, _ := filepath.Abs(configFilePath + cast.ToString(pathData[config.Global().TemplateLocationKeyName]))
 		variableKey := configRootKey + "." + path + "." + config.Global().VariablesKeyName
 		variables := v.GetStringMap(variableKey)
 
@@ -85,7 +87,7 @@ func generateVarMap(processorSettings *types.FileProcessorSettings, variableKey 
 				for !isValidAnswer {
 					answer = processorSettings.StringInputReader(question)
 					if validationRegex != "" && !(defaultAnswer != "" && answer == "") {
-						isValidAnswer = utils.IsVariableValid(validationRegex, answer)
+						isValidAnswer = utils.DoesMatchPattern(validationRegex, answer)
 					} else {
 						break
 					}
@@ -116,20 +118,36 @@ func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.File
 	input, err := ioutil.ReadFile(filepath)
 	utils.ExitIfError(err)
 	inputFileAsString := string(input)
+	newFilepath := filepath
 	for key, value := range *varMap {
 		if key == config.Global().GlobalsKeyName {
 			// if globals are provided, this is marked by a "globals" key in the .clonr-config.yml file, loop through globals map to check
 			for key, value := range settings.GlobalVariables {
-				globalPattern := config.Global().PlaceholderPrefix + config.Global().GlobalsKeyName + "." + key + config.Global().PlaceholderSuffix
-				inputFileAsString = strings.Replace(inputFileAsString, globalPattern, value, -1) // -1 makes it replace every occurrence in that file.
+				// handle globals here
+				globalPlaceholder := config.Global().PlaceholderPrefix + config.Global().GlobalsKeyName + "." + key + config.Global().PlaceholderSuffix
+				if strings.Contains(filepath, globalPlaceholder) {
+					newFilepath = strings.Replace(filepath, globalPlaceholder, value, -1)
+					log.Debugf("Filepath: %s will be renamed to %s", filepath, newFilepath)
+				}
+				inputFileAsString = strings.Replace(inputFileAsString, globalPlaceholder, value, -1) // -1 makes it replace every occurrence in that file.
 				log.Infof("Rendering Variable: %s", key)
 			}
 		} else {
-			clonrPattern := config.Global().PlaceholderPrefix + key + config.Global().PlaceholderSuffix
-			inputFileAsString = strings.Replace(inputFileAsString, clonrPattern, value, -1) // -1 makes it replace every occurrence in that file.
+			// handle
+			clonrPlaceholder := config.Global().PlaceholderPrefix + key + config.Global().PlaceholderSuffix
+			if strings.Contains(filepath, clonrPlaceholder) {
+				newFilepath = strings.Replace(filepath, clonrPlaceholder, value, -1)
+				log.Debugf("Filepath: %s will be renamed to %s", filepath, newFilepath)
+			}
+			inputFileAsString = strings.Replace(inputFileAsString, clonrPlaceholder, value, -1) // -1 makes it replace every occurrence in that file.
 
 		}
 	}
-	err = ioutil.WriteFile(filepath, []byte(inputFileAsString), 0644)
-	utils.ExitIfError(err)
+	wErr := ioutil.WriteFile(filepath, []byte(inputFileAsString), 0644)
+	if filepath != newFilepath {
+		rErr := os.Rename(filepath, newFilepath)
+		utils.ExitIfError(rErr)
+		log.Debugf("File has been renamed from '%s' to '%s'", filepath, newFilepath)
+	}
+	utils.ExitIfError(wErr)
 }
