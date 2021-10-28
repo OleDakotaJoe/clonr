@@ -105,7 +105,7 @@ func PrintTabFormattedText(col1 string, col2 string, minWidth, tabWidth int, pad
 	ExitIfError(wErr)
 }
 
-func IsVariableValid(regex string, input string) bool {
+func DoesMatchPattern(regex string, input string) bool {
 	match, err := regexp.Match(regex, []byte(input))
 	ExitIfError(err)
 	return match
