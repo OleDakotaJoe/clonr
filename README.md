@@ -12,6 +12,7 @@
         + [Validation](#validation)
         + [Full Example:](#full-example)
         + [Using Aliases](#using-aliases)
+    * [Commands](#commands)
 
 
 # About
