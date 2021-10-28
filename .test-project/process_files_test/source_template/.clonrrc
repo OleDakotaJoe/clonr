@@ -56,4 +56,11 @@ templates:
           - or-this
           - this-one
           - not-this-either
+  filename-test.txt:
+    location: "/{@clonr{filename}}.txt"
+    variables:
+      filename:
+        question: filename-test
+      inside-filename:
+        question: inside-filename-test
 

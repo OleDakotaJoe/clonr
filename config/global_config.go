@@ -15,7 +15,6 @@ type globalConfig struct {
 	DefaultProjectName       string
 	ConfigFileName           string
 	ConfigFileType           string
-	PlaceholderRegex         string
 	PlaceholderPrefix        string
 	PlaceholderSuffix        string
 	VariableNameRegex        string
@@ -42,10 +41,9 @@ func Global() *globalConfig {
 		DefaultProjectName:       v.GetString("DefaultProjectName"),
 		ConfigFileName:           v.GetString("ConfigFileName"),
 		ConfigFileType:           v.GetString("ConfigFileType"),
-		PlaceholderRegex:         v.GetString("PlaceholderRegex"),
 		PlaceholderPrefix:        v.GetString("PlaceholderPrefix"),
 		PlaceholderSuffix:        v.GetString("PlaceholderSuffix"),
-		VariableNameRegex:        v.GetString("VariableNameRegex"),
+		VariableNameRegex:        "[\\w-]*\\.?[\\w\\-]+",
 		TemplateRootKeyName:      v.GetString("TemplateRootKeyName"),
 		TemplateLocationKeyName:  v.GetString("TemplateLocationKeyName"),
 		VariablesKeyName:         v.GetString("VariablesKeyName"),
@@ -94,10 +92,8 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 	viperFunc("DefaultProjectName", "clonr-app")
 	viperFunc("ConfigFileName", ".clonr-config.yml")
 	viperFunc("ConfigFileType", "yaml")
-	viperFunc("PlaceholderRegex", "\\{{1}@{1}clonr\\{{1}[a-z0-9-_]+\\}{2}")
 	viperFunc("PlaceholderPrefix", "{@clonr{")
 	viperFunc("PlaceholderSuffix", "}}")
-	viperFunc("VariableNameRegex", "[\\w-]+")
 	viperFunc("TemplateRootKeyName", "templates")
 	viperFunc("TemplateLocationKeyName", "location")
 	viperFunc("VariablesKeyName", "variables")
@@ -120,13 +116,9 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 		utils.ExitIfError(err)
 		err = v.BindEnv("ConfigFileType", "CLONR_CONFIG_FTYPE")
 		utils.ExitIfError(err)
-		err = v.BindEnv("PlaceholderRegex", "CLONR_PH_REGEX")
-		utils.ExitIfError(err)
 		err = v.BindEnv("PlaceholderPrefix", "CLONR_PH_PREFIX")
 		utils.ExitIfError(err)
 		err = v.BindEnv("PlaceholderSuffix", "CLONR_PH_SUFFIX")
-		utils.ExitIfError(err)
-		err = v.BindEnv("VariableNameRegex", "CLONR_VARS_REGEX")
 		utils.ExitIfError(err)
 		err = v.BindEnv("TemplateRootKeyName", "CLONR_TEMPLATE_ROOT_KEY")
 		utils.ExitIfError(err)
@@ -164,9 +156,6 @@ func SetPropertyAndSave(propertyName string, value interface{}) {
 	switch propertyName {
 	case "DefaultProjectName":
 		v.Set("DefaultProjectName", value)
-		break
-	case "PlaceholderRegex":
-		v.Set("PlaceholderRegex", value)
 		break
 	case "PlaceholderPrefix":
 		v.Set("PlaceholderPrefix", value)
@@ -235,11 +224,17 @@ func ForEachConfigField(mutator *types.ConfigFieldMutator) {
 		if mutator.Property != "Viper" &&
 			mutator.Property != "ConfigFileName" &&
 			mutator.Property != "ConfigFileType" &&
-			mutator.Property != "Aliases" {
+			mutator.Property != "Aliases" &&
+			mutator.Property != "VariableNameRegex" {
 			mutator.ConfigMutator(mutator)
 		}
 	}
 	mutator.Callback(mutator)
+}
+
+func GetPlaceholderPattern() string {
+	global := Global()
+	return fmt.Sprintf("%s%s%s", global.PlaceholderPrefix, global.VariableNameRegex, global.PlaceholderSuffix)
 }
 
 func getSshLocation() string {

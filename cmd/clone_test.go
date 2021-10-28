@@ -106,7 +106,7 @@ func Test_GivenValidUrl_ShouldReturnUrl_ValidateAndExtractUrl(t *testing.T) {
 	}
 }
 
-func Test_givenTemplateFile_processFiles(t *testing.T) {
+func Test_givenTemplateFile_cloneProject(t *testing.T) {
 	config.ConfigureLogger()
 	sourceDir := config.TestConfig().ProcessFilesTestSource
 	outputDir := config.TestConfig().ProcessFilesTestOutput
