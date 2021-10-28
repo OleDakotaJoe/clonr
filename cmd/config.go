@@ -123,7 +123,7 @@ func setValueForProperty(property string) {
 }
 
 func getConfirmationAndSaveProperty(property string, value string) {
-	utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to set %s to %s? (y/n)", property, value))
+	utils.GetConfirmationOrExit(fmt.Sprintf("Are you sure you want to set %s to %s?", property, value))
 	log.Infof("Saving Property: %s as %s", property, value)
 	config.SetPropertyAndSave(property, value)
 }
