@@ -43,7 +43,7 @@ func Global() *globalConfig {
 		ConfigFileType:           v.GetString("ConfigFileType"),
 		PlaceholderPrefix:        v.GetString("PlaceholderPrefix"),
 		PlaceholderSuffix:        v.GetString("PlaceholderSuffix"),
-		VariableNameRegex:        "[\\w-.]+",
+		VariableNameRegex:        "[\\w-]*\\.?[\\w\\-]+",
 		TemplateRootKeyName:      v.GetString("TemplateRootKeyName"),
 		TemplateLocationKeyName:  v.GetString("TemplateLocationKeyName"),
 		VariablesKeyName:         v.GetString("VariablesKeyName"),
