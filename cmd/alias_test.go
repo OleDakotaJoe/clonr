@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cast"
 	"os"
 	"reflect"
+	"runtime"
 	"testing"
 )
 
@@ -29,7 +30,12 @@ func Test_GivenRelativePath_ExpectAbsolutePath_makeAliasMap(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Something went wrong with the test, this is probably not a problem with the code.")
 	}
-	expectedLocation := fmt.Sprintf("%s/hello", pwd)
+	var expectedLocation string
+	if runtime.GOOS == "windows" {
+		expectedLocation = fmt.Sprintf("%s\\hello", pwd)
+	} else {
+		expectedLocation = fmt.Sprintf("%s/hello", pwd)
+	}
 	expectedResult := map[string]interface{}{testAliasName: map[string]interface{}{
 		config.Global().AliasesUrlKey:            expectedLocation,
 		config.Global().AliasesLocalIndicatorKey: true,
@@ -49,18 +55,23 @@ func Test_GivenRelativePath_ExpectAbsolutePath_makeAliasMap(t *testing.T) {
 func Test_GivenAbsolutePath_ExpectAbsolutePath_makeAliasMap(t *testing.T) {
 	setupTests(t)
 	// Test inputs
-	testAliasName := "test-alias"
-	testAliasLocation := "/hello"
+	expectedAliasName := "test-alias"
+	expectedLocation := "/hello"
 
 	args := types.AliasCmdArgs{
 		IsLocalFlag:         true,
-		ActualAliasName:     testAliasName,
-		ActualAliasLocation: testAliasLocation,
+		ActualAliasName:     expectedAliasName,
+		ActualAliasLocation: expectedLocation,
+	}
+	if runtime.GOOS == "windows" {
+		expectedLocation = "C:\\hello"
+	} else {
+		expectedLocation = "/hello"
 	}
 
 	// Set up expected result
-	expectedResult := map[string]interface{}{testAliasName: map[string]interface{}{
-		config.Global().AliasesUrlKey:            testAliasLocation,
+	expectedResult := map[string]interface{}{expectedAliasName: map[string]interface{}{
+		config.Global().AliasesUrlKey:            expectedLocation,
 		config.Global().AliasesLocalIndicatorKey: true,
 	}}
 
@@ -758,6 +769,12 @@ func Test_GivenAddFlag_ExpectToAdd_processAlias(t *testing.T) {
 
 	if !cast.ToBool(actualAlias[config.Global().AliasesLocalIndicatorKey]) {
 		t.Fatalf("Expected local indicator in stored alias to be true but was not.")
+	}
+
+	if runtime.GOOS == "windows" {
+		expectedAliasLocation = "C:\\hello"
+	} else {
+		expectedAliasLocation = "/hello"
 	}
 
 	if actualAliasLocation != expectedAliasLocation {
