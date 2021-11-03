@@ -4,9 +4,11 @@ go 1.17
 
 require (
 	github.com/go-git/go-git/v5 v5.4.2
+	github.com/robertkrimen/otto v0.0.0-20211024170158-b87d35c0b86f
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
+	github.com/version-go/ldflags v0.0.0-20201113154248-6ea18db16ace
 )
 
 require (
@@ -50,6 +52,6 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
-	github.com/version-go/ldflags v0.0.0-20201113154248-6ea18db16ace // indirect
 	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
+	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 )
