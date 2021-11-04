@@ -10,9 +10,20 @@
         + [Basic Example](#basic-example)
         + [Example With Globals](#example-with-globals)
         + [Validation](#validation)
+        + [Conditionals](#conditionals)
+            - [Clonr's Runtime Data Transfer API](#clonrs-runtime-data-transfer-api)
+                * [`getClonrVar()`](#getclonrvar)
+                * [`getClonrBool()`](#getclonrbool)
+                * [`clonrResult`](#clonrresult)
+            - [Conditional File Rendering](#conditional-file-rendering)
+                * [Single-line script](#single-line-script)
+                * [Multi-line script](#multi-line-script)
+            - [Conditional Text Block](#conditional-text-block)
+            - [Best Practices](#best-practices)
+            - [Supported Javascript Syntax](#supported-javascript-syntax)
         + [Full Example:](#full-example)
         + [Using Aliases](#using-aliases)
-    * [Commands](#commands)
+    * [Commands](#commands)(base)
 
 
 # About
@@ -171,6 +182,134 @@ For example the regex: `[\w]` should be provided in this syntax: `"[\\w]"`
 Note the two \'s and "s.
 For more information on golang regexes, see [this cheat sheet](https://yourbasic.org/golang/regexp-cheat-sheet/)
 For more information on escaping regexes see [this article](https://www.threesl.com/blog/special-characters-regular-expressions-escape/)
+
+### Conditionals
+If you need to conditionally render a block of text, or an entire file, you can use clonr's built-in javascript runtime
+to process your logic and conditionally render text.
+
+*Clonr provides a simple API for resolving a script written in JS.*
+
+
+#### Clonr's Runtime Data Transfer API
+If you want to get the value of a variable (you can access any variable defined in the `.clonr-config.yml` file)
+these methods are available:
+
+##### `getClonrVar()`
+To use `getClonrVar()` pass in a string that matches this syntax: `"<template>[<variable>]"`.
+In this example replace `<template>` with either `globals` or the corresponding template name that you've chosen.
+(Note: do not use the full filepath of the template, just use the key-name of the template). 
+Replace `<variable>` with the variable that belongs to that template, or the global variable name. When using global variables 
+
+
+Example:
+```yaml
+templates:
+  some-file: 
+    location: /some-file.txt
+    variables:
+      some-variable:
+        question: you got this part by now.
+        validation: "[\\w]" // This would correspond to a "word" type regex.
+```
+
+
+##### `getClonrBool()`
+This method works exactly the same as `getClonrVar()` except it explicitly returns a boolean, and not a string.
+This is based on Golang's casting system, not javascript's.
+
+##### `clonrResult`
+This is a protected variable. 
+Whether you are conditionally rendering a file, or conditionally rendering a block of text, you must set the result of 
+your logic to `clonrResult`. 
+
+In the case of conditionally rendering a block of text, the resulting value must be a string. 
+In the case of a conditionally rendering an entire file, the resulting value must be boolean.
+
+#### Conditional File Rendering
+If you want an entire file to be conditional, define a conditional block inside your `.clonr-config.yml` file, 
+under the template that you want to be conditional.
+
+Note that when using conditional file rendering, you MUST set clonrResult to a boolean value or you may get unwanted
+results.
+
+##### Single-line script
+Example:
+```yaml
+templates:
+  some-file: 
+    location: /some-file.txt
+    variables:
+      some-variable:
+        question: True or False?
+        choices:
+          - true
+          - false
+    condition: clonrResult = getClonrBool("some-file[some-variable]")
+```
+When running clonr in this scenario the user will be asked `True or False?` and given a choice. 
+If the user chooses `true` the file will be rendered
+If the user chooses `false` the file will not be rendered
+
+##### Multi-line script
+If you need to use a multiline script, use yaml's [string-literal-format](https://symfony.com/doc/current/components/yaml/yaml_format.html#strings)
+To use the string literal format, follow your `condition` key with a pipe character `|` then a new line.
+Like this: 
+```yaml
+condition: |
+  // your multi
+  // line script
+  // here.
+```
+
+Example in context: 
+
+```yaml
+templates:
+  some-file: 
+    location: /some-file.txt
+    variables:
+      some-variable:
+        question: Make a decision!
+        choices:
+          - some-enum
+          - some-other-enum
+    condition: | 
+      if (getClonrVar("some-file[some-variable]") === "some-enum") {
+        clonrResult = true
+      } else {
+        clonrResult = false
+      }
+```
+
+#### Conditional Text Block
+If you want to conditionally render a text block use the following syntax:
+```
+{@clonr{%
+    if (getClonrBool("globals[some-var]")) {
+        clonrResult = "some-value"
+    } else {
+        clonrResult = ""     
+    }
+%}/clonr}
+```
+
+In this scenario, everything between `{@clonr{%` and `%}/clonr}` will be executed in the javascript runtime.
+If the value returned by `getClonrBool("globals[some-var]")` is truthy, then this block will render "some-value". If the
+value was falsy this block will render nothing.
+
+#### Best Practices
+It is a best practice to use an enum (choices) wherever possible when dealing with string based conditionals. 
+This will allow you to ensure that the input the user provides is acceptable for your logic.
+
+#### Supported Javascript Syntax
+The runtime is handled by [otto](https://github.com/robertkrimen/otto), and only supports syntax up to ECMAScript 5.
+( some examples of functionality that will not work is arrow functions,  `const`, import/export, and anything node-specific.)
+Some other minor functionalities may not work, visit the otto repository homepage for more information on why a feature may not be implemented.
+
+Also be aware, that the ECMAScript standard is not the same as browser APIs, and some functionality you are used to in 
+the browser is not going to be available in this application. Example: `fetch` `WebGL`, anything `DOM` related, File System Access API. 
+You can find a more comprehensive list of browser API's [here](https://developer.mozilla.org/en-US/docs/Web/API)
+If you are trying to run a script, and getting a message indicating that your method is not defined, check the above list. 
 
 ### Full Example:
 ```yaml
