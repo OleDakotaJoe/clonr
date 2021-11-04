@@ -15,11 +15,8 @@ globals:
         - Golang
         - Javascript
         - Python
-    truthy:
-      question: true
-      choices:
-        - true
-        - false
+    stringy:
+      question: truthy
     falsy:
       question: false
       choices:
@@ -82,7 +79,7 @@ templates:
           - true
           - false
     conditional:  |
-      return getClonrBool("conditional-removed.txt[condition-var]")
+      clonrResult = getClonrBool("conditional-removed.txt[condition-var]")
   conditional-test.txt:
     location: "/conditional-test.txt"
     variables:
