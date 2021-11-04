@@ -1,0 +1,1 @@
+This file should be removed, because the logic inside the .clonrrc config should resolve to it being removed

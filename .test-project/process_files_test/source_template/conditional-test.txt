@@ -1,0 +1,27 @@
+{@clonr{%
+    if (getClonrVar("conditional-test.txt[stringy]") === "true-test") {
+        return "it worked"
+    };
+%}}
+
+{@clonr{%
+    if (getClonrBool("conditional-test.txt[booly]")) {
+        return "this shouldn't be returned"
+    } else {
+        return "but this should"
+    }
+%}/clonr}
+
+{@clonr{%
+    if (getClonrVar("global[stringy]")) {
+        return "this was a global"
+    };
+%}/clonr}
+
+{@clonr{%
+    if (getClonrBool("global[booly]")) {
+        return "this was a global too"
+    } else {
+        return "but this is the one returned"
+    }
+%}/clonr}

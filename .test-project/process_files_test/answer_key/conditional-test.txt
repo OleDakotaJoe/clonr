@@ -1,0 +1,7 @@
+it worked
+
+but this should
+
+this was a global
+
+but this is the one returned

@@ -48,7 +48,7 @@ func processTemplatesVarMap(settings *types.FileProcessorSettings) {
 
 func processGlobalsVarMap(processorSettings *types.FileProcessorSettings) {
 	variablesMapKey := config.Global().GlobalsKeyName + "." + config.Global().VariablesKeyName
-	processorSettings.GlobalVariables = generateVarMap(processorSettings, variablesMapKey)
+	processorSettings.GlobalsVarMap = generateVarMap(processorSettings, variablesMapKey)
 }
 
 func generateVarMap(processorSettings *types.FileProcessorSettings, variableKey string) types.ClonrVarMap {
@@ -122,7 +122,7 @@ func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.File
 	for key, value := range *varMap {
 		if key == config.Global().GlobalsKeyName {
 			// if globals are provided, this is marked by a "globals" key in the .clonr-config.yml file, loop through globals map to check
-			for key, value := range settings.GlobalVariables {
+			for key, value := range settings.GlobalsVarMap {
 				// handle globals here
 				globalPlaceholder := config.Global().PlaceholderPrefix + config.Global().GlobalsKeyName + "." + key + config.Global().PlaceholderSuffix
 				if strings.Contains(filepath, globalPlaceholder) {
@@ -140,7 +140,7 @@ func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.File
 				log.Debugf("Filepath: %s will be renamed to %s", filepath, newFilepath)
 			}
 			inputFileAsString = strings.Replace(inputFileAsString, clonrPlaceholder, value, -1) // -1 makes it replace every occurrence in that file.
-
+			inputFileAsString = processConditionals(inputFileAsString, settings)
 		}
 	}
 	wErr := ioutil.WriteFile(filepath, []byte(inputFileAsString), 0644)
@@ -150,4 +150,14 @@ func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.File
 		log.Debugf("File has been renamed from '%s' to '%s'", filepath, newFilepath)
 	}
 	utils.ExitIfError(wErr)
+}
+
+func processConditionals(inputFileAsString string, settings *types.FileProcessorSettings) string {
+	script := ExtractScriptWithTags(inputFileAsString)
+	if script == "" {
+		return inputFileAsString
+	} else {
+		value := RunScriptAndReturnValue(RemoveTagsFromScript(script), settings)
+		return strings.Replace(inputFileAsString, script, value, 1)
+	}
 }
