@@ -5,16 +5,34 @@ import (
 	"github.com/oledakotajoe/clonr/types"
 	"github.com/oledakotajoe/clonr/utils"
 	"github.com/robertkrimen/otto"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
+	"path/filepath"
 	"strings"
 )
 
-func RunScriptAndReturnValue(script string, settings *types.FileProcessorSettings) string {
+func RunScriptAndReturnString(script string, settings *types.FileProcessorSettings) (string, error) {
 	vm := otto.New()
 	addAllFunctionsToVmContext(*vm, settings)
+	log.Debugf("Running Script: %s", script)
 	val, err := vm.Run(script)
+	log.Debugf("Returned value from script:  %s", val)
 	utils.ExitIfError(err)
-	return cast.ToString(val)
+	result, gErr := vm.Get(config.Global().ConditionalReturnVarName)
+	utils.ExitIfError(gErr)
+	return result.ToString()
+}
+
+func RunScriptAndReturnBool(script string, settings *types.FileProcessorSettings) (bool, error) {
+	vm := otto.New()
+	addAllFunctionsToVmContext(*vm, settings)
+	log.Debugf("Running Script: %s", script)
+	val, err := vm.Run(script)
+	log.Debugf("Returned value from script:  %s", val)
+	utils.ExitIfError(err)
+	result, gErr := vm.Get(config.Global().ConditionalReturnVarName)
+	utils.ExitIfError(gErr)
+	return result.ToBoolean()
 }
 
 func addAllFunctionsToVmContext(vm otto.Otto, settings *types.FileProcessorSettings) {
@@ -23,7 +41,9 @@ func addAllFunctionsToVmContext(vm otto.Otto, settings *types.FileProcessorSetti
 }
 
 func addGetClonrVarToContext(vm otto.Otto, settings *types.FileProcessorSettings) {
-	err := vm.Set("getClonrBool", func(call otto.FunctionCall) otto.Value {
+	log.Debugln("Adding getClonrVar() function to javascript runtime")
+	err := vm.Set("getClonrVar", func(call otto.FunctionCall) otto.Value {
+		log.Debugln("Called getClonrVar()")
 		result, _ := vm.ToValue(getClonrVar(&types.RuntimeClonrVarDTO{
 			FunctionCall:          call,
 			FileProcessorSettings: *settings,
@@ -32,10 +52,13 @@ func addGetClonrVarToContext(vm otto.Otto, settings *types.FileProcessorSettings
 		return result
 	})
 	utils.ExitIfError(err)
+
 }
 
 func addGetClonrBoolToContext(vm otto.Otto, processorSettings *types.FileProcessorSettings) {
+	log.Debugln("Adding getClonrBool() function to javascript runtime")
 	err := vm.Set("getClonrBool", func(call otto.FunctionCall) otto.Value {
+		log.Debugln("Called getClonrBool()")
 		result, _ := vm.ToValue(getClonrBool(&types.RuntimeClonrVarDTO{
 			FunctionCall:          call,
 			FileProcessorSettings: *processorSettings,
@@ -56,17 +79,28 @@ func getClonrVar(dto *types.RuntimeClonrVarDTO) string {
 	variable := argsArray[1]
 	clonrVarMap := dto.MainTemplateMap
 	globalVarMap := dto.GlobalsVarMap
+	log.Debugf("clonrVarMap: %s", clonrVarMap)
+	log.Debugf("globalVarMap: %s", globalVarMap)
+	log.Debugf("Looking into maps for location: %s, variable: %s", location, variable)
 
 	if location == config.Global().GlobalsKeyName {
-		for _, v := range globalVarMap {
-			if v == variable {
-				return v
-			}
-		}
-		utils.ExitIfError(utils.ThrowError("Something went wrong. You must've passed an invalid argument to getClonrBool or getClonrVar funtion"))
+		//for _, v := range globalVarMap {
+		//	if v == variable {
+		//		return v
+		//	}
+		//}
+		result := globalVarMap[variable]
+		log.Debugf("Got '%s' when trying to access value for %s", result, variable)
+		return result
+		//utils.ExitIfError(utils.ThrowError("Something went wrong. You must've passed an invalid argument to getClonrBool or getClonrVar function"))
+	} else {
+		location, err = filepath.Abs(dto.FileProcessorSettings.ConfigFilePath + "/" + argsArray[0])
+		utils.ExitIfError(err)
 	}
-	return cast.ToString(cast.ToStringMap(clonrVarMap[location])[variable])
-
+	varMap := clonrVarMap[location]
+	result := varMap[variable]
+	log.Debugf("ClonrVar being passed into javascript runtime: %s", result)
+	return result
 }
 
 func getClonrBool(dto *types.RuntimeClonrVarDTO) bool {
@@ -86,12 +120,15 @@ func ExtractScriptWithTags(fileAsString string) string {
 		}
 		return ""
 	}
-
-	return fileAsString[beginningIndex : endingIndex+len(config.Global().ConditionalExprSuffix)]
+	script := fileAsString[beginningIndex : endingIndex+len(config.Global().ConditionalExprSuffix)]
+	log.Debugf("Extracted Script with tags: %s", script)
+	return script
 }
 
 func RemoveTagsFromScript(script string) string {
 	trimmedScript := strings.Replace(script, config.Global().ConditionalExprPrefix, "", 1)
-	trimmedScript = strings.Replace(script, config.Global().ConditionalExprSuffix, "", 1)
+	trimmedScript = strings.Replace(trimmedScript, config.Global().ConditionalExprSuffix, "", 1)
+
+	log.Debugf("Trimmed Script: %s", trimmedScript)
 	return trimmedScript
 }

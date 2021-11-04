@@ -35,6 +35,7 @@ type globalConfig struct {
 	ConditionalKeyName       string
 	ConditionalExprPrefix    string
 	ConditionalExprSuffix    string
+	ConditionalReturnVarName string
 }
 
 func Global() *globalConfig {
@@ -64,6 +65,7 @@ func Global() *globalConfig {
 		ConditionalKeyName:       v.GetString("ConditionalKeyName"),
 		ConditionalExprPrefix:    v.GetString("ConditionalExprPrefix"),
 		ConditionalExprSuffix:    v.GetString("ConditionalExprSuffix"),
+		ConditionalReturnVarName: v.GetString("ConditionalReturnVarName"),
 	}
 	return &this
 }
@@ -116,6 +118,7 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 	viperFunc("ConditionalKeyName", "conditional")
 	viperFunc("ConditionalExprPrefix", "{@clonr{%")
 	viperFunc("ConditionalExprSuffix", "%}/clonr}")
+	viperFunc("ConditionalReturnVarName", "clonrResult")
 
 	if reflect.TypeOf(viperFunc) == reflect.TypeOf(viper.GetViper().SetDefault) {
 		var err error
@@ -160,6 +163,8 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 		err = v.BindEnv("ConditionalExprPrefix", "CLONR_SCRIPT_PREFIX")
 		utils.ExitIfError(err)
 		err = v.BindEnv("ConditionalExprSuffix", "CLONR_SCRIPT_SUFFIX")
+		utils.ExitIfError(err)
+		err = v.BindEnv("ConditionalReturnVarName", "CLONR_RETURN_VARIABLE")
 		utils.ExitIfError(err)
 	}
 
@@ -228,6 +233,9 @@ func SetPropertyAndSave(propertyName string, value interface{}) {
 		break
 	case "ConditionalExprSuffix":
 		v.Set("ConditionalExprSuffix", value)
+		break
+	case "ConditionalReturnVarName":
+		v.Set("ConditionalReturnVarName", value)
 		break
 	default:
 		fmt.Println()

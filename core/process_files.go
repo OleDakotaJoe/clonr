@@ -17,6 +17,7 @@ func ProcessFiles(settings *types.FileProcessorSettings) {
 	processGlobalsVarMap(settings)
 	processTemplatesVarMap(settings)
 	renderAllFiles(settings)
+	removeUnwantedFiles(settings)
 }
 
 func processTemplatesVarMap(settings *types.FileProcessorSettings) {
@@ -42,7 +43,9 @@ func processTemplatesVarMap(settings *types.FileProcessorSettings) {
 		log.Debugf("Variables: %s", variables)
 
 		masterVariableMap[fileLocation] = generateVarMap(settings, variableKey)
+
 	}
+
 	settings.MainTemplateMap = masterVariableMap
 }
 
@@ -108,9 +111,9 @@ func generateVarMap(processorSettings *types.FileProcessorSettings, variableKey 
 
 func renderAllFiles(settings *types.FileProcessorSettings) {
 	fileToVariableMap := settings.MainTemplateMap
-	for filepath, variableMap := range fileToVariableMap {
-		log.Infof("Rendering file: %s, with vars: %s", filepath, variableMap)
-		renderFile(filepath, &variableMap, settings)
+	for path, variableMap := range fileToVariableMap {
+		log.Infof("Rendering file: %s, with vars: %s", path, variableMap)
+		renderFile(path, &variableMap, settings)
 	}
 }
 
@@ -157,7 +160,33 @@ func processConditionals(inputFileAsString string, settings *types.FileProcessor
 	if script == "" {
 		return inputFileAsString
 	} else {
-		value := RunScriptAndReturnValue(RemoveTagsFromScript(script), settings)
-		return strings.Replace(inputFileAsString, script, value, 1)
+		value, err := RunScriptAndReturnString(RemoveTagsFromScript(script), settings)
+		utils.ExitIfError(err)
+		inputFileAsString = strings.Replace(inputFileAsString, script, value, 1)
+		return processConditionals(inputFileAsString, settings)
+	}
+}
+
+func removeUnwantedFiles(settings *types.FileProcessorSettings) {
+	v := settings.Viper
+	configRootKey := config.Global().TemplateRootKeyName
+	paths := v.GetStringMap(configRootKey)
+	for path := range paths {
+		conditionalKey := config.Global().TemplateRootKeyName + "." + path + "." + config.Global().ConditionalKeyName
+		script := v.GetString(conditionalKey)
+		log.Debugf("Script for %s: %s", path, script)
+		pathData := cast.ToStringMap(paths[path])
+		fileLocation, _ := filepath.Abs(settings.ConfigFilePath + cast.ToString(pathData[config.Global().TemplateLocationKeyName]))
+		if script != "" {
+			log.Debugf("Evaluating script: %s", script)
+			shouldExist, err := RunScriptAndReturnBool(script, settings)
+			utils.ExitIfError(err)
+			log.Debugf("Result of evaluating script: %+v", shouldExist)
+			if !shouldExist {
+				log.Infof("Removing file: %s", fileLocation)
+				err := os.RemoveAll(fileLocation)
+				utils.ExitIfError(err)
+			}
+		}
 	}
 }
