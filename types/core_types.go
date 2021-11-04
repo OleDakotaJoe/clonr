@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/robertkrimen/otto"
 	"github.com/spf13/viper"
 )
 
@@ -16,8 +17,8 @@ type FileProcessorSettings struct {
 	Viper                     viper.Viper
 
 	MainTemplateMap FileMap
-	GlobalVariables ClonrVarMap
-	TemplateVarMap  ClonrVarMap
+	GlobalsVarMap   ClonrVarMap
+	TemplatesVarMap ClonrVarMap
 }
 
 type ConfigFieldMutator struct {
@@ -26,4 +27,10 @@ type ConfigFieldMutator struct {
 	ConfigMutator func(mutator *ConfigFieldMutator)
 	Result        interface{}
 	Callback      func(mutator *ConfigFieldMutator)
+}
+
+type RuntimeClonrVarDTO struct {
+	otto.FunctionCall
+	FileProcessorSettings
+	VM otto.Otto
 }

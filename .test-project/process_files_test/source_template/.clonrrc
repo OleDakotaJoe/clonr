@@ -15,6 +15,16 @@ globals:
         - Golang
         - Javascript
         - Python
+    truthy:
+      question: true
+      choices:
+        - true
+        - false
+    falsy:
+      question: false
+      choices:
+        - true
+        - false
 templates:
   test.txt:
     location: "/test.txt"
@@ -63,4 +73,28 @@ templates:
         question: filename-test
       inside-filename:
         question: inside-filename-test
+  conditional-removed.txt:
+    location: "/conditional-removed.txt"
+    variables:
+      condition-var:
+        question: false
+        choices:
+          - true
+          - false
+    conditional:  |
+      return getClonrBool("conditional-removed.txt[condition-var]")
+  conditional-test.txt:
+    location: "/conditional-test.txt"
+    variables:
+      stringy:
+        question: true-test
+        choices:
+          - true-test
+          - false-test
+      booly:
+        question: false
+        choices:
+          - true
+          - false
+
 

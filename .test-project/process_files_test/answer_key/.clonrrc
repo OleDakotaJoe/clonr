@@ -63,4 +63,26 @@ templates:
         question: filename-test
       inside-filename:
         question: inside-filename-test
+  conditional-removed.txt:
+    location: "/conditional-removed.txt"
+    variables:
+      condition:
+        question: false
+        choices:
+          - true
+          - false
+  conditional-test.txt:
+    location: "/conditional-test.txt"
+    variables:
+      string:
+        question: true
+        choices:
+          - true-test
+          - false-test
+      bool:
+        question: false
+        choices:
+          - true
+          - false
+
 
