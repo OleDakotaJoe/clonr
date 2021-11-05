@@ -84,15 +84,9 @@ func getClonrVar(dto *types.RuntimeClonrVarDTO) string {
 	log.Debugf("Looking into maps for location: %s, variable: %s", location, variable)
 
 	if location == config.Global().GlobalsKeyName {
-		//for _, v := range globalVarMap {
-		//	if v == variable {
-		//		return v
-		//	}
-		//}
 		result := globalVarMap[variable]
 		log.Debugf("Got '%s' when trying to access value for %s", result, variable)
 		return result
-		//utils.ExitIfError(utils.ThrowError("Something went wrong. You must've passed an invalid argument to getClonrBool or getClonrVar function"))
 	} else {
 		location, err = filepath.Abs(dto.FileProcessorSettings.ConfigFilePath + "/" + argsArray[0])
 		utils.ExitIfError(err)
