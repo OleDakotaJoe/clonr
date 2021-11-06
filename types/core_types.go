@@ -1,8 +1,8 @@
 package types
 
 import (
+	"github.com/robertkrimen/otto"
 	"github.com/spf13/viper"
-	v8 "rogchap.com/v8go"
 )
 
 type ClonrVarMap map[string]string
@@ -29,15 +29,8 @@ type ConfigFieldMutator struct {
 	Callback      func(mutator *ConfigFieldMutator)
 }
 
-type RuntimeDTO struct {
-	*v8.FunctionCallbackInfo
+type RuntimeClonrVarDTO struct {
+	otto.FunctionCall
 	FileProcessorSettings
-	*v8.Isolate
-}
-
-type ClonrVarDTO struct {
-	Args            []string
-	MainTemplateMap FileMap
-	GlobalsVarMap   ClonrVarMap
-	ConfigFilePath  string
+	VM otto.Otto
 }
