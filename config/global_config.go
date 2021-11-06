@@ -32,6 +32,10 @@ type globalConfig struct {
 	AliasesKeyName           string
 	AliasesUrlKey            string
 	AliasesLocalIndicatorKey string
+	ConditionalKeyName       string
+	ConditionalExprPrefix    string
+	ConditionalExprSuffix    string
+	ConditionalReturnVarName string
 }
 
 func Global() *globalConfig {
@@ -58,6 +62,10 @@ func Global() *globalConfig {
 		AliasesKeyName:           v.GetString("AliasesKeyName"),
 		AliasesUrlKey:            v.GetString("AliasesUrlKey"),
 		AliasesLocalIndicatorKey: v.GetString("AliasesLocalIndicatorKey"),
+		ConditionalKeyName:       v.GetString("ConditionalKeyName"),
+		ConditionalExprPrefix:    v.GetString("ConditionalExprPrefix"),
+		ConditionalExprSuffix:    v.GetString("ConditionalExprSuffix"),
+		ConditionalReturnVarName: v.GetString("ConditionalReturnVarName"),
 	}
 	return &this
 }
@@ -107,6 +115,10 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 	viperFunc("AliasesKeyName", "aliases")
 	viperFunc("AliasesUrlKey", "url")
 	viperFunc("AliasesLocalIndicatorKey", "local")
+	viperFunc("ConditionalKeyName", "conditional")
+	viperFunc("ConditionalExprPrefix", "{@clonr{%")
+	viperFunc("ConditionalExprSuffix", "%}/clonr}")
+	viperFunc("ConditionalReturnVarName", "clonrResult")
 
 	if reflect.TypeOf(viperFunc) == reflect.TypeOf(viper.GetViper().SetDefault) {
 		var err error
@@ -145,6 +157,14 @@ func setDefaults(v *viper.Viper, viperFunc func(key string, value interface{})) 
 		err = v.BindEnv("AliasesUrlKey", "CLONR_ALIAS_URL_KEY")
 		utils.ExitIfError(err)
 		err = v.BindEnv("AliasesLocalIndicatorKey", "CLONR_ALIAS_LOCAL_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("ConditionalKeyName", "CLONR_CONDITIONAL_KEY")
+		utils.ExitIfError(err)
+		err = v.BindEnv("ConditionalExprPrefix", "CLONR_SCRIPT_PREFIX")
+		utils.ExitIfError(err)
+		err = v.BindEnv("ConditionalExprSuffix", "CLONR_SCRIPT_SUFFIX")
+		utils.ExitIfError(err)
+		err = v.BindEnv("ConditionalReturnVarName", "CLONR_RETURN_VARIABLE")
 		utils.ExitIfError(err)
 	}
 
@@ -204,6 +224,18 @@ func SetPropertyAndSave(propertyName string, value interface{}) {
 		break
 	case "AliasesLocalIndicatorKey":
 		v.Set("AliasesLocalIndicatorKey", value)
+		break
+	case "ConditionalKeyName":
+		v.Set("ConditionalKeyName", value)
+		break
+	case "ConditionalExprPrefix":
+		v.Set("ConditionalExprPrefix", value)
+		break
+	case "ConditionalExprSuffix":
+		v.Set("ConditionalExprSuffix", value)
+		break
+	case "ConditionalReturnVarName":
+		v.Set("ConditionalReturnVarName", value)
 		break
 	default:
 		fmt.Println()

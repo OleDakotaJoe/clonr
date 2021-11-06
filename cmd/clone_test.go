@@ -119,28 +119,28 @@ func Test_givenTemplateFile_cloneProject(t *testing.T) {
 	}
 
 	var fileProcessorSettings = types.FileProcessorSettings{
-		StringInputReader: func(input string) string {
+		StringInputReader: func(prompt string) string {
 			/*
 			* This function is being used to simulate a user's response to questions being asked.
-			* It's 'input' string is the question in the actual implementation, and gets its input from stdout.
-			* in this mocked version of that 'answerQuestion' function, we are simply returning the input as the response,
+			* It's 'prompt' string is the question in the actual implementation, and gets its prompt from stdout.
+			* in this mocked version of that 'answerQuestion' function, we are simply returning the prompt as the response,
 			* and checking that that value is present in the output directory.
 			 */
 
-			if strings.Contains(input, "(da default)") {
+			if strings.Contains(prompt, "(da default)") {
 				return "" // simulates user responding blank for default-test.txt
 			}
-			if strings.Contains(input, "(should-not-be-returned)") {
+			if strings.Contains(prompt, "(should-not-be-returned)") {
 				return "file_sub_dir_multi_diff_2" // this is what would be returned if a default was not chosen
 			}
-			if strings.Contains(input, "(global-should-be-returned)") {
+			if strings.Contains(prompt, "(global-should-be-returned)") {
 				return "" // simulates user responding blank for default-test.txt
 			}
-			if strings.Contains(input, "(global-should-not-be-returned)") {
+			if strings.Contains(prompt, "(global-should-not-be-returned)") {
 				return "some-other-variable" // this is what would be returned if a default was not chosen
 			}
 
-			return input
+			return prompt
 		},
 		MultipleChoiceInputReader: func(prompt string, choices []string) string {
 			var answer string
@@ -151,6 +151,18 @@ func Test_givenTemplateFile_cloneProject(t *testing.T) {
 				if choice == "Golang" {
 					answer = "Golang"
 				}
+			}
+
+			if prompt == "true" {
+				answer = "true"
+			}
+
+			if prompt == "false" {
+				answer = "false"
+			}
+
+			if prompt == "true-test" {
+				answer = "true-test"
 			}
 
 			return answer

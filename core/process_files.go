@@ -17,6 +17,7 @@ func ProcessFiles(settings *types.FileProcessorSettings) {
 	processGlobalsVarMap(settings)
 	processTemplatesVarMap(settings)
 	renderAllFiles(settings)
+	removeUnwantedFiles(settings)
 }
 
 func processTemplatesVarMap(settings *types.FileProcessorSettings) {
@@ -42,13 +43,15 @@ func processTemplatesVarMap(settings *types.FileProcessorSettings) {
 		log.Debugf("Variables: %s", variables)
 
 		masterVariableMap[fileLocation] = generateVarMap(settings, variableKey)
+
 	}
+
 	settings.MainTemplateMap = masterVariableMap
 }
 
 func processGlobalsVarMap(processorSettings *types.FileProcessorSettings) {
 	variablesMapKey := config.Global().GlobalsKeyName + "." + config.Global().VariablesKeyName
-	processorSettings.GlobalVariables = generateVarMap(processorSettings, variablesMapKey)
+	processorSettings.GlobalsVarMap = generateVarMap(processorSettings, variablesMapKey)
 }
 
 func generateVarMap(processorSettings *types.FileProcessorSettings, variableKey string) types.ClonrVarMap {
@@ -108,9 +111,9 @@ func generateVarMap(processorSettings *types.FileProcessorSettings, variableKey 
 
 func renderAllFiles(settings *types.FileProcessorSettings) {
 	fileToVariableMap := settings.MainTemplateMap
-	for filepath, variableMap := range fileToVariableMap {
-		log.Infof("Rendering file: %s, with vars: %s", filepath, variableMap)
-		renderFile(filepath, &variableMap, settings)
+	for path, variableMap := range fileToVariableMap {
+		log.Infof("Rendering file: %s, with vars: %s", path, variableMap)
+		renderFile(path, &variableMap, settings)
 	}
 }
 
@@ -122,7 +125,7 @@ func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.File
 	for key, value := range *varMap {
 		if key == config.Global().GlobalsKeyName {
 			// if globals are provided, this is marked by a "globals" key in the .clonr-config.yml file, loop through globals map to check
-			for key, value := range settings.GlobalVariables {
+			for key, value := range settings.GlobalsVarMap {
 				// handle globals here
 				globalPlaceholder := config.Global().PlaceholderPrefix + config.Global().GlobalsKeyName + "." + key + config.Global().PlaceholderSuffix
 				if strings.Contains(filepath, globalPlaceholder) {
@@ -140,7 +143,7 @@ func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.File
 				log.Debugf("Filepath: %s will be renamed to %s", filepath, newFilepath)
 			}
 			inputFileAsString = strings.Replace(inputFileAsString, clonrPlaceholder, value, -1) // -1 makes it replace every occurrence in that file.
-
+			inputFileAsString = processConditionals(inputFileAsString, settings)
 		}
 	}
 	wErr := ioutil.WriteFile(filepath, []byte(inputFileAsString), 0644)
@@ -150,4 +153,40 @@ func renderFile(filepath string, varMap *types.ClonrVarMap, settings *types.File
 		log.Debugf("File has been renamed from '%s' to '%s'", filepath, newFilepath)
 	}
 	utils.ExitIfError(wErr)
+}
+
+func processConditionals(inputFileAsString string, settings *types.FileProcessorSettings) string {
+	script := ExtractScriptWithTags(inputFileAsString)
+	if script == "" {
+		return inputFileAsString
+	} else {
+		value, err := RunScriptAndReturnString(RemoveTagsFromScript(script), settings)
+		utils.ExitIfError(err)
+		inputFileAsString = strings.Replace(inputFileAsString, script, value, 1)
+		return processConditionals(inputFileAsString, settings)
+	}
+}
+
+func removeUnwantedFiles(settings *types.FileProcessorSettings) {
+	v := settings.Viper
+	configRootKey := config.Global().TemplateRootKeyName
+	paths := v.GetStringMap(configRootKey)
+	for path := range paths {
+		conditionalKey := config.Global().TemplateRootKeyName + "." + path + "." + config.Global().ConditionalKeyName
+		script := v.GetString(conditionalKey)
+		log.Debugf("Script for %s: %s", path, script)
+		pathData := cast.ToStringMap(paths[path])
+		fileLocation, _ := filepath.Abs(settings.ConfigFilePath + cast.ToString(pathData[config.Global().TemplateLocationKeyName]))
+		if script != "" {
+			log.Debugf("Evaluating script: %s", script)
+			shouldExist, err := RunScriptAndReturnBool(script, settings)
+			utils.ExitIfError(err)
+			log.Debugf("Result of evaluating script: %+v", shouldExist)
+			if !shouldExist {
+				log.Infof("Removing file: %s", fileLocation)
+				err := os.RemoveAll(fileLocation)
+				utils.ExitIfError(err)
+			}
+		}
+	}
 }

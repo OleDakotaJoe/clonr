@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/spf13/viper"
+	v8 "rogchap.com/v8go"
 )
 
 type ClonrVarMap map[string]string
@@ -16,8 +17,8 @@ type FileProcessorSettings struct {
 	Viper                     viper.Viper
 
 	MainTemplateMap FileMap
-	GlobalVariables ClonrVarMap
-	TemplateVarMap  ClonrVarMap
+	GlobalsVarMap   ClonrVarMap
+	TemplatesVarMap ClonrVarMap
 }
 
 type ConfigFieldMutator struct {
@@ -26,4 +27,17 @@ type ConfigFieldMutator struct {
 	ConfigMutator func(mutator *ConfigFieldMutator)
 	Result        interface{}
 	Callback      func(mutator *ConfigFieldMutator)
+}
+
+type RuntimeDTO struct {
+	*v8.FunctionCallbackInfo
+	FileProcessorSettings
+	*v8.Isolate
+}
+
+type ClonrVarDTO struct {
+	Args            []string
+	MainTemplateMap FileMap
+	GlobalsVarMap   ClonrVarMap
+	ConfigFilePath  string
 }
