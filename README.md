@@ -229,7 +229,7 @@ In the case of a conditionally rendering an entire file, the resulting value mus
 If you want an entire file to be conditional, define a conditional block inside your `.clonr-config.yml` file, 
 under the template that you want to be conditional.
 
-Note that when using conditional file rendering, you MUST set clonrResult to a boolean value or you may get unwanted
+Note that when using conditional file rendering, you MUST set clonrResult to a boolean value, or you may get unwanted
 results.
 
 ##### Single-line script
@@ -302,9 +302,7 @@ It is a best practice to use an enum (choices) wherever possible when dealing wi
 This will allow you to ensure that the input the user provides is acceptable for your logic.
 
 #### Supported Javascript Syntax
-The runtime is handled by [otto](https://github.com/robertkrimen/otto), and only supports syntax up to ECMAScript 5.
-( some examples of functionality that will not work is arrow functions,  `const`, import/export, and anything node-specific.)
-Some other minor functionalities may not work, visit the otto repository homepage for more information on why a feature may not be implemented.
+The runtime is handled by [v8go](https://github.com/rogchap/v8go), and uses the most up-to-date version of v8 possible.
 
 Also be aware, that the ECMAScript standard is not the same as browser APIs, and some functionality you are used to in 
 the browser is not going to be available in this application. Example: `fetch` `WebGL`, anything `DOM` related, File System Access API. 
