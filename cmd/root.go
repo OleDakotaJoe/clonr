@@ -8,7 +8,7 @@ import (
 var RootCmd = &cobra.Command{
 	Use:   "clonr",
 	Short: "Clonr is a project templating CLI.",
-	Long:  `A Fast and Flexible CLI and templating engine for setting up template projects.`,
+	Long:  `A fast and flexible scaffolding tool for setting up template projects.`,
 }
 
 func Execute() {
