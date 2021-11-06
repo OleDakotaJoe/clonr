@@ -78,7 +78,7 @@ templates:
         choices:
           - true
           - false
-    conditional:  |
+    condition:  |
       clonrResult = getClonrBool("conditional-removed.txt[condition-var]")
   conditional-test.txt:
     location: "/conditional-test.txt"

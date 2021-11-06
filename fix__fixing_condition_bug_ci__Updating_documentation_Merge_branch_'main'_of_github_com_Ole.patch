@@ -1,0 +1,100 @@
+Index: config/global_config.go
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/config/global_config.go b/config/global_config.go
+--- a/config/global_config.go	(revision 15381ff231dc4ddfb6717513e1d1c04d62fdd47c)
++++ b/config/global_config.go	(revision 63e299d9319821d3d61e0fdb7c5eff978d250326)
+@@ -115,7 +115,7 @@
+ 	viperFunc("AliasesKeyName", "aliases")
+ 	viperFunc("AliasesUrlKey", "url")
+ 	viperFunc("AliasesLocalIndicatorKey", "local")
+-	viperFunc("ConditionalKeyName", "conditional")
++	viperFunc("ConditionalKeyName", "condition")
+ 	viperFunc("ConditionalExprPrefix", "{@clonr{%")
+ 	viperFunc("ConditionalExprSuffix", "%}/clonr}")
+ 	viperFunc("ConditionalReturnVarName", "clonrResult")
+Index: .release/package-lock.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.release/package-lock.json b/.release/package-lock.json
+--- a/.release/package-lock.json	(revision 8cad4f520d395a2bda929254de1536e1dc02459a)
++++ b/.release/package-lock.json	(revision 6867553f35950f29f79cb1fac8e2c8f29465a3f1)
+@@ -1,6 +1,6 @@
+ {
+   "name": "go-clonr",
+-  "version": "v1.6.2",
++  "version": "v1.6.3",
+   "lockfileVersion": 1,
+   "requires": true,
+   "dependencies": {
+Index: .release/package.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.release/package.json b/.release/package.json
+--- a/.release/package.json	(revision 8cad4f520d395a2bda929254de1536e1dc02459a)
++++ b/.release/package.json	(revision 6867553f35950f29f79cb1fac8e2c8f29465a3f1)
+@@ -1,7 +1,7 @@
+ {
+   "name": "go-clonr",
+   "description": "This project is aimed to make creating template projects very easy, so that you can set up a project one time, and not worry about configuration again.  Simply host your template project in a git repostory, configure your template variables in a .clonr-config.yml file, as well as providing a placeholder in the  template files, and run `clonr clone <repo_url>`. The rest will unfold before your eyes.",
+-  "version": "v1.6.2",
++  "version": "v1.6.3",
+   "main": "index.js",
+   "bin": {
+     "go-clonr": "./bin/index.js"
+Index: .test-project/process_files_test/answer_key/.clonrrc
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.test-project/process_files_test/answer_key/.clonrrc b/.test-project/process_files_test/answer_key/.clonrrc
+--- a/.test-project/process_files_test/answer_key/.clonrrc	(revision 8cad4f520d395a2bda929254de1536e1dc02459a)
++++ b/.test-project/process_files_test/answer_key/.clonrrc	(revision 4a3983738126f0bf5e9ec8a438e1373a15079399)
+@@ -78,7 +78,7 @@
+         choices:
+           - true
+           - false
+-    conditional:  |
++    condition:  |
+       clonrResult = getClonrBool("conditional-removed.txt[condition-var]")
+   conditional-test.txt:
+     location: "/conditional-test.txt"
+Index: .test-project/process_files_test/source_template/.clonrrc
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.test-project/process_files_test/source_template/.clonrrc b/.test-project/process_files_test/source_template/.clonrrc
+--- a/.test-project/process_files_test/source_template/.clonrrc	(revision 8cad4f520d395a2bda929254de1536e1dc02459a)
++++ b/.test-project/process_files_test/source_template/.clonrrc	(revision 4a3983738126f0bf5e9ec8a438e1373a15079399)
+@@ -78,7 +78,7 @@
+         choices:
+           - true
+           - false
+-    conditional:  |
++    condition:  |
+       clonrResult = getClonrBool("conditional-removed.txt[condition-var]")
+   conditional-test.txt:
+     location: "/conditional-test.txt"
+Index: core/process_files.go
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/core/process_files.go b/core/process_files.go
+--- a/core/process_files.go	(revision 8cad4f520d395a2bda929254de1536e1dc02459a)
++++ b/core/process_files.go	(revision 4a3983738126f0bf5e9ec8a438e1373a15079399)
+@@ -173,6 +173,7 @@
+ 	paths := v.GetStringMap(configRootKey)
+ 	for path := range paths {
+ 		conditionalKey := config.Global().TemplateRootKeyName + "." + path + "." + config.Global().ConditionalKeyName
++		log.Debugf("%s", conditionalKey)
+ 		script := v.GetString(conditionalKey)
+ 		log.Debugf("Script for %s: %s", path, script)
+ 		pathData := cast.ToStringMap(paths[path])
