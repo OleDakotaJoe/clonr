@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/oledakotajoe/clonr/config"
 	"github.com/oledakotajoe/clonr/types"
-	"github.com/robertkrimen/otto"
 	"testing"
 )
 
@@ -54,104 +53,6 @@ func Test_GivenScript_ExpectBool_RunScriptAndReturnBool(t *testing.T) {
 	}
 }
 
-func Test_GivenStringFalse_WhenGettingGlobalVariable_ReturnFalse_getClonrBool(t *testing.T) {
-
-	givenResult := "false"
-	testName := config.Global().GlobalsKeyName
-	testVar := "globals-var"
-	sampleGlobalsMap := types.ClonrVarMap{testVar: givenResult}
-
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
-
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
-		},
-		FileProcessorSettings: types.FileProcessorSettings{
-			GlobalsVarMap: sampleGlobalsMap,
-		},
-	}
-
-	actualResult := getClonrBool(&templateDTO)
-	if actualResult {
-		t.Fatalf("Expected false but got true")
-	}
-}
-
-func Test_GivenStringFalse_WhenGettingTemplateVariable_ReturnFalse_getClonrBool(t *testing.T) {
-	testFilePath := "/test/file/path"
-	testName := "test-file.txt"
-	testVar := "template-var"
-	givenResult := "false"
-	fullyQualifiedPathKey := fmt.Sprintf("%s/%s", testFilePath, testName)
-	sampleMainTemplateMap := types.FileMap{fullyQualifiedPathKey: types.ClonrVarMap{testVar: givenResult}}
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
-
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
-		},
-		FileProcessorSettings: types.FileProcessorSettings{
-			ConfigFilePath:  testFilePath,
-			MainTemplateMap: sampleMainTemplateMap,
-		},
-	}
-
-	actualResult := getClonrBool(&templateDTO)
-	if actualResult {
-		t.Fatal("Expected false but got true")
-	}
-}
-
-func Test_GivenStringTrue_WhenGettingGlobalVariable_ReturnTrue_getClonrBool(t *testing.T) {
-
-	givenResult := "true"
-	testName := config.Global().GlobalsKeyName
-	testVar := "globals-var"
-	sampleGlobalsMap := types.ClonrVarMap{testVar: givenResult}
-
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
-
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
-		},
-		FileProcessorSettings: types.FileProcessorSettings{
-			GlobalsVarMap: sampleGlobalsMap,
-		},
-	}
-
-	actualResult := getClonrBool(&templateDTO)
-	if !actualResult {
-		t.Fatalf("Expected true but got false")
-	}
-}
-
-func Test_GivenStringTrue_WhenGettingTemplateVariable_ReturnTrue_getClonrBool(t *testing.T) {
-	testFilePath := "/test/file/path"
-	testName := "test-file.txt"
-	testVar := "template-var"
-	givenResult := "true"
-	fullyQualifiedPathKey := fmt.Sprintf("%s/%s", testFilePath, testName)
-	sampleMainTemplateMap := types.FileMap{fullyQualifiedPathKey: types.ClonrVarMap{testVar: givenResult}}
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
-
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
-		},
-		FileProcessorSettings: types.FileProcessorSettings{
-			ConfigFilePath:  testFilePath,
-			MainTemplateMap: sampleMainTemplateMap,
-		},
-	}
-
-	actualResult := getClonrBool(&templateDTO)
-	if !actualResult {
-		t.Fatal("Expected true but got false")
-	}
-}
-
 func Test_GivenValidInput_WhenGettingGlobalVariable_ReturnCorrectValue_getClonrVar(t *testing.T) {
 
 	expectedResult := "globals-test"
@@ -159,18 +60,13 @@ func Test_GivenValidInput_WhenGettingGlobalVariable_ReturnCorrectValue_getClonrV
 	testVar := "globals-var"
 	sampleGlobalsMap := types.ClonrVarMap{testVar: expectedResult}
 
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
-
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
-		},
-		FileProcessorSettings: types.FileProcessorSettings{
-			GlobalsVarMap: sampleGlobalsMap,
-		},
+	templateArgument := fmt.Sprintf("%s[%s]", testName, testVar)
+	templateDTO := types.ClonrVarDTO{
+		Args:          []string{templateArgument},
+		GlobalsVarMap: sampleGlobalsMap,
 	}
 
-	actualResult := getClonrVar(&templateDTO)
+	actualResult := resolveClonrVariable(&templateDTO)
 	if actualResult != expectedResult {
 		t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
 	}
@@ -183,19 +79,16 @@ func Test_GivenValidInput_WhenGettingTemplateVariable_ReturnCorrectValue_getClon
 	expectedResult := "template-test"
 	fullyQualifiedPathKey := fmt.Sprintf("%s/%s", testFilePath, testName)
 	sampleMainTemplateMap := types.FileMap{fullyQualifiedPathKey: types.ClonrVarMap{testVar: expectedResult}}
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
+	templateArgument := fmt.Sprintf("%s[%s]", testName, testVar)
 
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
-		},
-		FileProcessorSettings: types.FileProcessorSettings{
-			ConfigFilePath:  testFilePath,
-			MainTemplateMap: sampleMainTemplateMap,
-		},
+	templateDTO := types.ClonrVarDTO{
+		Args:            []string{templateArgument},
+		MainTemplateMap: sampleMainTemplateMap,
+		GlobalsVarMap:   nil,
+		ConfigFilePath:  testFilePath,
 	}
 
-	actualResult := getClonrVar(&templateDTO)
+	actualResult := resolveClonrVariable(&templateDTO)
 	if actualResult != expectedResult {
 		t.Fatalf("Expected %s but got %s", expectedResult, actualResult)
 	}

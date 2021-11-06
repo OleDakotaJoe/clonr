@@ -4,77 +4,105 @@ import (
 	"github.com/oledakotajoe/clonr/config"
 	"github.com/oledakotajoe/clonr/types"
 	"github.com/oledakotajoe/clonr/utils"
-	"github.com/robertkrimen/otto"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"path/filepath"
+	v8 "rogchap.com/v8go"
 	"strings"
 )
 
 func RunScriptAndReturnString(script string, settings *types.FileProcessorSettings) (string, error) {
-	vm := otto.New()
-	addAllFunctionsToVmContext(*vm, settings)
-	log.Debugf("Running Script: %s", script)
-	val, err := vm.Run(script)
-	log.Debugf("Returned value from script:  %s", val)
+	ctx := prepareVMContext(settings)
+	_, rErr := ctx.RunScript(script, "script.js")
+	utils.ExitIfError(rErr)
+	obj := ctx.Global()
+	val, err := obj.Get(config.Global().ConditionalReturnVarName)
 	utils.ExitIfError(err)
-	result, gErr := vm.Get(config.Global().ConditionalReturnVarName)
-	utils.ExitIfError(gErr)
-	return result.ToString()
+	return val.String(), err
 }
 
 func RunScriptAndReturnBool(script string, settings *types.FileProcessorSettings) (bool, error) {
-	vm := otto.New()
-	addAllFunctionsToVmContext(*vm, settings)
-	log.Debugf("Running Script: %s", script)
-	val, err := vm.Run(script)
-	log.Debugf("Returned value from script:  %s", val)
+	ctx := prepareVMContext(settings)
+	_, rErr := ctx.RunScript(script, "script.js")
+	utils.ExitIfError(rErr)
+	obj := ctx.Global()
+	val, err := obj.Get(config.Global().ConditionalReturnVarName)
 	utils.ExitIfError(err)
-	result, gErr := vm.Get(config.Global().ConditionalReturnVarName)
-	utils.ExitIfError(gErr)
-	return result.ToBoolean()
+	return val.Boolean(), err
 }
 
-func addAllFunctionsToVmContext(vm otto.Otto, settings *types.FileProcessorSettings) {
-	addGetClonrVarToContext(vm, settings)
-	addGetClonrBoolToContext(vm, settings)
+func prepareVMContext(settings *types.FileProcessorSettings) *v8.Context {
+	iso, _ := v8.NewIsolate()
+	global, _ := v8.NewObjectTemplate(iso)
+
+	addGetClonrVarToContext(iso, settings, global)
+	addGetClonrBoolToContext(iso, settings, global)
+	ctx, _ := v8.NewContext(iso, global)
+
+	return ctx
 }
 
-func addGetClonrVarToContext(vm otto.Otto, settings *types.FileProcessorSettings) {
-	log.Debugln("Adding getClonrVar() function to javascript runtime")
-	err := vm.Set("getClonrVar", func(call otto.FunctionCall) otto.Value {
-		log.Debugln("Called getClonrVar()")
-		result, _ := vm.ToValue(getClonrVar(&types.RuntimeClonrVarDTO{
-			FunctionCall:          call,
+func addGetClonrVarToContext(iso *v8.Isolate, settings *types.FileProcessorSettings, global *v8.ObjectTemplate) {
+	getClonrVar, _ := v8.NewFunctionTemplate(iso, func(info *v8.FunctionCallbackInfo) *v8.Value {
+		result := getClonrVar(&types.RuntimeDTO{
+			FunctionCallbackInfo:  info,
 			FileProcessorSettings: *settings,
-			VM:                    vm,
-		}))
-		return result
-	})
-	utils.ExitIfError(err)
+			Isolate:               iso,
+		})
 
-}
-
-func addGetClonrBoolToContext(vm otto.Otto, processorSettings *types.FileProcessorSettings) {
-	log.Debugln("Adding getClonrBool() function to javascript runtime")
-	err := vm.Set("getClonrBool", func(call otto.FunctionCall) otto.Value {
-		log.Debugln("Called getClonrBool()")
-		result, _ := vm.ToValue(getClonrBool(&types.RuntimeClonrVarDTO{
-			FunctionCall:          call,
-			FileProcessorSettings: *processorSettings,
-			VM:                    vm,
-		}))
-		return result
+		val, _ := v8.NewValue(iso, result)
+		return val
 	})
+
+	err := global.Set("getClonrVar", getClonrVar)
 	utils.ExitIfError(err)
 }
 
-func getClonrVar(dto *types.RuntimeClonrVarDTO) string {
-	args, err := dto.Argument(0).ToString()
+func addGetClonrBoolToContext(iso *v8.Isolate, settings *types.FileProcessorSettings, global *v8.ObjectTemplate) {
+
+	getClonrBool, _ := v8.NewFunctionTemplate(iso, func(info *v8.FunctionCallbackInfo) *v8.Value {
+		result := getClonrBool(&types.RuntimeDTO{
+			FunctionCallbackInfo:  info,
+			FileProcessorSettings: *settings,
+			Isolate:               iso,
+		})
+		val, _ := v8.NewValue(iso, result)
+		return val
+	})
+
+	err := global.Set("getClonrBool", getClonrBool)
 	utils.ExitIfError(err)
+}
+
+func getClonrVar(dto *types.RuntimeDTO) string {
+	var args []string
+	counter := 0
+	for range dto.Args() {
+		arg := dto.Args()[counter].String()
+		args = append(args, arg)
+		counter++
+	}
+
+	result := resolveClonrVariable(&types.ClonrVarDTO{
+		Args:            args,
+		MainTemplateMap: dto.MainTemplateMap,
+		GlobalsVarMap:   dto.GlobalsVarMap,
+		ConfigFilePath:  dto.ConfigFilePath,
+	})
+
+	return result
+}
+
+func getClonrBool(dto *types.RuntimeDTO) bool {
+	return cast.ToBool(getClonrVar(dto))
+}
+
+func resolveClonrVariable(dto *types.ClonrVarDTO) string {
 	// TODO: add regex check and error thrown if not match
-	args = strings.Replace(args, "]", "", 1)
-	argsArray := strings.Split(args, "[")
+	arg := dto.Args[0]
+	arg = strings.Replace(arg, "]", "", 1)
+	argsArray := strings.Split(arg, "[")
 	location := argsArray[0]
 	variable := argsArray[1]
 	clonrVarMap := dto.MainTemplateMap
@@ -84,21 +112,18 @@ func getClonrVar(dto *types.RuntimeClonrVarDTO) string {
 	log.Debugf("Looking into maps for location: %s, variable: %s", location, variable)
 
 	if location == config.Global().GlobalsKeyName {
-		result := globalVarMap[variable]
+		result := cast.ToString(globalVarMap[variable])
 		log.Debugf("Got '%s' when trying to access value for %s", result, variable)
 		return result
 	} else {
-		location, err = filepath.Abs(dto.FileProcessorSettings.ConfigFilePath + "/" + argsArray[0])
+		var err error
+		location, err = filepath.Abs(dto.ConfigFilePath + "/" + argsArray[0])
 		utils.ExitIfError(err)
 	}
 	varMap := clonrVarMap[location]
 	result := varMap[variable]
 	log.Debugf("ClonrVar being passed into javascript runtime: %s", result)
 	return result
-}
-
-func getClonrBool(dto *types.RuntimeClonrVarDTO) bool {
-	return cast.ToBool(getClonrVar(dto))
 }
 
 func ExtractScriptWithTags(fileAsString string) string {

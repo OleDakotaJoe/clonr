@@ -9,6 +9,7 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
 	github.com/version-go/ldflags v0.0.0-20201113154248-6ea18db16ace
+	rogchap.com/v8go v0.6.0
 )
 
 require (
