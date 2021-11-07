@@ -302,7 +302,9 @@ It is a best practice to use an enum (choices) wherever possible when dealing wi
 This will allow you to ensure that the input the user provides is acceptable for your logic.
 
 #### Supported Javascript Syntax
-The runtime is handled by [v8go](https://github.com/rogchap/v8go), and uses the most up-to-date version of v8 possible.
+The runtime is handled by [goja](https://github.com/dop251/goja), and uses ES5 syntax.
+This runtime will also support some ECMAScript6 syntax, for example: arrow functions, const. You can find a full list of the 
+supported ES6 syntax [here](https://github.com/dop251/goja/milestone/1?closed=1)
 
 Also be aware, that the ECMAScript standard is not the same as browser APIs, and some functionality you are used to in 
 the browser is not going to be available in this application. Example: `fetch` `WebGL`, anything `DOM` related, File System Access API. 
