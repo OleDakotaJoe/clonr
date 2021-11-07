@@ -173,6 +173,7 @@ func removeUnwantedFiles(settings *types.FileProcessorSettings) {
 	paths := v.GetStringMap(configRootKey)
 	for path := range paths {
 		conditionalKey := config.Global().TemplateRootKeyName + "." + path + "." + config.Global().ConditionalKeyName
+		log.Debugf("%s", conditionalKey)
 		script := v.GetString(conditionalKey)
 		log.Debugf("Script for %s: %s", path, script)
 		pathData := cast.ToStringMap(paths[path])
