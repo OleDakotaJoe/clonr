@@ -3,6 +3,7 @@ module github.com/oledakotajoe/clonr
 go 1.17
 
 require (
+	github.com/dop251/goja v0.0.0-20211022113120-dc8c55024d06
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
@@ -15,10 +16,12 @@ require (
 	github.com/Microsoft/go-winio v0.5.0 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
+	github.com/dlclark/regexp2 v1.4.1-0.20201116162257-a2a8dda75c91 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
+	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect

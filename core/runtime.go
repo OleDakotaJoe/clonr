@@ -1,85 +1,66 @@
 package core
 
 import (
+	"github.com/dop251/goja"
 	"github.com/oledakotajoe/clonr/config"
 	"github.com/oledakotajoe/clonr/types"
 	"github.com/oledakotajoe/clonr/utils"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"path/filepath"
-	v8 "rogchap.com/v8go"
 	"strings"
 )
 
 func RunScriptAndReturnString(script string, settings *types.FileProcessorSettings) (string, error) {
 	ctx := prepareVMContext(settings)
-	_, rErr := ctx.RunScript(script, "script.js")
-	utils.ExitIfError(rErr)
-	obj := ctx.Global()
-	val, err := obj.Get(config.Global().ConditionalReturnVarName)
-	utils.ExitIfError(err)
-	return val.String(), err
+	returnValue, rErr := ctx.RunString(script)
+	log.Debugf("Return Value: %s", returnValue)
+	val := ctx.Get(config.Global().ConditionalReturnVarName)
+	res := cast.ToString(val.Export())
+	return res, rErr
 }
 
 func RunScriptAndReturnBool(script string, settings *types.FileProcessorSettings) (bool, error) {
 	ctx := prepareVMContext(settings)
-	_, rErr := ctx.RunScript(script, "script.js")
-	utils.ExitIfError(rErr)
-	obj := ctx.Global()
-	val, err := obj.Get(config.Global().ConditionalReturnVarName)
-	utils.ExitIfError(err)
-	return val.Boolean(), err
+	returnValue, rErr := ctx.RunString(script)
+	val := ctx.Get(config.Global().ConditionalReturnVarName)
+	return val.ToBoolean(), rErr
 }
 
-func prepareVMContext(settings *types.FileProcessorSettings) *v8.Context {
-	iso, _ := v8.NewIsolate()
-	global, _ := v8.NewObjectTemplate(iso)
-
-	addGetClonrVarToContext(iso, settings, global)
-	addGetClonrBoolToContext(iso, settings, global)
-	ctx, _ := v8.NewContext(iso, global)
-
-	return ctx
+func prepareVMContext(settings *types.FileProcessorSettings) *goja.Runtime {
+	vm := goja.New()
+	addGetClonrVarToContext(vm, settings)
+	addGetClonrBoolToContext(vm, settings)
+	return vm
 }
 
-func addGetClonrVarToContext(iso *v8.Isolate, settings *types.FileProcessorSettings, global *v8.ObjectTemplate) {
-	getClonrVar, _ := v8.NewFunctionTemplate(iso, func(info *v8.FunctionCallbackInfo) *v8.Value {
-		result := getClonrVar(&types.RuntimeDTO{
-			FunctionCallbackInfo:  info,
+func addGetClonrVarToContext(vm *goja.Runtime, settings *types.FileProcessorSettings) {
+	err := vm.Set("getClonrVar", func(call goja.FunctionCall) {
+		getClonrVar(&types.RuntimeDTO{
+			FunctionCall:          &call,
 			FileProcessorSettings: *settings,
-			Isolate:               iso,
+			Runtime:               vm,
 		})
-
-		val, _ := v8.NewValue(iso, result)
-		return val
 	})
-
-	err := global.Set("getClonrVar", getClonrVar)
 	utils.ExitIfError(err)
 }
 
-func addGetClonrBoolToContext(iso *v8.Isolate, settings *types.FileProcessorSettings, global *v8.ObjectTemplate) {
-
-	getClonrBool, _ := v8.NewFunctionTemplate(iso, func(info *v8.FunctionCallbackInfo) *v8.Value {
-		result := getClonrBool(&types.RuntimeDTO{
-			FunctionCallbackInfo:  info,
+func addGetClonrBoolToContext(vm *goja.Runtime, settings *types.FileProcessorSettings) {
+	err := vm.Set("getClonrBool", func(call goja.FunctionCall) {
+		getClonrBool(&types.RuntimeDTO{
+			FunctionCall:          &call,
 			FileProcessorSettings: *settings,
-			Isolate:               iso,
+			Runtime:               vm,
 		})
-		val, _ := v8.NewValue(iso, result)
-		return val
 	})
-
-	err := global.Set("getClonrBool", getClonrBool)
 	utils.ExitIfError(err)
 }
 
 func getClonrVar(dto *types.RuntimeDTO) string {
 	var args []string
 	counter := 0
-	for range dto.Args() {
-		arg := dto.Args()[counter].String()
+	for range dto.FunctionCall.Arguments {
+		arg := dto.FunctionCall.Argument(counter).String()
 		args = append(args, arg)
 		counter++
 	}

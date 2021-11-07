@@ -1,8 +1,8 @@
 package types
 
 import (
+	"github.com/dop251/goja"
 	"github.com/spf13/viper"
-	v8 "rogchap.com/v8go"
 )
 
 type ClonrVarMap map[string]string
@@ -30,9 +30,9 @@ type ConfigFieldMutator struct {
 }
 
 type RuntimeDTO struct {
-	*v8.FunctionCallbackInfo
+	*goja.FunctionCall
 	FileProcessorSettings
-	*v8.Isolate
+	*goja.Runtime
 }
 
 type ClonrVarDTO struct {
