@@ -23,8 +23,10 @@ func RunScriptAndReturnString(script string, settings *types.FileProcessorSettin
 func RunScriptAndReturnBool(script string, settings *types.FileProcessorSettings) (bool, error) {
 	ctx := prepareVMContext(settings)
 	returnValue, rErr := ctx.RunString(script)
+	log.Debugf("Return Value: %s", returnValue)
 	val := ctx.Get(config.Global().ConditionalReturnVarName)
-	return val.ToBoolean(), rErr
+	res := cast.ToBool(val.Export())
+	return res, rErr
 }
 
 func prepareVMContext(settings *types.FileProcessorSettings) *goja.Runtime {
@@ -35,23 +37,23 @@ func prepareVMContext(settings *types.FileProcessorSettings) *goja.Runtime {
 }
 
 func addGetClonrVarToContext(vm *goja.Runtime, settings *types.FileProcessorSettings) {
-	err := vm.Set("getClonrVar", func(call goja.FunctionCall) {
-		getClonrVar(&types.RuntimeDTO{
-			FunctionCall:          &call,
+	err := vm.Set("getClonrVar", func(call goja.FunctionCall) goja.Value {
+		return vm.ToValue(getClonrVar(&types.RuntimeDTO{
+			FunctionCall:          call,
 			FileProcessorSettings: *settings,
 			Runtime:               vm,
-		})
+		}))
 	})
 	utils.ExitIfError(err)
 }
 
 func addGetClonrBoolToContext(vm *goja.Runtime, settings *types.FileProcessorSettings) {
-	err := vm.Set("getClonrBool", func(call goja.FunctionCall) {
-		getClonrBool(&types.RuntimeDTO{
-			FunctionCall:          &call,
+	err := vm.Set("getClonrBool", func(call goja.FunctionCall) goja.Value {
+		return vm.ToValue(getClonrBool(&types.RuntimeDTO{
+			FunctionCall:          call,
 			FileProcessorSettings: *settings,
 			Runtime:               vm,
-		})
+		}))
 	})
 	utils.ExitIfError(err)
 }

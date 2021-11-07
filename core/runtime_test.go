@@ -30,7 +30,30 @@ func Test_GivenScript_ExpectString_RunScriptAndReturnString(t *testing.T) {
 	}
 }
 
-func Test_GivenScript_ExpectBool_RunScriptAndReturnBool(t *testing.T) {
+func Test_GivenScript_ExpectBool_RunScriptAndReturnTrue(t *testing.T) {
+	givenResult := "true"
+	testName := config.Global().GlobalsKeyName
+	testVar := "globals-var"
+	sampleGlobalsMap := types.ClonrVarMap{testVar: givenResult}
+
+	templateArgument := fmt.Sprintf("%s[%s]", testName, testVar)
+
+	script := fmt.Sprintf("clonrResult = getClonrBool(\"%s\")", templateArgument)
+
+	settings := types.FileProcessorSettings{
+		GlobalsVarMap: sampleGlobalsMap,
+	}
+
+	actualResult, err := RunScriptAndReturnBool(script, &settings)
+	if err != nil {
+		t.Fatalf("Something went wrong. Err: %s", err)
+	}
+	if !actualResult {
+		t.Fatalf("Expected true but got false")
+	}
+}
+
+func Test_GivenScript_ExpectBool_RunScriptAndReturnFalse(t *testing.T) {
 	givenResult := "false"
 	testName := config.Global().GlobalsKeyName
 	testVar := "globals-var"

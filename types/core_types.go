@@ -30,7 +30,7 @@ type ConfigFieldMutator struct {
 }
 
 type RuntimeDTO struct {
-	*goja.FunctionCall
+	goja.FunctionCall
 	FileProcessorSettings
 	*goja.Runtime
 }
