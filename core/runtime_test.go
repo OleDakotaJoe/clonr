@@ -2,9 +2,9 @@ package core
 
 import (
 	"fmt"
+	"github.com/dop251/goja"
 	"github.com/oledakotajoe/clonr/config"
 	"github.com/oledakotajoe/clonr/types"
-	"github.com/robertkrimen/otto"
 	"testing"
 )
 
@@ -84,11 +84,12 @@ func Test_GivenStringFalse_WhenGettingGlobalVariable_ReturnFalse_getClonrBool(t 
 	testVar := "globals-var"
 	sampleGlobalsMap := types.ClonrVarMap{testVar: givenResult}
 
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
+	var vm = goja.New()
+	templateArgument := vm.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
 
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
+	templateDTO := types.RuntimeDTO{
+		FunctionCall: goja.FunctionCall{
+			Arguments: []goja.Value{vm.ToValue(templateArgument)},
 		},
 		FileProcessorSettings: types.FileProcessorSettings{
 			GlobalsVarMap: sampleGlobalsMap,
@@ -108,11 +109,12 @@ func Test_GivenStringFalse_WhenGettingTemplateVariable_ReturnFalse_getClonrBool(
 	givenResult := "false"
 	fullyQualifiedPathKey := fmt.Sprintf("%s/%s", testFilePath, testName)
 	sampleMainTemplateMap := types.FileMap{fullyQualifiedPathKey: types.ClonrVarMap{testVar: givenResult}}
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
+	var vm = goja.New()
+	templateArgument := vm.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
 
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
+	templateDTO := types.RuntimeDTO{
+		FunctionCall: goja.FunctionCall{
+			Arguments: []goja.Value{vm.ToValue(templateArgument)},
 		},
 		FileProcessorSettings: types.FileProcessorSettings{
 			ConfigFilePath:  testFilePath,
@@ -133,11 +135,12 @@ func Test_GivenStringTrue_WhenGettingGlobalVariable_ReturnTrue_getClonrBool(t *t
 	testVar := "globals-var"
 	sampleGlobalsMap := types.ClonrVarMap{testVar: givenResult}
 
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
+	var vm = goja.New()
+	templateArgument := vm.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
 
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
+	templateDTO := types.RuntimeDTO{
+		FunctionCall: goja.FunctionCall{
+			Arguments: []goja.Value{vm.ToValue(templateArgument)},
 		},
 		FileProcessorSettings: types.FileProcessorSettings{
 			GlobalsVarMap: sampleGlobalsMap,
@@ -157,11 +160,13 @@ func Test_GivenStringTrue_WhenGettingTemplateVariable_ReturnTrue_getClonrBool(t 
 	givenResult := "true"
 	fullyQualifiedPathKey := fmt.Sprintf("%s/%s", testFilePath, testName)
 	sampleMainTemplateMap := types.FileMap{fullyQualifiedPathKey: types.ClonrVarMap{testVar: givenResult}}
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
 
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
+	var vm = goja.New()
+	templateArgument := vm.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
+
+	templateDTO := types.RuntimeDTO{
+		FunctionCall: goja.FunctionCall{
+			Arguments: []goja.Value{vm.ToValue(templateArgument)},
 		},
 		FileProcessorSettings: types.FileProcessorSettings{
 			ConfigFilePath:  testFilePath,
@@ -182,15 +187,18 @@ func Test_GivenValidInput_WhenGettingGlobalVariable_ReturnCorrectValue_getClonrV
 	testVar := "globals-var"
 	sampleGlobalsMap := types.ClonrVarMap{testVar: expectedResult}
 
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
+	var vm = goja.New()
+	templateArgument := fmt.Sprintf("%s[%s]", testName, testVar)
 
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
+	templateDTO := types.RuntimeDTO{
+		FunctionCall: goja.FunctionCall{
+			This:      nil,
+			Arguments: []goja.Value{vm.ToValue(templateArgument)},
 		},
 		FileProcessorSettings: types.FileProcessorSettings{
 			GlobalsVarMap: sampleGlobalsMap,
 		},
+		Runtime: nil,
 	}
 
 	actualResult := getClonrVar(&templateDTO)
@@ -206,16 +214,19 @@ func Test_GivenValidInput_WhenGettingTemplateVariable_ReturnCorrectValue_getClon
 	expectedResult := "template-test"
 	fullyQualifiedPathKey := fmt.Sprintf("%s/%s", testFilePath, testName)
 	sampleMainTemplateMap := types.FileMap{fullyQualifiedPathKey: types.ClonrVarMap{testVar: expectedResult}}
-	templateArgument, _ := otto.ToValue(fmt.Sprintf("%s[%s]", testName, testVar))
+	var vm = goja.New()
+	templateArgument := fmt.Sprintf("%s[%s]", testName, testVar)
 
-	templateDTO := types.RuntimeClonrVarDTO{
-		FunctionCall: otto.FunctionCall{
-			ArgumentList: []otto.Value{templateArgument},
+	templateDTO := types.RuntimeDTO{
+		FunctionCall: goja.FunctionCall{
+			This:      nil,
+			Arguments: []goja.Value{vm.ToValue(templateArgument)},
 		},
 		FileProcessorSettings: types.FileProcessorSettings{
 			ConfigFilePath:  testFilePath,
 			MainTemplateMap: sampleMainTemplateMap,
 		},
+		Runtime: nil,
 	}
 
 	actualResult := getClonrVar(&templateDTO)
