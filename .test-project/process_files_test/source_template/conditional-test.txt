@@ -19,12 +19,9 @@
 %}/clonr}
 
 {@clonr{%
-    const returnResult = () => {
-        if (!getClonrBool("globals[falsy]")) {
-            return "but this is the one returned"
-        } else {
-            return "this was a global too"
-        }
+    if (!getClonrBool("globals[falsy]")) {
+        clonrResult = "but this is the one returned"
+    } else {
+        clonrResult = "this was a global too"
     }
-    clonrResult = returnResult()
 %}/clonr}
