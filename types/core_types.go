@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/robertkrimen/otto"
+	"github.com/dop251/goja"
 	"github.com/spf13/viper"
 )
 
@@ -29,8 +29,15 @@ type ConfigFieldMutator struct {
 	Callback      func(mutator *ConfigFieldMutator)
 }
 
-type RuntimeClonrVarDTO struct {
-	otto.FunctionCall
+type RuntimeDTO struct {
+	goja.FunctionCall
 	FileProcessorSettings
-	VM otto.Otto
+	*goja.Runtime
+}
+
+type ClonrVarDTO struct {
+	Args            []string
+	MainTemplateMap FileMap
+	GlobalsVarMap   ClonrVarMap
+	ConfigFilePath  string
 }
