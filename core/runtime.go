@@ -115,11 +115,12 @@ func ExtractScriptWithTags(fileAsString string) string {
 
 	if beginningIndex == -1 || endingIndex == -1 {
 		if beginningIndex != -1 {
-			utils.ExitIfError(utils.ThrowError("Something is wrong. Your file contains a closing script  tag, but not an opening one."))
+			utils.ExitIfError(utils.ThrowError("Something is wrong. Your file contains a closing script tag, but not an opening one."))
 		}
 		if endingIndex != -1 {
 			utils.ExitIfError(utils.ThrowError("Something is wrong. Your file contains an opening script tag, but not a closing one."))
 		}
+		// No script exists
 		return ""
 	}
 	script := fileAsString[beginningIndex : endingIndex+len(config.Global().ConditionalExprSuffix)]
