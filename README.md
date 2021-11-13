@@ -163,6 +163,7 @@ Note that the syntax is identical, EXCEPT prefix your variable name with `global
 It is recommended that you provide a regex for validating the end-user input for your template variables. 
 To add validation, simply add a `validation` key under the variable you would like to validate, and pass in a regex 
 for validation. 
+Be aware that the regex will be evaluated by golang, and must follow the [go regex spec](https://yourbasic.org/golang/regexp-cheat-sheet/).
 
 NOTE: If a default variable is provided, it is not checked against validation in this step.
 
@@ -195,23 +196,27 @@ If you want to get the value of a variable (you can access any variable defined 
 these methods are available:
 
 ##### `getClonrVar()`
-To use `getClonrVar()` pass in a string that matches this syntax: `"<template>[<variable>]"`.
+To use `getClonrVar()` pass in a string that matches this syntax: 
+```"<template>[<variable>]"```
 In this example replace `<template>` with either `globals` or the corresponding template name that you've chosen.
 (Note: do not use the full filepath of the template, just use the key-name of the template). 
 Replace `<variable>` with the variable that belongs to that template, or the global variable name. When using global variables 
 
 
-Example:
-```yaml
-templates:
-  some-file: 
-    location: /some-file.txt
-    variables:
-      some-variable:
-        question: you got this part by now.
-        validation: "[\\w]" // This would correspond to a "word" type regex.
+Example in context:
 ```
-
+{@clonr{%
+    const switchCase = getClonrVar("globals[some-var]") // This line will get the value that was provided for the global variable "some-var"
+    switch (switchCase) {
+    case "some-choice": // if the user had provided "some-choice" as the value for "some-var", this case would be executed
+        clonrResult = "whatever"
+        break;
+    case "some-other-choice": // if the user had provided "some-other-choice" as the value for "some-var", this case would be executed
+        clonrResult = "something-else"
+        break;
+    }
+%}/clonr}
+```
 
 ##### `getClonrBool()`
 This method works exactly the same as `getClonrVar()` except it explicitly returns a boolean, and not a string.
@@ -219,6 +224,7 @@ This is based on Golang's casting system, not javascript's.
 
 ##### `clonrResult`
 This is a protected variable. 
+Worth mentioning, you do not have to "initialize" `clonrResult`. You can simply set its value.
 Whether you are conditionally rendering a file, or conditionally rendering a block of text, you must set the result of 
 your logic to `clonrResult`. 
 
