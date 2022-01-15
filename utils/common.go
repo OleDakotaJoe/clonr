@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh/terminal"
+	"math"
 	"os"
 	"regexp"
 	"runtime"
@@ -67,7 +68,6 @@ func MultipleChoiceInputReader(prompt string, choices []string) string {
 	fmt.Println(prompt)
 	fmt.Print("Enter the number of your selection: ")
 
-	var resultIndex int
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	temp := scanner.Text()
@@ -76,17 +76,18 @@ func MultipleChoiceInputReader(prompt string, choices []string) string {
 		fmt.Printf("You must provide an Integer. You provided %s", temp)
 		fmt.Println()
 		return MultipleChoiceInputReader(prompt, choices)
-	} else {
-		inputValue := int(parsedInt)
-		if inputValue > len(choices) || inputValue <= 0 {
-			fmt.Println("Your choice was out of range.")
-			fmt.Println()
-			return MultipleChoiceInputReader(prompt, choices)
-		} else {
-			resultIndex = int(parsedInt) - 1
-		}
 	}
-
+	if !(math.MinInt < parsedInt && parsedInt <= math.MaxInt) {
+		fmt.Printf("Provided value (%s) is out of Integer limit\n", temp)
+		return MultipleChoiceInputReader(prompt, choices)
+	}
+	inputValue := int(parsedInt)
+	if inputValue > len(choices) || inputValue <= 0 {
+		fmt.Println("Your choice was out of range.")
+		fmt.Println()
+		return MultipleChoiceInputReader(prompt, choices)
+	}
+	resultIndex := inputValue - 1
 	return choices[resultIndex]
 }
 
