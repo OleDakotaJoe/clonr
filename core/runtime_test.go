@@ -5,6 +5,7 @@ import (
 	"github.com/dop251/goja"
 	"github.com/oledakotajoe/clonr/config"
 	"github.com/oledakotajoe/clonr/types"
+	"path/filepath"
 	"testing"
 )
 
@@ -158,7 +159,7 @@ func Test_GivenStringTrue_WhenGettingTemplateVariable_ReturnTrue_getClonrBool(t 
 	testName := "test-file.txt"
 	testVar := "template-var"
 	givenResult := "true"
-	fullyQualifiedPathKey := fmt.Sprintf("%s/%s", testFilePath, testName)
+	fullyQualifiedPathKey, _ := filepath.Abs(fmt.Sprintf("%s/%s", testFilePath, testName))
 	sampleMainTemplateMap := types.FileMap{fullyQualifiedPathKey: types.ClonrVarMap{testVar: givenResult}}
 
 	var vm = goja.New()
@@ -212,7 +213,7 @@ func Test_GivenValidInput_WhenGettingTemplateVariable_ReturnCorrectValue_getClon
 	testName := "test-file.txt"
 	testVar := "template-var"
 	expectedResult := "template-test"
-	fullyQualifiedPathKey := fmt.Sprintf("%s/%s", testFilePath, testName)
+	fullyQualifiedPathKey, _ := filepath.Abs(fmt.Sprintf("%s/%s", testFilePath, testName))
 	sampleMainTemplateMap := types.FileMap{fullyQualifiedPathKey: types.ClonrVarMap{testVar: expectedResult}}
 	var vm = goja.New()
 	templateArgument := fmt.Sprintf("%s[%s]", testName, testVar)
